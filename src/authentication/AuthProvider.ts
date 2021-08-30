@@ -7,14 +7,14 @@ import { PublicClientApplication, LogLevel, CryptoProvider } from '@azure/msal-n
 import { protocol } from 'electron';
 import path from 'path';
 import url from 'url';
-//import config from './application.config'
+import config from './application.config'
 
 /**
  * To demonstrate best security practices, this Electron sample application makes use of 
  * a custom file protocol instead of a regular web (https://) redirect URI in order to 
  * handle the redirection step of the authorization flow, as suggested in the OAuth2.0 specification for Native Apps.
  */
-const CUSTOM_FILE_PROTOCOL_NAME = process.env.REDIRECT_URI!.split(':')[0];
+const CUSTOM_FILE_PROTOCOL_NAME = config.REDIRECT_URI.split(':')[0];
 
 /**
  * Configuration object to be passed to MSAL instance on creation. 
@@ -23,9 +23,9 @@ const CUSTOM_FILE_PROTOCOL_NAME = process.env.REDIRECT_URI!.split(':')[0];
  */
 const MSAL_CONFIG = {
     auth: {
-        clientId: process.env.CLIENT_ID!,
-        authority: `${process.env.AAD_ENDPOINT_HOST!}${process.env.TENANT_ID!}`,
-        redirectUri: process.env.REDIRECT_URI!,
+        clientId: config.CLIENT_ID,
+        authority: `${config.AAD_ENDPOINT_HOST}${config.TENANT_ID}`,
+        redirectUri: config.REDIRECT_URI,
     },
     system: {
         loggerOptions: {
@@ -66,7 +66,7 @@ class AuthProvider {
      */
     setRequestObjects() {
         const requestScopes =  ['user.read'];
-        const redirectUri = process.env.REDIRECT_URI!;
+        const redirectUri = config.REDIRECT_URI;
 
         this.authCodeUrlParams = {
             scopes: requestScopes,
