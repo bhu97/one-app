@@ -2,6 +2,8 @@ import Dexie from 'dexie';
 
 export class AppDatabase extends Dexie {
 
+    driveItems: Dexie.Table<IDriveItem, number>;
+
     constructor() {
 
         super("OneDatabase");
@@ -9,11 +11,19 @@ export class AppDatabase extends Dexie {
         var db = this;
 
         db.version(1).stores({
-            driveItems: '++id, firstName, lastName',
+            driveItems: driveItemsSchema,
+            users: usersSchema
         });
+
+        this.driveItems = this.table("driveItems");
     }
 }
 
+// Schemas for the table creation
+const driveItemsSchema = "++id, uniqueId, name, title, webUrl, serverRelativeUrl, timeLastModified, timeCreated, listItemId, listId, siteId, isDoclib, linkedFiles, linkedFolders, type, fileSize, fileExtension, timeDownloaded, downloadLocation"
+const usersSchema = "++id, version, country"
+
+// Interfaces for our DB Models
 export interface IDriveItem {
     id?: number;
     uniqueId: string;
@@ -53,12 +63,12 @@ export interface IUser {
 
 //do we really need this?
 // we should rather save favorites as json so updates don't lose favorites
-export interface IFavoriteGroup {
+// export interface IFavoriteGroup {
 
-}
+// }
 
-export interface IFavoriteItem {
+// export interface IFavoriteItem {
     
-}
+// }
 
 export var db = new AppDatabase();
