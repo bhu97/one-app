@@ -16,6 +16,8 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import AuthProvider from './../authentication/AuthProvider';
+import {ipcEvent} from './../utils/constants'
 
 export default class AppUpdater {
   constructor() {
@@ -26,6 +28,8 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+
+let authProvider = new AuthProvider()
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -116,8 +120,9 @@ const createWindow = async () => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
-  console.log("env: "+JSON.stringify(process.env));
-  
+  //console.log("env: "+JSON.stringify(process.env));
+  //saveTokenToStorage("hallo")
+
 };
 
 /**
@@ -139,3 +144,52 @@ app.on('activate', () => {
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow();
 });
+
+ipcMain.handle(ipcEvent.login, async() => {
+  console.log("login event");
+
+  const loginWindow = createModalWindow(mainWindow!)
+  const account = await authProvider.login(loginWindow);
+  const token = await authProvider.getToken(loginWindow, account);
+
+  console.log(mainWindow);
+  await saveTokenToStorage(token)
+  loginWindow.close();  
+
+  return token;
+})
+
+ipcMain.on(ipcEvent.refreshToken, async() => {
+  await authProvider.getTokenSilent({})
+})
+
+const saveTokenToStorage = async (token: string) => {
+  return await mainWindow?.webContents
+  .executeJavaScript(`localStorage.setItem("token", "${token}");`, true)
+}
+
+let _loginWindow: BrowserWindow | null;
+
+export function createModalWindow(mainWindow: BrowserWindow) {
+  console.log("create modal");
+
+  const modalWindow = new BrowserWindow({
+    parent: mainWindow,
+    width: 480,
+    height: 320,
+    webPreferences: {
+      enableRemoteModule: true,
+      nodeIntegration: true,
+    },
+  });
+
+  modalWindow.setMenuBarVisibility(false);
+
+  modalWindow.on('close', event => {
+    event.preventDefault();
+
+    modalWindow.hide();
+  });
+
+  return modalWindow;
+}

@@ -2,8 +2,18 @@ import React from 'react';
 import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
 import icon from '../../assets/icon.svg';
 import './App.global.css';
+import '../utils/global'
+import { useEffect } from 'react';
+import { CircularProgress, Dialog, DialogTitle, Divider, Typography } from '@material-ui/core';
+import { HomePage } from './pages/home';
+
+
 
 const Hello = () => {
+  // useEffect(()=>{
+  //   checkAuth()
+  // })
+
   return (
     <div>
       <div className="Hello">
@@ -35,17 +45,58 @@ const Hello = () => {
             Donate
           </button>
         </a>
+        <a
+          href="#"
+        >
+          <button type="button" onClick={() => {checkAuth()}}>
+            <span role="img" aria-label="books">
+              🙏
+            </span>
+            Open
+          </button>
+        </a>
       </div>
+      <SimpleDialog open={true}></SimpleDialog>
     </div>
   );
 };
+
+async function checkAuth() {
+  const token = window.localStorage.getItem("token")
+  if(token) {
+    console.log("got my token from storage:" + token)
+  } else {
+    const token = await window.electron.ipcRenderer.login({})
+    console.log("got my token from function: " + token)
+  }
+}
 
 export default function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/" component={Hello} />
+        <Route path="/" component={HomePage} />
       </Switch>
     </Router>
+  );
+}
+
+function SimpleDialog(props:any) {
+  const { onClose, selectedValue, open } = props;
+
+  const handleClose = () => {
+    onClose(selectedValue);
+  };
+
+  const handleListItemClick = (value:any) => {
+    onClose(value);
+  };
+
+  return (
+    <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+      <DialogTitle id="simple-dialog-title">Loading metadata</DialogTitle>
+      <CircularProgress />
+      <Typography>Please wait...</Typography>
+    </Dialog>
   );
 }

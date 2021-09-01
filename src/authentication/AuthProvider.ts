@@ -156,9 +156,7 @@ class AuthProvider {
     async getTokenSilent(currentAccount: any | null) {
         const account = currentAccount ? currentAccount : await this.getAccount()// alternativley: await msalTokenCache.getAccountByLocalId(localAccountId) if using localAccountId
         console.log("got an account: " + account)
-        const scopes = {
-            scopes: ['User.Read'],  
-          };
+;
         // Build silent request
         const silentRequest = {
             account: account,

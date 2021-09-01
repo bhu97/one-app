@@ -19,8 +19,8 @@ export default {
   // RESOURCES
   GRAPH_ME_ENDPOINT:"v1.0/me",
   GRAPH_MAIL_ENDPOINT:"v1.0/me/messages",
-  GRAPH_DELTA_ENDPOINT:"v1.0/delta",
-
+  GRAPH_DELTA_ENDPOINT:"v1.0/root?delta/$select=sharepointIds, title, name, webUrl, fields,parentReferenceIds",
+  GRAPH_DRIVEITEM_ENDPOINT:"v1.0/sites/ed68a410-1774-4cbd-91b8-e22403d0e3c6/lists/b6172375-d599-467b-8327-301b20dc3a06/items?$expand=fields, driveitem&$select=fields, id, contentType, id",
   // SCOPES
   GRAPH_SCOPES:"User.Read Sites.Read.All" 
 }

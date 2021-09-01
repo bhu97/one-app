@@ -16,15 +16,12 @@ async function callEndpointWithToken(endpoint: any, accessToken:any ) {
             Authorization: `Bearer ${accessToken}`
         }
     };
-
     console.log('Request made at: ' + new Date().toString());
-
     const response = await (await axios).default.get(endpoint, options);
-
     return response.data;
 }
 
-async function fetchNext(endpoint: string, accessToken:string, data:Array<any> ) {
+async function fetchNext(endpoint: string, accessToken:string, data:Array<any> ): Promise<any[]> {
 
     const response = await callEndpointWithToken(endpoint, accessToken)
     //console.log("response nextLink: "+ response["@odata.nextLink"])
@@ -37,10 +34,16 @@ async function fetchNext(endpoint: string, accessToken:string, data:Array<any> )
     }
 }
 
-async function fetchDelta(url: string, accessToken: string) {
+async function fetchDelta(url: string, accessToken: string): Promise<any[]> {
     let allResponses = Array<any>();
     const responses = await fetchNext(url, accessToken, allResponses)
     //console.log("all respones length: " + allResponses.length);
+    return responses
+}
+
+async function fetchAdditionalMetadata(accessToken: string): Promise<any[]> {
+    let url = ""
+    const responses = await fetchDelta(url, accessToken)
     return responses
 }
 
