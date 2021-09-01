@@ -7,7 +7,7 @@ import { PublicClientApplication, LogLevel, CryptoProvider } from '@azure/msal-n
 import { protocol } from 'electron';
 import path from 'path';
 import url from 'url';
-import config from './application.config'
+import config from '../utils/application.config.release'
 
 /**
  * To demonstrate best security practices, this Electron sample application makes use of 

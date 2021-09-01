@@ -24,6 +24,27 @@ async function callEndpointWithToken(endpoint: any, accessToken:any ) {
     return response.data;
 }
 
+async function fetchNext(endpoint: string, accessToken:string, data:Array<any> ) {
+
+    const response = await callEndpointWithToken(endpoint, accessToken)
+    //console.log("response nextLink: "+ response["@odata.nextLink"])
+    //console.log("response value: "+ response["value"])
+    if(response["@odata.nextLink"]) {
+        const nextData = await fetchNext(response["@odata.nextLink"], accessToken, [...data, response["value"]]) as Array<any>
+        return nextData 
+    } else {
+        return [...data, response["value"]] 
+    }
+}
+
+async function fetchDelta(url: string, accessToken: string) {
+    let allResponses = Array<any>();
+    const responses = await fetchNext(url, accessToken, allResponses)
+    //console.log("all respones length: " + allResponses.length);
+    return responses
+}
+
 module.exports = {
     callEndpointWithToken: callEndpointWithToken,
+    fetchDelta: fetchDelta
 };
