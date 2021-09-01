@@ -23,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
+    backgroundColor: "#555555"
   },
   drawerPaper: {
     width: drawerWidth,
@@ -46,11 +47,11 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ navigationEnabled }) => {
   const configuratorActive =
     matchPath(location.pathname, '/configurator') !== null;
   // const settingsActive = matchPath(location.pathname, '/settings') !== null;
-  const logsActive = matchPath(location.pathname, '/logs') !== null;
-  const serialMonitorActive =
-    matchPath(location.pathname, '/serial-monitor') !== null;
-  const supportActive = matchPath(location.pathname, '/support') !== null;
-
+  const favoritesActive = matchPath(location.pathname, '/favorites') !== null;
+  const cartActive =
+    matchPath(location.pathname, '/cart') !== null;
+  const settingsActive = matchPath(location.pathname, '/settings') !== null;
+  const homeActive = matchPath(location.pathname, '/home') !== null;
   return (
     <Drawer
       className={styles.drawer}
@@ -65,10 +66,10 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ navigationEnabled }) => {
         <List>
           <ListItem
             component={Link}
-            to="/configurator"
-            selected={configuratorActive}
+            to="/home"
+            selected={homeActive}
             className={styles.menuItem}
-            button
+            button 
             disabled={!navigationEnabled}
           >
             <ListItemIcon>
@@ -77,23 +78,10 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ navigationEnabled }) => {
             <ListItemText primary="Home" />
           </ListItem>
 
-          {/* <ListItem */}
-          {/*  component={Link} */}
-          {/*  to="/settings" */}
-          {/*  selected={settingsActive} */}
-          {/*  className={styles.menuItem} */}
-          {/*  button */}
-          {/* > */}
-          {/*  <ListItemIcon> */}
-          {/*    <SettingsIcon /> */}
-          {/*  </ListItemIcon> */}
-          {/*  <ListItemText primary="Settings" /> */}
-          {/* </ListItem> */}
-
           <ListItem
             component={Link}
-            to="/logs"
-            selected={logsActive}
+            to="/favorites"
+            selected={favoritesActive}
             className={styles.menuItem}
             button
             disabled={!navigationEnabled}
@@ -106,8 +94,8 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ navigationEnabled }) => {
 
           <ListItem
             component={Link}
-            to="/serial-monitor"
-            selected={serialMonitorActive}
+            to="/cart"
+            selected={cartActive}
             className={styles.menuItem}
             button
             disabled={!navigationEnabled}
@@ -120,8 +108,8 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ navigationEnabled }) => {
 
           <ListItem
             component={Link}
-            to="/support"
-            selected={supportActive}
+            to="/settings"
+            selected={settingsActive}
             className={styles.menuItem}
             button
             disabled={!navigationEnabled}

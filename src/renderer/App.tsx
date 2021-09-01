@@ -1,11 +1,12 @@
 import React from 'react';
-import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
+import { MemoryRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import icon from '../../assets/icon.svg';
 import './App.global.css';
 import '../utils/global'
 import { useEffect } from 'react';
-import { CircularProgress, Dialog, DialogTitle, Divider, Typography } from '@material-ui/core';
+import { CircularProgress, CssBaseline, Dialog, DialogTitle, Divider, ThemeProvider, Typography } from '@material-ui/core';
 import { HomePage } from './pages/home';
+import  theme from './theme';
 
 
 
@@ -73,11 +74,17 @@ async function checkAuth() {
 
 export default function App() {
   return (
-    <Router>
-      <Switch>
-        <Route path="/" component={HomePage} />
-      </Switch>
-    </Router>
+    <ThemeProvider theme={theme}>
+    <CssBaseline/>
+        <Router> 
+        <Switch>
+          <Route exact path="/">
+            <Redirect to="/home"/>
+          </Route> 
+          <Route path="/home" component={HomePage} />
+        </Switch>
+      </Router>
+    </ThemeProvider>
   );
 }
 
