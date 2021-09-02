@@ -51,7 +51,11 @@ export class AppDatabase extends Dexie {
 
     async rootItemsForCountry(country: string) : Promise<Array<IDriveItem> | null> {
         const items = await db.driveItems.where(kCountryRoot(country)).toArray()
-        return items
+        if (items[0]) {
+            let rootItem = items[0] as DriveItem
+            return await this.allItems(rootItem.uniqueId)
+        }
+        return []
     }
 }
 

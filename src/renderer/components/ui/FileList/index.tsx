@@ -14,21 +14,24 @@ import { IDriveItem } from "database/database";
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
-      backgroundColor: theme.palette.background.paper
+      backgroundColor: theme.palette.background.paper,
+      width: '240px',
+      minWidth: '240px'
     },
   })
 );
 
 type FileListProps = {
   items: Array<IDriveItem>,
-  selectedItem: (id:string) => void
+  selectedItem: (id:string, index:number) => void,
+  index: number
 }
 
-const FileList: FC <FileListProps> = ({items, selectedItem}) => {
+const FileList: FC <FileListProps> = ({items, selectedItem, index}) => {
   const classes = useStyles();
 
-  const pressedItem = (id:string) => {
-    selectedItem(id);
+  const pressedItem = (uniqueId:string, index:number) => {
+    selectedItem(uniqueId, index);
   };
 
   return (
@@ -40,10 +43,10 @@ const FileList: FC <FileListProps> = ({items, selectedItem}) => {
               key={item.uniqueId}
               button
               onClick={() => {
-                pressedItem(item.uniqueId);
+                pressedItem(item.uniqueId, index);
               }}
             >
-              <ListItemText primary={item} />
+              <ListItemText primary={item.name} />
               <ListItemSecondaryAction>
                 <IconButton edge="end" aria-label="comments">
                   &gt;

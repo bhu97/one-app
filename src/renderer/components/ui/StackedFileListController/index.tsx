@@ -26,58 +26,58 @@ type StackedFileListControllerProps = {
 }
 const StackedFileListController:FC<StackedFileListControllerProps> = () => {
   useEffect(() => {
-    async function getData() {
-      let items = await db.rootItemsForCountry("DEU") ?? []
-      console.log("items: "+items);
-      
-      setState({items: [...state.items, items]})
-    }
-    getData()
+    getRootData()
   }, [])
 
-  var items:Array<Array<IDriveItem>> = [];
-  const addColumn = () => {
-    let array = [
-      makeid(5),
-      makeid(5),
-      makeid(5),
-      makeid(5),
-      makeid(5),
-      makeid(5)
-    ];
-    //items = [...items, array];
-    //setState({ items: [...state.items, array] });
+  //get the first level data
+  //this happens by country code
+  //TODO: change country code to dynamic value
+  const getRootData = async() => {
+    let items = await db.rootItemsForCountry("DEU") ?? []     
+    setState({items: [...state.items, items]})
+  }
+
+  //get all drive items for a parent unique id
+  const getFileListData = async (uniqueId: string) => {
+    let items = await db.allItems(uniqueId) ?? []
+    setState({items: [...state.items, items]})
+  }
+
+  const addColumn = async (uniqueId: string) => {
+    await getFileListData(uniqueId)
+  };
+
+  const popColumn = (uniqueId: string, index: number) => {
+    console.log("pop column to index "+ state.items.length)
+    setState({ 
+      items: [...state.items.slice(0,index)]
+    });
+    //addColumn(uniqueId)
     console.log(state.items);
   };
 
-  const [state, setState] = useState({ items: items });
+  const [state, setState] = useState({ items: Array<DriveItem>() });
 
   const classes = useStyles();
 
-  const selectedItem = (item: string) => {
-    addColumn();
+  const selectedItem = (item: string, index: number) => {
+    if (index >= state.items.length-1) {
+      addColumn(item);
+    } else {
+      popColumn(item, index);
+      addColumn(item);
+    }
     //props.update();
   };
 
   return (
     <div className={classes.fl}>
-      <Typography>FileListController</Typography>
-      {state.items.map((items) => {
-        return <FileList items={items} selectedItem={selectedItem}></FileList>
+      {state.items.map((items, index) => {
+        
+        return <FileList items={items} selectedItem={selectedItem} index={index}></FileList>
       })}
     </div>
   );
 };
-
-function makeid(length:number) {
-  var result = "";
-  var characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
 
 export default StackedFileListController;

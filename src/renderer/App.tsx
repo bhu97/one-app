@@ -5,7 +5,7 @@ import './App.global.css';
 import '../utils/global'
 import { useEffect } from 'react';
 import { CircularProgress, CssBaseline, Dialog, DialogTitle, Divider, ThemeProvider, Typography } from '@material-ui/core';
-import { HomePage } from './pages/home';
+import  HomePage  from './pages/home'
 import  theme from './theme';
 import { LoadingDialog } from './components/ui/Loading';
 
