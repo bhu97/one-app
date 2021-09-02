@@ -15,9 +15,12 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       backgroundColor: theme.palette.background.paper,
-      width: '240px',
+      maxWidth: '240px',
       minWidth: '240px'
     },
+    listItemText: {
+      whiteSpace: "nowrap"
+    }
   })
 );
 
@@ -38,7 +41,7 @@ const FileList: FC <FileListProps> = ({items, selectedItem, index}) => {
     <List className={classes.root}>
       {items.map((item) => {
         return (
-          <Fragment>
+          <Fragment key={item.uniqueId}>
             <ListItem
               key={item.uniqueId}
               button
@@ -46,7 +49,7 @@ const FileList: FC <FileListProps> = ({items, selectedItem, index}) => {
                 pressedItem(item.uniqueId, index);
               }}
             >
-              <ListItemText primary={item.name} />
+              <ListItemText className={classes.listItemText} primary={item.name}  />
               <ListItemSecondaryAction>
                 <IconButton edge="end" aria-label="comments">
                   &gt;

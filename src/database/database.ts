@@ -20,7 +20,7 @@ export class AppDatabase extends Dexie {
 
     async save(items: Array<IDriveItem>): Promise<number> {
         await this.removeAllDriveItems()
-        return await db.driveItems.bulkAdd(items)
+        return await db.driveItems.bulkPut(items)
     }
 
     async saveMetaData(items: Array<IListItem>) {

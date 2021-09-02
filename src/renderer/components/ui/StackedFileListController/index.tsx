@@ -50,13 +50,12 @@ const StackedFileListController:FC<StackedFileListControllerProps> = () => {
   const popColumn = (uniqueId: string, index: number) => {
     console.log("pop column to index "+ state.items.length)
     setState({ 
-      items: [...state.items.slice(0,index)]
+      items: [...state.items.slice(0,index+1)]
     });
-    //addColumn(uniqueId)
-    console.log(state.items);
+    console.log([...state.items.slice(0,index+1)]);
   };
 
-  const [state, setState] = useState({ items: Array<DriveItem>() });
+  const [state, setState] = useState({ items: Array<Array<IDriveItem>>() });
 
   const classes = useStyles();
 
@@ -65,16 +64,15 @@ const StackedFileListController:FC<StackedFileListControllerProps> = () => {
       addColumn(item);
     } else {
       popColumn(item, index);
-      addColumn(item);
+      //TODO: fix this bug
+      //addColumn(item);
     }
-    //props.update();
   };
 
   return (
     <div className={classes.fl}>
       {state.items.map((items, index) => {
-        
-        return <FileList items={items} selectedItem={selectedItem} index={index}></FileList>
+        return <FileList key={index} items={items} selectedItem={selectedItem} index={index}></FileList>
       })}
     </div>
   );
