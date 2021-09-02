@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { CircularProgress, CssBaseline, Dialog, DialogTitle, Divider, ThemeProvider, Typography } from '@material-ui/core';
 import { HomePage } from './pages/home';
 import  theme from './theme';
+import { LoadingDialog } from './components/ui/Loading';
 
 
 
@@ -57,7 +58,7 @@ const Hello = () => {
           </button>
         </a>
       </div>
-      <SimpleDialog open={true}></SimpleDialog>
+      <LoadingDialog open={true}></LoadingDialog>
     </div>
   );
 };
@@ -82,28 +83,11 @@ export default function App() {
             <Redirect to="/home"/>
           </Route> 
           <Route path="/home" component={HomePage} />
+          <Route path="/favorites" component={Hello} />
         </Switch>
       </Router>
     </ThemeProvider>
   );
 }
 
-function SimpleDialog(props:any) {
-  const { onClose, selectedValue, open } = props;
 
-  const handleClose = () => {
-    onClose(selectedValue);
-  };
-
-  const handleListItemClick = (value:any) => {
-    onClose(value);
-  };
-
-  return (
-    <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-      <DialogTitle id="simple-dialog-title">Loading metadata</DialogTitle>
-      <CircularProgress />
-      <Typography>Please wait...</Typography>
-    </Dialog>
-  );
-}

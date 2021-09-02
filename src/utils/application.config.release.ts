@@ -8,6 +8,7 @@ export default {
   //Configs regarding the file list paths
   ROOT_PATH: "/teams/FMETS0269990/",
   FIRST_LEVEL_PATH: "/teams/FMETS0269990/Shared%20Documents/",
+  ROOT_WEB_URL: "https://fresenius.sharepoint.com/teams/FMETS0269990/Shared%20Documents/",
 
   //Configuration
   REDIRECT_URI:"preisfindungstool://auth",
