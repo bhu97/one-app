@@ -52,6 +52,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ navigationEnabled }) => {
     matchPath(location.pathname, '/cart') !== null;
   const settingsActive = matchPath(location.pathname, '/settings') !== null;
   const homeActive = matchPath(location.pathname, '/home') !== null;
+  const devsettingsActive = matchPath(location.pathname, '/settings') !== null;
   return (
     <Drawer
       className={styles.drawer}
@@ -118,6 +119,20 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ navigationEnabled }) => {
               <SettingsIcon />
             </ListItemIcon>
             <ListItemText primary="Settings" />
+          </ListItem>
+
+          <ListItem
+            component={Link}
+            to="/devsettings"
+            selected={devsettingsActive}
+            className={styles.menuItem}
+            button
+            disabled={!navigationEnabled}
+          >
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Dev Settings" />
           </ListItem>
         </List>
       </div>

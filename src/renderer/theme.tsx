@@ -9,12 +9,15 @@ export const themeConfig: ThemeOptions = {
   },
   palette: {
     primary: {
-      main: '#90caf9',
+      main: '#0D2754',
     },
     secondary: {
       main: '#f48fb1',
     },
-  },
+    background: {
+      default: '#F3F5FB'
+    }
+  }
 };
 
 export default createTheme(themeConfig);

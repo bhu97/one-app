@@ -8,6 +8,7 @@ import { CircularProgress, CssBaseline, Dialog, DialogTitle, Divider, ThemeProvi
 import  HomePage  from './pages/home'
 import  theme from './theme';
 import { LoadingDialog } from './components/ui/Loading';
+import DevSettings from './pages/DevSettings';
 
 
 
@@ -84,6 +85,7 @@ export default function App() {
           </Route> 
           <Route path="/home" component={HomePage} />
           <Route path="/favorites" component={Hello} />
+          <Route path="/devsettings" component={DevSettings} />
         </Switch>
       </Router>
     </ThemeProvider>

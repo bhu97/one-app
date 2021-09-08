@@ -3,11 +3,12 @@
  * Licensed under the MIT License.
  */
 
-import { PublicClientApplication, LogLevel, CryptoProvider } from '@azure/msal-node';
+import { PublicClientApplication, LogLevel, CryptoProvider, AuthenticationResult, SilentFlowRequest } from '@azure/msal-node';
 import { protocol } from 'electron';
 import path from 'path';
 import url from 'url';
 import config from '../utils/application.config.release'
+import dayjs from 'dayjs';
 
 /**
  * To demonstrate best security practices, this Electron sample application makes use of 
@@ -40,7 +41,7 @@ const MSAL_CONFIG = {
 
 class AuthProvider {
 
-    clientApplication: any;
+    clientApplication: PublicClientApplication;
     cryptoProvider:any;
     authCodeUrlParams:any;
     authCodeRequest:any;
@@ -98,15 +99,15 @@ class AuthProvider {
         }
     }
 
-    async getToken(authWindow:any, tokenRequest:any) {
+    async getToken(authWindow:any, tokenRequest:any): Promise<string | null> {
         let authResponse;
         
         authResponse = await this.getTokenInteractive(authWindow, tokenRequest);
         
-        return authResponse.accessToken || null;
+        return authResponse?.accessToken ?? null;
     }
 
-    async getTokenInteractive(authWindow:any, tokenRequest:any) {
+    async getTokenInteractive(authWindow:any, tokenRequest:any): Promise<AuthenticationResult | null> {
 
         /**
          * Proof Key for Code Exchange (PKCE) Setup
@@ -153,24 +154,18 @@ class AuthProvider {
         return authResponse;
     }
 
-    async getTokenSilent(currentAccount: any | null) {
-        const account = currentAccount ? currentAccount : await this.getAccount()// alternativley: await msalTokenCache.getAccountByLocalId(localAccountId) if using localAccountId
-        console.log("got an account: " + account)
-;
-        // Build silent request
-        const silentRequest = {
-            account: account,
-            ...this.authCodeRequest,
+    async getTokenSilent(currentAccount: AuthenticationResult | null): Promise<AuthenticationResult | null> {
+       // alternativley: await msalTokenCache.getAccountByLocalId(localAccountId) if using localAccountId
+       ;
+       // Build silent request
+       const silentRequest:SilentFlowRequest = {
+           account: currentAccount!.account!,
+           scopes: ['user.read']
         };
-
-        try {
-            const response = await this.clientApplication.acquireTokenSilent(silentRequest)
-            console.log("silent token response: " + JSON.stringify(response));
-        } catch(e) {
-            console.log(e);
-            
-        }
+        console.log("got an account: " + silentRequest)
         
+        const response = await this.clientApplication.acquireTokenSilent(silentRequest)
+        return response
     }
 
     async listenForAuthCode(navigateUrl:any, authWindow:any) {
@@ -232,5 +227,11 @@ class AuthProvider {
         }
     }
 }
+
+export const isAuthorizationExpired = (authorization: AuthenticationResult): Boolean => {
+    const expirationTimestamp = dayjs(authorization.expiresOn,).subtract(10, "minutes");
+    const currentTimestamp = dayjs();
+    return currentTimestamp.isAfter(expirationTimestamp) ? true : false;
+};
 
 export default AuthProvider;

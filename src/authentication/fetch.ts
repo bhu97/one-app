@@ -4,7 +4,7 @@
  */
 
 const axios = import('axios');
-
+import config from './../utils/application.config.release'
 /**
  * Makes an Authorization 'Bearer' request with the given accessToken to the given endpoint.
  * @param endpoint 
@@ -34,20 +34,27 @@ async function fetchNext(endpoint: string, accessToken:string, data:Array<any> )
     }
 }
 
-async function fetchDelta(url: string, accessToken: string): Promise<any[]> {
+async function fetchDelta(accessToken: string): Promise<any[]> {
+    let url = config.GRAPH_DELTA_ENDPOINT;
+    const responses = await fetchData(url, accessToken);
+    return responses;
+}
+
+async function fetchData(url: string, accessToken: string): Promise<any[]> {
     let allResponses = Array<any>();
     const responses = await fetchNext(url, accessToken, allResponses)
     //console.log("all respones length: " + allResponses.length);
-    return responses
+    return responses 
 }
 
 async function fetchAdditionalMetadata(accessToken: string): Promise<any[]> {
-    let url = ""
-    const responses = await fetchDelta(url, accessToken)
+    let url = config.GRAPH_DRIVEITEM_ENDPOINT
+    const responses = await fetchData(url, accessToken)
     return responses
 }
 
 module.exports = {
     callEndpointWithToken: callEndpointWithToken,
-    fetchDelta: fetchDelta
+    fetchDelta: fetchDelta,
+    fetchAdditionalMetadata: fetchAdditionalMetadata
 };

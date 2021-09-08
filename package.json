@@ -250,6 +250,7 @@
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",
     "axios": "^0.21.1",
+    "dayjs": "^1.10.6",
     "dexie": "^3.0.3",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.3.5",

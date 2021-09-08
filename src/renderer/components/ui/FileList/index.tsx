@@ -15,8 +15,8 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       backgroundColor: theme.palette.background.paper,
-      maxWidth: '240px',
-      minWidth: '240px'
+      maxWidth: '340px',
+      minWidth: '340px'
     },
     listItemText: {
       whiteSpace: "nowrap"

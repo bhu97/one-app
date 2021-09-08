@@ -18,6 +18,7 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import AuthProvider from './../authentication/AuthProvider';
 import {ipcEvent} from './../utils/constants'
+import { AuthenticationResult } from '@azure/msal-common';
 
 export default class AppUpdater {
   constructor() {
@@ -148,19 +149,28 @@ app.on('activate', () => {
 ipcMain.handle(ipcEvent.login, async() => {
   console.log("login event");
 
-  const loginWindow = createModalWindow(mainWindow!)
+  const loginWindow = createModalWindow(mainWindow!);
   const account = await authProvider.login(loginWindow);
-  const token = await authProvider.getToken(loginWindow, account);
+  const token = await authProvider.getTokenSilent(account);
 
   console.log(mainWindow);
-  await saveTokenToStorage(token)
+  //TODO: make a storage provider
+  if (token) {
+    await saveTokenToStorage(token.accessToken);
+    await saveAuthToStorage(token)
+  }
   loginWindow.close();  
 
   return token;
 })
 
-ipcMain.on(ipcEvent.refreshToken, async() => {
-  await authProvider.getTokenSilent({})
+ipcMain.handle(ipcEvent.refreshToken, async() => {
+  let account = await getAuthFromStorage();
+  if(account) {
+    let token = await authProvider.getTokenSilent(account);
+    return token;
+  }
+  return null;
 })
 
 const saveTokenToStorage = async (token: string) => {
@@ -168,15 +178,29 @@ const saveTokenToStorage = async (token: string) => {
   .executeJavaScript(`localStorage.setItem("token", "${token}");`, true)
 }
 
-let _loginWindow: BrowserWindow | null;
+const saveAuthToStorage = async (authorization: AuthenticationResult) => {
+  let auth = JSON.stringify(authorization)
+  return await mainWindow?.webContents
+  .executeJavaScript(`localStorage.setItem("authorization", JSON.stringify(${auth}))`, true)
+}
+
+const getAuthFromStorage = async (): Promise<AuthenticationResult | null> => {
+  const result = await mainWindow?.webContents
+  .executeJavaScript(`localStorage.getItem("authorization");`, true)
+    if (result) {
+      //console.log(JSON.parse(result) as AuthenticationResult);
+      return JSON.parse(result) as AuthenticationResult
+    }
+    return null
+}
 
 export function createModalWindow(mainWindow: BrowserWindow) {
   console.log("create modal");
 
   const modalWindow = new BrowserWindow({
     parent: mainWindow,
-    width: 480,
-    height: 320,
+    width: 1024,
+    height: 768,
     webPreferences: {
       enableRemoteModule: true,
       nodeIntegration: true,
