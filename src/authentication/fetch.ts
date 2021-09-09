@@ -5,12 +5,17 @@
 
 const axios = import('axios');
 import config from './../utils/application.config.release'
+import { responseToDriveItem, responseToListItem } from 'utils/object.mapping'
+import { IDriveItem, IListItem } from 'database/database';
+import { InsertEmoticon } from '@material-ui/icons';
+
+
 /**
  * Makes an Authorization 'Bearer' request with the given accessToken to the given endpoint.
  * @param endpoint 
  * @param accessToken 
  */
-async function callEndpointWithToken(endpoint: any, accessToken:any ) {
+const callEndpointWithToken = async(endpoint: any, accessToken:any ) => {
     const options = {
         headers: {
             Authorization: `Bearer ${accessToken}`
@@ -21,40 +26,50 @@ async function callEndpointWithToken(endpoint: any, accessToken:any ) {
     return response.data;
 }
 
-async function fetchNext(endpoint: string, accessToken:string, data:Array<any> ): Promise<any[]> {
+const fetchNext = async(endpoint: string, accessToken:string, data:Array<any> ): Promise<any[]> => {
 
     const response = await callEndpointWithToken(endpoint, accessToken)
     //console.log("response nextLink: "+ response["@odata.nextLink"])
     //console.log("response value: "+ response["value"])
+   
     if(response["@odata.nextLink"]) {
-        const nextData = await fetchNext(response["@odata.nextLink"], accessToken, [...data, response["value"]]) as Array<any>
+        const nextData = await fetchNext(response["@odata.nextLink"], accessToken, data.concat(response["value"])) as Array<any>
         return nextData 
     } else {
-        return [...data, response["value"]] 
+        console.log(response.value)
+        return data.concat(response["value"]) 
     }
 }
 
-async function fetchDelta(accessToken: string): Promise<any[]> {
+export const fetchDelta = async(accessToken: string): Promise<IDriveItem[]> => {
     let url = config.GRAPH_DELTA_ENDPOINT;
     const responses = await fetchData(url, accessToken);
-    return responses;
+
+    const flattenedResponses = responses.flat()
+    let driveItems = flattenedResponses.map(responseToDriveItem);
+
+    return driveItems;
 }
 
-async function fetchData(url: string, accessToken: string): Promise<any[]> {
+const fetchData = async(url: string, accessToken: string): Promise<any[]> => {
     let allResponses = Array<any>();
-    const responses = await fetchNext(url, accessToken, allResponses)
+    console.log("performing request: "+ url);
+    const responses = await fetchNext(url, accessToken, allResponses);
     //console.log("all respones length: " + allResponses.length);
     return responses 
 }
 
-async function fetchAdditionalMetadata(accessToken: string): Promise<any[]> {
+export async function fetchAdditionalMetadata(accessToken: string): Promise<IListItem[]> {
     let url = config.GRAPH_DRIVEITEM_ENDPOINT
     const responses = await fetchData(url, accessToken)
-    return responses
+    const flattenedResponses = responses.flat()
+    let listItems = flattenedResponses.map(responseToListItem);
+    
+    return listItems
 }
 
-module.exports = {
-    callEndpointWithToken: callEndpointWithToken,
-    fetchDelta: fetchDelta,
-    fetchAdditionalMetadata: fetchAdditionalMetadata
-};
+// export default {
+//     callEndpointWithToken: callEndpointWithToken,
+//     fetchDelta: fetchDelta,
+//     fetchAdditionalMetadata: fetchAdditionalMetadata
+// };

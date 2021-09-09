@@ -3,6 +3,7 @@ import config from './../utils/application.config.release'
 export class AppDatabase extends Dexie {
 
     driveItems: Dexie.Table<IDriveItem, number>;
+    users: Dexie.Table<IUser, number>;
 
     constructor() {
 
@@ -16,6 +17,7 @@ export class AppDatabase extends Dexie {
         });
 
         this.driveItems = this.table("driveItems");
+        this.users = this.table("users");
     }
 
     async save(items: Array<IDriveItem>): Promise<number> {
@@ -57,6 +59,35 @@ export class AppDatabase extends Dexie {
         }
         return []
     }
+
+    async createUser() {
+        const users = await db.users.where({id: "0"}).toArray()
+        if(users.length <= 0) {
+            await db.users.put({country: "", version: ""})
+        } 
+    }
+
+    async updateCountryVersion(country?:string, version?:string) {
+        let user = await this.getUser()
+        if (user) {
+            user.country = country ? country : user.country;
+            user.version = version ? version : user.version;
+            await db.users.update(user, user);
+        }
+    }
+
+    async getUser(): Promise<IUser | null> {
+        const user = await db.users.where({id: "0"}).toArray()
+        return user[0]
+    }
+
+    async getCurrentCountry():Promise<string | null> {
+        return (await this.getUser())?.country ?? null
+    }
+
+    async getCurrentVersion():Promise<string | null> {
+        return (await this.getUser())?.version ?? null
+    } 
 }
 
 //keys for where clauses
@@ -142,23 +173,25 @@ export class DriveItem implements IDriveItem {
     parentReferenceId?: string;
 
   constructor(item:any) {
+    console.log("drive item id:"+ item.id)
+
     this.uniqueId = item.id as string
-    this.webUrl = item.webUrl;
-    this.name = item.name
-    this.serverRelativeUrl = item.serverRelativeUrl
-    this.timeLastModified = item.timeLastModified
-    this.timeCreated = item.timeCreated
-    this.listItemId = item.listItemId
-    this.listId = item.listId
-    this.siteId = item.siteId
-    this.isDoclib = item.type === "DocumentSet"
-    this.title = item.title;
-    this.parentReferenceId = item.parentReference.id
+    this.webUrl = item.webUrl ?? "";
+    this.name = item.name ?? ""
+    this.serverRelativeUrl = item?.serverRelativeUrl ?? ""
+    this.timeLastModified = item?.timeLastModified ?? ""
+    this.timeCreated = item?.timeCreated ?? ""
+    this.listItemId = item?.listItemId ?? ""
+    this.listId = item?.listId ?? ""
+    this.siteId = item?.siteId ?? ""
+    this.isDoclib = item?.type === "DocumentSet"
+    this.title = item?.title ?? "" 
+    this.parentReferenceId = item?.parentReference?.id ?? ""
     
     this.type = DriveItemType.UNKNOWN
 
     //file specific
-    this.fileSize = item.size
+    this.fileSize = item?.size ?? 0
     //enable this in node
     //this.fileExtension = path.extname(item.file.webUrl)
   }

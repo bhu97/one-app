@@ -167,7 +167,7 @@ ipcMain.handle(ipcEvent.login, async() => {
 ipcMain.handle(ipcEvent.refreshToken, async() => {
   let account = await getAuthFromStorage();
   if(account) {
-    let token = await authProvider.getTokenSilent(account);
+    let token = await authProvider.getTokenSilent(account.account);
     return token;
   }
   return null;

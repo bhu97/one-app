@@ -7,7 +7,8 @@ import Sidebar from 'renderer/components/ui/Sidebar';
 import { LoadingDialog } from 'renderer/components/ui/Loading';
 
 import { AuthenticationResult } from '@azure/msal-node';
-import  './../../../authentication/fetch'
+import {fetchAdditionalMetadata, fetchDelta} from './../../../authentication/fetch'
+import { db } from 'database/database';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -77,7 +78,7 @@ const DevSettings: FC<DevSettingsProps> = () => {
 
   const login = async() => {
     let token = await window.electron.ipcRenderer.login("")
-    console.log("token: "+ token);
+    console.log("finished my login: "+ token);
   }
 
   const refresh = async() => {
@@ -104,7 +105,23 @@ const DevSettings: FC<DevSettingsProps> = () => {
   }
 
   const getDelta = async() => {
-    fetchDelta("")
+    const token = localStorage.getItem("token")
+    if(token) {
+
+      //FETCH DETLA
+      let deltaData = await fetchDelta(token);
+      console.log(deltaData);
+      await db.save(deltaData);
+
+      //FETCH METADATA
+      let metaData = await fetchAdditionalMetadata(token);
+      await db.saveMetaData(metaData);
+
+      //CREATE USER
+      //SET COUNTRY/VERSION
+
+      //FETCH WHITELISTS
+    }
   }
     return (
       <Fragment>
@@ -134,7 +151,7 @@ const DevSettings: FC<DevSettingsProps> = () => {
         </ListItem>        
 
         <ListItem button>
-          <ListItemText primary="Download files" secondary="nothing here" />
+          <ListItemText primary="Get delta" onClick={() => {getDelta()}}/>
         </ListItem>   
 
         <ListItem button>

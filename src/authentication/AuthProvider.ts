@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { PublicClientApplication, LogLevel, CryptoProvider, AuthenticationResult, SilentFlowRequest } from '@azure/msal-node';
+import { PublicClientApplication, LogLevel, CryptoProvider, AuthenticationResult, SilentFlowRequest, AccountInfo } from '@azure/msal-node';
 import { protocol } from 'electron';
 import path from 'path';
 import url from 'url';
@@ -154,12 +154,13 @@ class AuthProvider {
         return authResponse;
     }
 
-    async getTokenSilent(currentAccount: AuthenticationResult | null): Promise<AuthenticationResult | null> {
+    async getTokenSilent(currentAccount: AccountInfo | null): Promise<AuthenticationResult | null> {
        // alternativley: await msalTokenCache.getAccountByLocalId(localAccountId) if using localAccountId
-       ;
+       let account = await this.getAccount() ?? currentAccount;
+       if(!account) { return null}
        // Build silent request
        const silentRequest:SilentFlowRequest = {
-           account: currentAccount!.account!,
+           account: account!,
            scopes: ['user.read']
         };
         console.log("got an account: " + silentRequest)
