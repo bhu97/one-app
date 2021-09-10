@@ -1,4 +1,4 @@
-import { Button, Card, CardActions, CardContent, ListItem, ListItemText, makeStyles, Typography} from '@material-ui/core';
+import { Button, Card, CardActions, CardContent, FormControl, InputLabel, ListItem, ListItemText, makeStyles, MenuItem, Select, Typography} from '@material-ui/core';
 
 import React, { FC, Fragment, useEffect, useState } from 'react';
 import Sidebar from 'renderer/components/ui/Sidebar';
@@ -8,7 +8,7 @@ import { LoadingDialog } from 'renderer/components/ui/Loading';
 
 import { AuthenticationResult } from '@azure/msal-node';
 import {fetchAdditionalMetadata, fetchDelta} from './../../../authentication/fetch'
-import { db } from 'database/database';
+import { CountryVersion, db } from 'database/database';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,7 +51,10 @@ type DevSettingsProps = {
 
 type DevSettingsState = {
   isLoading: boolean,
-  token: string
+  token: string,
+  countries: string[],
+  selectedCountry: string,
+  version: string
 }
 
 const DevSettings: FC<DevSettingsProps> = () => {
@@ -72,9 +75,11 @@ const DevSettings: FC<DevSettingsProps> = () => {
   
   useEffect(() => {
     //setupDummyData()
+    loadCountries()
+    loadCurrentUser()
   }, [])
   const classes = useStyles();
-  const [state, setState] = useState({isLoading: false, token: ""})
+  const [state, setState] = useState<DevSettingsState>({isLoading: false, token: "", countries: [], selectedCountry: "", version: "none"})
 
   const login = async() => {
     let token = await window.electron.ipcRenderer.login("")
@@ -123,6 +128,29 @@ const DevSettings: FC<DevSettingsProps> = () => {
       //FETCH WHITELISTS
     }
   }
+
+  const loadCountries = async() => {
+    const allCountries = await db.getAllAvailableCountries()
+    if(allCountries) {
+      setState({...state, countries: allCountries})
+    }
+    console.log(allCountries);
+  }
+
+  const loadCurrentUser = async() => {
+    const user = await db.getUser()
+    if (user) {
+      console.log(CountryVersion[parseInt(user.version)])
+      setState({...state, version: CountryVersion[parseInt(user.version)], selectedCountry: user.country});
+    }
+  }
+
+  const selectedCountry = async(country: string) => {
+    console.log("seleccted country: "+country);
+    setState({...state, selectedCountry: country});
+    await db.selectCurrentCountry(country);
+    await loadCurrentUser();
+  }
     return (
       <Fragment>
       <main className={classes.root}>
@@ -157,6 +185,28 @@ const DevSettings: FC<DevSettingsProps> = () => {
         <ListItem button>
           <ListItemText primary="Save" onClick={() => {save()}}/>
         </ListItem>   
+
+        <ListItem button>
+          <ListItemText primary="Get countries" onClick={() => {loadCountries()}}/>
+        </ListItem>  
+
+        <FormControl >
+        <InputLabel id="demo-simple-select-label">Country</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={state.selectedCountry}
+          onChange={(e) => { selectedCountry(e.target.value as string ?? "")}}
+        >
+          {
+            state.countries.map(country => <MenuItem value={country}>{country}</MenuItem>)
+          }
+        </Select>
+      </FormControl>
+      <ListItem>
+          <ListItemText primary="Selected Country and Version" secondary={`${state.selectedCountry} / ${state.version} `} />
+        </ListItem>  
+
         </div>
       </main>
        <LoadingDialog open={state.isLoading}></LoadingDialog>

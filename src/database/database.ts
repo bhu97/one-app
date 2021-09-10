@@ -4,6 +4,9 @@ export class AppDatabase extends Dexie {
 
     driveItems: Dexie.Table<IDriveItem, number>;
     users: Dexie.Table<IUser, number>;
+    favoriteGroups: Dexie.Table<IFavoriteGroup, number>;
+    favorites: Dexie.Table<IFavorite, number>;
+    whitelists: Dexie.Table<IWhitelist, number>;
 
     constructor() {
 
@@ -13,11 +16,17 @@ export class AppDatabase extends Dexie {
 
         db.version(1).stores({
             driveItems: driveItemsSchema,
-            users: usersSchema
+            users: usersSchema,
+            favoriteGroups: favoriteGroupSchema,
+            favorites: favoriteSchema,
+            whitelists: whitelistsSchema
         });
 
         this.driveItems = this.table("driveItems");
         this.users = this.table("users");
+        this.favoriteGroups = this.table("favoriteGroups");
+        this.favorites = this.table("favorites");
+        this.whitelists = this.table("whitelists");
     }
 
     async save(items: Array<IDriveItem>): Promise<number> {
@@ -67,17 +76,51 @@ export class AppDatabase extends Dexie {
         } 
     }
 
-    async updateCountryVersion(country?:string, version?:string) {
-        let user = await this.getUser()
-        if (user) {
-            user.country = country ? country : user.country;
-            user.version = version ? version : user.version;
-            await db.users.update(user, user);
+    async updateCountryVersion(country?:string, version?:string): Promise<any> {
+        let user = await this.getUser() 
+        if (!user) {
+            user = new User(country ?? "", version ?? "")
+        }
+        user.id = 0;
+        user.country = country ? country : user.country;
+        user.version = version ? version : user.version;
+        return await db.users.put(user);
+    }
+
+    async selectCurrentCountry(country: string): Promise<void> {
+        const version = await this.versionForCountry(country)
+        if (version != CountryVersion.none) {
+            await this.updateCountryVersion(country, version.toString())
         }
     }
 
+    async versionForCountry(country:string): Promise<CountryVersion> {
+        const rootDriveItems = await this.rootItems();
+        if (rootDriveItems) {
+            const driveItemForCountry = await rootDriveItems.filter(driveItem => driveItem.name! === country)
+            if (driveItemForCountry[0]) {
+                const driveItemsInCountryFolder = await this.allItems(driveItemForCountry[0].uniqueId)
+                if(driveItemsInCountryFolder) {
+                    const foundFlex = driveItemsInCountryFolder.filter(driveItem => driveItem.name! === ".flex").length > 0
+                    if (foundFlex) {
+                        return CountryVersion.flex
+                    }
+                    const foundLight = driveItemsInCountryFolder.filter(driveItem => driveItem.name! === ".light").length > 0
+                    if (foundLight) {
+                        return CountryVersion.light
+                    } 
+
+                    return CountryVersion.none
+                }
+            } 
+        }
+        return CountryVersion.none         
+    }
+
+   
+
     async getUser(): Promise<IUser | null> {
-        const user = await db.users.where({id: "0"}).toArray()
+        const user = await db.users.where({id: 0}).toArray()
         return user[0]
     }
 
@@ -87,6 +130,19 @@ export class AppDatabase extends Dexie {
 
     async getCurrentVersion():Promise<string | null> {
         return (await this.getUser())?.version ?? null
+    } 
+
+    async getAllWhitelistUrls() {
+        await db.driveItems.where("name == '.whitelist'")
+    }
+
+    async getAllAvailableCountries(): Promise<string[] | null> {
+        const driveItems = await this.rootItems()
+        const driveItemsNoMaster = driveItems?.filter(driveItem => driveItem.name! !== 'master')
+        if (driveItemsNoMaster) {
+            return driveItemsNoMaster?.flatMap(driveItem => driveItem.name!)
+        }
+        return null
     } 
 }
 
@@ -103,12 +159,12 @@ const kCountryRoot = (country: string) => {
     }
 }
 
-
-
 // Schemas for the table creation
 const driveItemsSchema = "uniqueId, name, title, webUrl, serverRelativeUrl, timeLastModified, timeCreated, listItemId, listId, siteId, isDoclib, linkedFiles, linkedFolders, type, fileSize, fileExtension, timeDownloaded, downloadLocation, parentReferenceId"
 const usersSchema = "++id, version, country"
-
+const favoriteGroupSchema = "++id, name"
+const favoriteSchema = "++id, favoriteGroupId, uniqueId"
+const whitelistsSchema = "++id, country, content"
 
 // Interfaces for our DB Models
 export interface IDriveItem {
@@ -148,7 +204,35 @@ export interface IUser {
     country: string
 }
 
+export enum CountryVersion {
+    flex,
+    light,
+    none
+}
 
+export interface IFavoriteGroup {
+    id: number,
+    name: string
+}
+export interface IWhitelist {
+    id?: number,
+    country: string,
+    content: string
+}
+export interface IFavorite {
+    id: number,
+    favoriteGroupId: number,
+    uniqueId: string
+}
+export class User implements IUser {
+    id?: number;
+    country: string; 
+    version: string;
+    constructor(country: string, version: string) {
+        this.country = country;
+        this.version = version;
+    }
+}
 
 export class DriveItem implements IDriveItem {
   uniqueId: string;
