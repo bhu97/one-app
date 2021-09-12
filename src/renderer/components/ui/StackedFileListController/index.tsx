@@ -33,7 +33,9 @@ const StackedFileListController:FC<StackedFileListControllerProps> = () => {
   //this happens by country code
   //TODO: change country code to dynamic value
   const getRootData = async() => {
-    let items = await db.rootItemsForCountry("DEU") ?? []     
+    let items = await db.rootItemsForCountry("master") ?? [] 
+    console.log(items);
+        
     setState({items: [...state.items, items]})
   }
 

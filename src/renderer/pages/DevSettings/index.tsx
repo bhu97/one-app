@@ -7,7 +7,7 @@ import Sidebar from 'renderer/components/ui/Sidebar';
 import { LoadingDialog } from 'renderer/components/ui/Loading';
 
 import { AuthenticationResult } from '@azure/msal-node';
-import {fetchAdditionalMetadata, fetchDelta} from './../../../authentication/fetch'
+import {fakeFetchWhitelists, fetchAdditionalMetadata, fetchDelta, fetchWhitelists} from './../../../authentication/fetch'
 import { CountryVersion, db } from 'database/database';
 
 const useStyles = makeStyles((theme) => ({
@@ -113,7 +113,8 @@ const DevSettings: FC<DevSettingsProps> = () => {
     const token = localStorage.getItem("token")
     if(token) {
 
-      //FETCH DETLA
+      try {
+        //FETCH DETLA
       let deltaData = await fetchDelta(token);
       console.log(deltaData);
       await db.save(deltaData);
@@ -124,8 +125,13 @@ const DevSettings: FC<DevSettingsProps> = () => {
 
       //CREATE USER
       //SET COUNTRY/VERSION
+      await db.createUserIfEmpty()
 
       //FETCH WHITELISTS
+      } catch (error) {
+        console.log(error);
+      }
+      
     }
   }
 
@@ -150,6 +156,29 @@ const DevSettings: FC<DevSettingsProps> = () => {
     setState({...state, selectedCountry: country});
     await db.selectCurrentCountry(country);
     await loadCurrentUser();
+  }
+
+  const loadWhitelists = async() => {
+    const token = localStorage.getItem("token")
+    //const whitelistUrls = await db.getAllWhitelistUrls()
+    //console.log(whitelistUrls);
+
+    const whitelists = await fakeFetchWhitelists();
+    console.log(whitelists);
+    
+    db.saveWhitelists(whitelists);
+    
+    //await window.electron.ipcRenderer.getWhitelists([])
+    // if(token) {
+    //   try {
+    //     const whitelistUrls = await db.getAllWhitelistUrls()
+    //     const responses = await fetchWhitelists(whitelistUrls, token)
+    //     console.log(responses);
+    //   }
+    //   catch(error) {
+    //     console.log(error);
+    //   }
+    // }
   }
     return (
       <Fragment>
@@ -188,6 +217,10 @@ const DevSettings: FC<DevSettingsProps> = () => {
 
         <ListItem button>
           <ListItemText primary="Get countries" onClick={() => {loadCountries()}}/>
+        </ListItem>  
+
+        <ListItem button>
+          <ListItemText primary="Get whitelists" onClick={() => {loadWhitelists()}}/>
         </ListItem>  
 
         <FormControl >

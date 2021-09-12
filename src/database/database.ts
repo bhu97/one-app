@@ -24,9 +24,9 @@ export class AppDatabase extends Dexie {
 
         this.driveItems = this.table("driveItems");
         this.users = this.table("users");
+        this.whitelists = this.table("whitelists");
         this.favoriteGroups = this.table("favoriteGroups");
         this.favorites = this.table("favorites");
-        this.whitelists = this.table("whitelists");
     }
 
     async save(items: Array<IDriveItem>): Promise<number> {
@@ -87,10 +87,20 @@ export class AppDatabase extends Dexie {
         return await db.users.put(user);
     }
 
+    async createUserIfEmpty():Promise<void> {
+        const user = await this.getUser()
+        if(!user) {
+            const countries = await this.getAllAvailableCountries()
+            if (countries && countries.length > 0) {
+                return await this.selectCurrentCountry(countries[0])
+            }
+        }
+    }
+
     async selectCurrentCountry(country: string): Promise<void> {
         const version = await this.versionForCountry(country)
         if (version != CountryVersion.none) {
-            await this.updateCountryVersion(country, version.toString())
+            return await this.updateCountryVersion(country, version.toString())
         }
     }
 
@@ -132,8 +142,11 @@ export class AppDatabase extends Dexie {
         return (await this.getUser())?.version ?? null
     } 
 
-    async getAllWhitelistUrls() {
-        await db.driveItems.where("name == '.whitelist'")
+    async getAllWhitelistUrls(): Promise<string[]> {
+        const driveItems = await db.driveItems.where({name: 'whitelist.txt'}).toArray()
+        return driveItems
+        .flatMap(driveItemsToWebUrls)
+        .filter((item): item is string => !!item)
     }
 
     async getAllAvailableCountries(): Promise<string[] | null> {
@@ -144,8 +157,12 @@ export class AppDatabase extends Dexie {
         }
         return null
     } 
-}
 
+    async saveWhitelists(whitelists:Array<IWhitelist>): Promise<number> {
+        return await db.whitelists.bulkPut(whitelists)
+    }
+}
+const driveItemsToWebUrls = (driveItem: IDriveItem): string | undefined => {return driveItem.webUrl}
 //keys for where clauses
 const kParentReferenceId = "parentReferenceId"
 const kName = "name"
@@ -164,7 +181,7 @@ const driveItemsSchema = "uniqueId, name, title, webUrl, serverRelativeUrl, time
 const usersSchema = "++id, version, country"
 const favoriteGroupSchema = "++id, name"
 const favoriteSchema = "++id, favoriteGroupId, uniqueId"
-const whitelistsSchema = "++id, country, content"
+const whitelistsSchema = "country, content"
 
 // Interfaces for our DB Models
 export interface IDriveItem {
@@ -215,7 +232,6 @@ export interface IFavoriteGroup {
     name: string
 }
 export interface IWhitelist {
-    id?: number,
     country: string,
     content: string
 }
@@ -313,6 +329,10 @@ export class ListItem implements IListItem {
         this.type = item.contentType.name === "Folder" ? DriveItemType.FOLDER : DriveItemType.FILE
         this.listItemId = item.id
     }
+}
+
+export class Whitelist implements IWhitelist {
+    constructor(public country:string, public content:string) {}
 }
 
 //do we really need this?

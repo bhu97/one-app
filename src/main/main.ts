@@ -19,6 +19,8 @@ import { resolveHtmlPath } from './util';
 import AuthProvider from './../authentication/AuthProvider';
 import {ipcEvent} from './../utils/constants'
 import { AuthenticationResult } from '@azure/msal-common';
+import { fetchWhitelists } from './../authentication/fetch';
+import axios from 'axios';
 
 export default class AppUpdater {
   constructor() {
@@ -29,6 +31,7 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors'); 
 
 let authProvider = new AuthProvider()
 
@@ -121,8 +124,6 @@ const createWindow = async () => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
-  //console.log("env: "+JSON.stringify(process.env));
-  //saveTokenToStorage("hallo")
 
 };
 
@@ -194,6 +195,28 @@ const getAuthFromStorage = async (): Promise<AuthenticationResult | null> => {
     return null
 }
 
+ipcMain.handle(ipcEvent.whitelists, async(event, urls:string[]) => {
+console.log("get whitelists main");
+
+  const accessToken = await getAuthFromStorage()
+  
+  const options = {
+    headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': "text-plain"
+    }
+};
+
+    const testUrl = "https://fresenius.sharepoint.com/teams/FMETS0269990/_layouts/15/download.aspx?UniqueId=f1f488fe-6ca0-4d03-804f-022a722df21f&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvZnJlc2VuaXVzLnNoYXJlcG9pbnQuY29tQGM5OGRmNTM0LTVlMzYtNDU5YS1hYzNmLThjMmU0NDk4NjNiZCIsImlzcyI6IjAwMDAwMDAzLTAwMDAtMGZmMS1jZTAwLTAwMDAwMDAwMDAwMCIsIm5iZiI6IjE2MzEzNTM5ODciLCJleHAiOiIxNjMxMzU3NTg3IiwiZW5kcG9pbnR1cmwiOiJ0NmxSK3VSdnRrdUNFLytQaUJlTGdrSDZwWkw0Zk4rdk5MdDBhTzdHR3dnPSIsImVuZHBvaW50dXJsTGVuZ3RoIjoiMTM5IiwiaXNsb29wYmFjayI6IlRydWUiLCJjaWQiOiJNemMxTURGaFpqQXRNVFF5TlMwMFlqZ3pMVGhqWlRJdE9EZzVNV00yTURrM09USTUiLCJ2ZXIiOiJoYXNoZWRwcm9vZnRva2VuIiwic2l0ZWlkIjoiWldRMk9HRTBNVEF0TVRjM05DMDBZMkprTFRreFlqZ3RaVEl5TkRBelpEQmxNMk0yIiwiYXBwX2Rpc3BsYXluYW1lIjoiR3JhcGggRXhwbG9yZXIiLCJnaXZlbl9uYW1lIjoiTWF0dGhpYXMiLCJmYW1pbHlfbmFtZSI6IkJyb2RhbGthIiwic2lnbmluX3N0YXRlIjoiW1wia21zaVwiXSIsImFwcGlkIjoiZGU4YmM4YjUtZDlmOS00OGIxLWE4YWQtYjc0OGRhNzI1MDY0IiwidGlkIjoiYzk4ZGY1MzQtNWUzNi00NTlhLWFjM2YtOGMyZTQ0OTg2M2JkIiwidXBuIjoibWF0dGhpYXMuYnJvZGFsa2FAZnJlc2VuaXVzLW5ldGNhcmUuY29tIiwicHVpZCI6IjEwMDM3RkZFOUZGRDgzNTQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzN2ZmZTlmZmQ4MzU0QGxpdmUuY29tIiwic2NwIjoiYWxsZmlsZXMud3JpdGUgZ3JvdXAud3JpdGUgYWxsc2l0ZXMud3JpdGUgYWxscHJvZmlsZXMucmVhZCBhbGxwcm9maWxlcy53cml0ZSIsInR0IjoiMiIsInVzZVBlcnNpc3RlbnRDb29raWUiOm51bGx9.ZFhGenFZdnJIOXJFbGp1djNwMlJNVkV2YjF2cUdVQ3FabC9jS29tUzMyND0&ApiVersion=2.0"
+    const dlResponse = await axios.get(testUrl, options)
+    console.log(dlResponse);
+
+    if (dlResponse.status == 302) {
+        const response = await axios.get(dlResponse.request!.responseURL, options)
+        console.log(response);
+    } 
+})
+
 export function createModalWindow(mainWindow: BrowserWindow) {
   console.log("create modal");
 
@@ -204,6 +227,7 @@ export function createModalWindow(mainWindow: BrowserWindow) {
     webPreferences: {
       enableRemoteModule: true,
       nodeIntegration: true,
+      webSecurity: false
     },
   });
 

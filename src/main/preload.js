@@ -11,6 +11,9 @@ contextBridge.exposeInMainWorld('electron', {
     refreshTokenSilently: async () => {
       return await ipcRenderer.invoke('REFRESH_TOKEN');
     },
+    getWhitelists: async (arg) => {
+      return await ipcRenderer.invoke('GET_WHITELISTS', arg);
+    },
     on(channel, func) {
       const validChannels = ['ipc-example'];
       if (validChannels.includes(channel)) {

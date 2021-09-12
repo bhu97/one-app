@@ -7,6 +7,7 @@ declare global {
       ipcRenderer: {
         login: (arg:any) => Promise<string>;
         refreshTokenSilently: () => Promise<AuthenticationResult>;
+        getWhitelists: (urls: string[]) => Promise<string[]>;
       }
     }
   }
