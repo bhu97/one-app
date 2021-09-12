@@ -9,11 +9,14 @@ import { LoadingDialog } from 'renderer/components/ui/Loading';
 import { AuthenticationResult } from '@azure/msal-node';
 import {fakeFetchWhitelists, fetchAdditionalMetadata, fetchDelta, fetchWhitelists} from './../../../authentication/fetch'
 import { CountryVersion, db } from 'database/database';
+import { LightStore } from 'database/stores/LightStore';
+import { responseToDriveItem, responseToListItem } from 'utils/object.mapping';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
+    overflow: 'auto'
   },
   main: {
     marginTop: theme.spacing(4),
@@ -163,10 +166,7 @@ const DevSettings: FC<DevSettingsProps> = () => {
     //const whitelistUrls = await db.getAllWhitelistUrls()
     //console.log(whitelistUrls);
 
-    const whitelists = await fakeFetchWhitelists();
-    console.log(whitelists);
     
-    db.saveWhitelists(whitelists);
     
     //await window.electron.ipcRenderer.getWhitelists([])
     // if(token) {
@@ -179,6 +179,37 @@ const DevSettings: FC<DevSettingsProps> = () => {
     //     console.log(error);
     //   }
     // }
+  }
+
+  const setupDummyData = async() => {
+    
+    if(await db.isEmpty()) {
+      setState({...state, isLoading: true})
+  
+      let deltaResponse = await fetch('./../../../assets/delta.json');  
+      let deltaResponseJson = await deltaResponse.json();
+      //console.log(deltaResponseJson.value[0]);
+      let driveItems = deltaResponseJson.value.map(responseToDriveItem);
+      await db.save(driveItems);
+  
+      let listitemResponse = await fetch('./../../../assets/listitem.json');
+      let listitemResponseJson = await listitemResponse.json();
+      console.log(listitemResponseJson.value[0]);
+      let listItems = listitemResponseJson.value.map(responseToListItem);
+      await db.saveMetaData(listItems)
+  
+      const whitelists = await fakeFetchWhitelists();
+      console.log(whitelists);
+      db.saveWhitelists(whitelists);
+
+      setState({...state, isLoading: false})
+    }
+  }
+
+  const loadLighStore = async() => {
+    let store = new LightStore({})
+    store.update()
+    console.log(store.items)
   }
     return (
       <Fragment>
@@ -199,6 +230,10 @@ const DevSettings: FC<DevSettingsProps> = () => {
           </CardActions>
         </Card> 
         
+        <ListItem button>
+          <ListItemText primary="Setup dummy data" onClick={() => {setupDummyData()}}/>
+        </ListItem>  
+
         <ListItem button>
           <ListItemText primary="Login" secondary="nothing here" onClick={() => {login()}}/>
         </ListItem>
@@ -221,6 +256,10 @@ const DevSettings: FC<DevSettingsProps> = () => {
 
         <ListItem button>
           <ListItemText primary="Get whitelists" onClick={() => {loadWhitelists()}}/>
+        </ListItem>  
+
+        <ListItem button>
+          <ListItemText primary="Load Lighstore Dev" onClick={() => {loadLighStore()}}/>
         </ListItem>  
 
         <FormControl >

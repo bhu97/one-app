@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import { findCountry, normalizeUrl } from './../utils/helper';
 import config from './../utils/application.config.release'
 export class AppDatabase extends Dexie {
 
@@ -67,6 +68,11 @@ export class AppDatabase extends Dexie {
             return await this.allItems(rootItem.uniqueId)
         }
         return []
+    }
+
+    async getRegionalFolderForCountry(country: string): Promise<IDriveItem | null> {
+        const items = await db.driveItems.where({"country":country, "name": "Regional"}).toArray()
+        return items[0] ? items[0] : null
     }
 
     async createUser() {
@@ -161,6 +167,16 @@ export class AppDatabase extends Dexie {
     async saveWhitelists(whitelists:Array<IWhitelist>): Promise<number> {
         return await db.whitelists.bulkPut(whitelists)
     }
+
+    async whitelistForCountry(country: string): Promise<IWhitelist> {
+        return (await db.whitelists.where({country: country}).toArray())[0]
+    }
+
+    async whitelistArrayForCountry(country: string):Promise<Array<string>> {
+        let whitelist = await this.whitelistForCountry(country)
+        let urlArray = whitelist.content.split(",")
+        return urlArray
+    }
 }
 const driveItemsToWebUrls = (driveItem: IDriveItem): string | undefined => {return driveItem.webUrl}
 //keys for where clauses
@@ -177,7 +193,7 @@ const kCountryRoot = (country: string) => {
 }
 
 // Schemas for the table creation
-const driveItemsSchema = "uniqueId, name, title, webUrl, serverRelativeUrl, timeLastModified, timeCreated, listItemId, listId, siteId, isDoclib, linkedFiles, linkedFolders, type, fileSize, fileExtension, timeDownloaded, downloadLocation, parentReferenceId"
+const driveItemsSchema = "uniqueId, name, title, webUrl, serverRelativeUrl, timeLastModified, timeCreated, listItemId, listId, siteId, isDoclib, linkedFiles, linkedFolders, type, fileSize, fileExtension, timeDownloaded, downloadLocation, parentReferenceId, country"
 const usersSchema = "++id, version, country"
 const favoriteGroupSchema = "++id, name"
 const favoriteSchema = "++id, favoriteGroupId, uniqueId"
@@ -206,6 +222,7 @@ export interface IDriveItem {
     fileExtension?: string;
     timeDownloaded?: string;
     downloadLocation?: string;
+    country?: string
 }
 
 enum DriveItemType {
@@ -271,6 +288,7 @@ export class DriveItem implements IDriveItem {
     timeDownloaded?: string;
     downloadLocation?: string;
     parentReferenceId?: string;
+    country?: string;
 
   constructor(item:any) {
     console.log("drive item id:"+ item.id)
@@ -290,6 +308,13 @@ export class DriveItem implements IDriveItem {
     
     this.type = DriveItemType.UNKNOWN
 
+    // const countryCode = findCountry(normalizeUrl(this.webUrl))
+    // if(countryCode) {
+    //     this.country = countryCode
+    // }
+
+    this.country = normalizeUrl(this.webUrl);
+    this.country = findCountry(this.country) ?? ""
     //file specific
     this.fileSize = item?.size ?? 0
     //enable this in node
@@ -332,7 +357,10 @@ export class ListItem implements IListItem {
 }
 
 export class Whitelist implements IWhitelist {
-    constructor(public country:string, public content:string) {}
+    whitelistPaths = Array<string>()
+    constructor(public country:string, public content:string) {
+        this.whitelistPaths = content.split(",")
+    }
 }
 
 //do we really need this?

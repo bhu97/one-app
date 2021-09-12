@@ -49,7 +49,7 @@ type HomePageState = {
 const HomePage: FC<HomePageProps> = () => {
   
   useEffect(() => {
-    setupDummyData()
+    //setupDummyData()
   }, [])
   const classes = useStyles();
   const [state, setState] = useState({isLoading: false})
