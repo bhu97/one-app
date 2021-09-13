@@ -3,16 +3,10 @@ import { AbstractStore } from "./AbstractStore";
 
 export class LightStore extends AbstractStore {
 
-  items: IDriveItem[] = []
-  isRoot: boolean = false
-  path?: string
-
   async update() {
     //If we get no path as param we query root items
     //in the other case we query by path
-    this.path = this.params.path ?? null
-
-    this.isRoot = this.path == null
+    this.isRoot = (this.params.path == null)
 
     //what is the currently selected country?
     const currentCountry = await db.getCurrentCountry()
@@ -24,8 +18,8 @@ export class LightStore extends AbstractStore {
         allItems = await db.rootItemsForCountry("master") ?? []
         //RULE
         //filter out all files that start with a dot e.g. .flex or any whitelist.txt
-        allItems = allItems.filter(driveItem => driveItem.name !== ".light")
-        allItems = allItems.filter(driveItem => driveItem.name !== "whitelist.txt")
+        allItems = this.filterVersionFiles(allItems)
+        allItems = this.filterWhitelistFiles(allItems)
         //console.log(allItems);
         const regionalFolder = await db.getRegionalFolderForCountry(currentCountry)
         
@@ -34,14 +28,14 @@ export class LightStore extends AbstractStore {
         }
         
       } else {
-        if(this.path) {
-          allItems = await db.allItems(this.path) ?? []
+        if(this.params.path) {
+          allItems = await db.allItems(this.params.path) ?? []
         }
       }
       
       //RULE
       //filter out any folder that is named Linked Files
-      allItems = allItems.filter(driveItem => driveItem.name !== "Linked Files")
+      allItems = this.filterLinkedFilesFolder(allItems)
 
       //RULE
       //get whitelist for country and filter out all folders that are not in whitelist
@@ -52,8 +46,9 @@ export class LightStore extends AbstractStore {
       }
      
 
-      allItems = allItems.sort((a, b) => a.name!.localeCompare(b.name!))
+      allItems = allItems.sort(this.sortByName)
       this.items = allItems
+      
       console.log(allItems)
     }
   }
