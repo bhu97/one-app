@@ -15,19 +15,19 @@ export class LinkedStore extends AbstractStore {
         if(driveItem.linkedFiles) {
           const fileWebUrls = this.linkedUrlListToArray(driveItem.linkedFiles)
           let driveItems = await db.getItemsForWebUrls(fileWebUrls)
-          allItems.concat(driveItems)
+          allItems = allItems.concat(driveItems)
         }
 
         if(driveItem.linkedFolders) {
           const folderWebUrls = this.linkedUrlListToArray(driveItem.linkedFolders)
           
-          console.log(folderWebUrls);
           let driveItems = await db.getItemsForWebUrls(folderWebUrls)
-          allItems.concat(driveItems)
+          allItems = allItems.concat(driveItems)
         }
       }
     }
-
-    this.items = allItems
+    console.log("set all tiems");
+    
+    this.items = allItems  
   }
 }

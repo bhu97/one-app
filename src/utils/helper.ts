@@ -19,3 +19,5 @@ export const findCountry = (string : string): string | null => {
   return null
 }
 
+export const notEmpty = <T>(value: T): value is NonNullable<typeof value> => !!value 
+

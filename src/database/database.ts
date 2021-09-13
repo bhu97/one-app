@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import { findCountry, normalizeUrl } from './../utils/helper';
+import { findCountry, normalizeUrl, notEmpty } from './../utils/helper';
 import config from './../utils/application.config.release'
 export class AppDatabase extends Dexie {
 
@@ -64,8 +64,22 @@ export class AppDatabase extends Dexie {
         return (await db.driveItems.where(kUniqueId).equals(uniqueId).toArray())[0]
     }
 
+    //TODO: fix speed 
     async getItemsForWebUrls(weburls: string[]): Promise<IDriveItem[]> {
-        return await db.driveItems.where(kWebUrl).anyOf(weburls).toArray()
+        let foundItems:IDriveItem[] = []
+        for (let webUrl of weburls) {
+            let item = (await db.driveItems.toArray()).filter(driveItem => {
+                if(driveItem.webUrl) {
+                    return driveItem.webUrl.includes(webUrl) 
+                } 
+                return false
+            })
+            //console.log("found item" + JSON.stringify(item[0]));
+            foundItems.push(item[0])
+        }
+        foundItems = foundItems.filter(notEmpty)
+    
+        return foundItems
     }
 
     async rootItemsForCountry(country: string) : Promise<Array<IDriveItem> | null> {
