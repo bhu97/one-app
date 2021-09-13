@@ -71,7 +71,7 @@ export class AppDatabase extends Dexie {
     }
 
     async getRegionalFolderForCountry(country: string): Promise<IDriveItem | null> {
-        const items = await db.driveItems.where({"country":country, "name": "Regional"}).toArray()
+        const items = await db.driveItems.where({"country":country, "name": kRegionalFolderName}).toArray()
         return items[0] ? items[0] : null
     }
 
@@ -117,11 +117,11 @@ export class AppDatabase extends Dexie {
             if (driveItemForCountry[0]) {
                 const driveItemsInCountryFolder = await this.allItems(driveItemForCountry[0].uniqueId)
                 if(driveItemsInCountryFolder) {
-                    const foundFlex = driveItemsInCountryFolder.filter(driveItem => driveItem.name! === ".flex").length > 0
+                    const foundFlex = driveItemsInCountryFolder.filter(driveItem => driveItem.name! === kFlexFileName).length > 0
                     if (foundFlex) {
                         return CountryVersion.flex
                     }
-                    const foundLight = driveItemsInCountryFolder.filter(driveItem => driveItem.name! === ".light").length > 0
+                    const foundLight = driveItemsInCountryFolder.filter(driveItem => driveItem.name! === kLightFileName).length > 0
                     if (foundLight) {
                         return CountryVersion.light
                     } 
@@ -157,7 +157,7 @@ export class AppDatabase extends Dexie {
 
     async getAllAvailableCountries(): Promise<string[] | null> {
         const driveItems = await this.rootItems()
-        const driveItemsNoMaster = driveItems?.filter(driveItem => driveItem.name! !== 'master')
+        const driveItemsNoMaster = driveItems?.filter(driveItem => driveItem.name! !== kMasterFolderName)
         if (driveItemsNoMaster) {
             return driveItemsNoMaster?.flatMap(driveItem => driveItem.name!)
         }
@@ -177,11 +177,20 @@ export class AppDatabase extends Dexie {
         let urlArray = whitelist.content.split(",")
         return urlArray
     }
+
+    async hasMatchingMasterFolder(country:string, webUrl: string):Promise<boolean> {
+        const masterFolderWebUrl = webUrl.replace(`/${country}/`, `/${kMasterFolderName}/`)
+        const driveItems = await db.driveItems.where({webUrl: masterFolderWebUrl}).toArray()
+        return driveItems.length > 0
+    }
 }
 const driveItemsToWebUrls = (driveItem: IDriveItem): string | undefined => {return driveItem.webUrl}
 //keys for where clauses
 const kParentReferenceId = "parentReferenceId"
-const kName = "name"
+const kMasterFolderName = "master"
+const kRegionalFolderName = "Regional"
+const kFlexFileName = ".flex"
+const kLightFileName = ".light"
 const kRoot = {
     parentReferenceId: "01GX2IG4N6Y2GOVW7725BZO354PWSELRRZ"
 }
@@ -193,7 +202,7 @@ const kCountryRoot = (country: string) => {
 }
 
 // Schemas for the table creation
-const driveItemsSchema = "uniqueId, name, title, webUrl, serverRelativeUrl, timeLastModified, timeCreated, listItemId, listId, siteId, isDoclib, linkedFiles, linkedFolders, type, fileSize, fileExtension, timeDownloaded, downloadLocation, parentReferenceId, country"
+const driveItemsSchema = "uniqueId, name, title, webUrl, serverRelativeUrl, timeLastModified, timeCreated, listItemId, listId, siteId, isDocSet, linkedFiles, linkedFolders, type, fileSize, fileExtension, timeDownloaded, downloadLocation, parentReferenceId, country, contentType"
 const usersSchema = "++id, version, country"
 const favoriteGroupSchema = "++id, name"
 const favoriteSchema = "++id, favoriteGroupId, uniqueId"
@@ -211,7 +220,7 @@ export interface IDriveItem {
     listItemId?: string;
     listId?: string;
     siteId?: string;
-    isDoclib?: boolean;
+    isDocSet?: boolean;
     title?: string;
     linkedFiles?: string;
     linkedFolders?: string;
@@ -222,7 +231,8 @@ export interface IDriveItem {
     fileExtension?: string;
     timeDownloaded?: string;
     downloadLocation?: string;
-    country?: string
+    country?: string;
+    contentType?: string;
 }
 
 enum DriveItemType {
@@ -277,7 +287,7 @@ export class DriveItem implements IDriveItem {
     listItemId?: string;
     listId?: string;
     siteId?: string;
-    isDoclib?: boolean;
+    isDocSet?: boolean;
     title?: string;
     linkedFiles?: string;
     linkedFolders?: string;
@@ -289,6 +299,7 @@ export class DriveItem implements IDriveItem {
     downloadLocation?: string;
     parentReferenceId?: string;
     country?: string;
+    contentType?:string;
 
   constructor(item:any) {
     console.log("drive item id:"+ item.id)
@@ -302,16 +313,11 @@ export class DriveItem implements IDriveItem {
     this.listItemId = item?.listItemId ?? ""
     this.listId = item?.listId ?? ""
     this.siteId = item?.siteId ?? ""
-    this.isDoclib = item?.type === "DocumentSet"
+    this.isDocSet = item?.contentType === "Document Set"
     this.title = item?.title ?? "" 
     this.parentReferenceId = item?.parentReference?.id ?? ""
     
     this.type = DriveItemType.UNKNOWN
-
-    // const countryCode = findCountry(normalizeUrl(this.webUrl))
-    // if(countryCode) {
-    //     this.country = countryCode
-    // }
 
     this.country = normalizeUrl(this.webUrl);
     this.country = findCountry(this.country) ?? ""
@@ -331,6 +337,7 @@ export interface IListItem {
     linkedFiles: string;
     listItemId: string;
     type: DriveItemType;
+    isDocSet: boolean;
 }
 
 export class ListItem implements IListItem {
@@ -342,6 +349,7 @@ export class ListItem implements IListItem {
     linkedFolders: string;
     linkedFiles: string;
     type: DriveItemType;
+    isDocSet: boolean
 
     constructor(item:any) {
         //console.log(JSON.stringify(item))
@@ -352,6 +360,9 @@ export class ListItem implements IListItem {
         this.linkedFiles = item.fields.Linked_x0020_files ?? ""
         this.linkedFolders = item.fields.Linked_x0020_folders ?? ""
         this.type = item.contentType.name === "Folder" ? DriveItemType.FOLDER : DriveItemType.FILE
+        this.type = item.contentType.name === "Document Set" ? DriveItemType.DOCUMENTSET : this.type
+        this.isDocSet = this.type === DriveItemType.DOCUMENTSET
+
         this.listItemId = item.id
     }
 }

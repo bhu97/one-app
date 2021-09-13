@@ -1,4 +1,4 @@
-import { db, DriveItem, IDriveItem } from "database/database";
+import { db, IDriveItem } from "database/database";
 import { AbstractStore } from "./AbstractStore";
 
 export class LightStore extends AbstractStore {
@@ -48,7 +48,7 @@ export class LightStore extends AbstractStore {
 
       allItems = allItems.sort(this.sortByName)
       this.items = allItems
-      
+
       console.log(allItems)
     }
   }

@@ -11,6 +11,7 @@ import {fakeFetchWhitelists, fetchAdditionalMetadata, fetchDelta, fetchWhitelist
 import { CountryVersion, db } from 'database/database';
 import { LightStore } from 'database/stores/LightStore';
 import { responseToDriveItem, responseToListItem } from 'utils/object.mapping';
+import { FlexStore } from 'database/stores/FlexStore';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -208,7 +209,13 @@ const DevSettings: FC<DevSettingsProps> = () => {
 
   const loadLighStore = async() => {
     let store = new LightStore({})
-    store.update()
+    await store.update()
+    console.log(store.items)
+  }
+
+  const loadFlexStore = async() => {
+    let store = new FlexStore({})
+    await store.update()
     console.log(store.items)
   }
     return (
@@ -258,9 +265,13 @@ const DevSettings: FC<DevSettingsProps> = () => {
           <ListItemText primary="Get whitelists" onClick={() => {loadWhitelists()}}/>
         </ListItem>  
 
-        <ListItem button>
+        <ListItem button disabled={state.version !== "light"}>
           <ListItemText primary="Load Lighstore Dev" onClick={() => {loadLighStore()}}/>
         </ListItem>  
+
+        <ListItem button disabled={state.version !== "flex"}>
+          <ListItemText primary="Load FlexStore" onClick={() => {loadFlexStore()}}/>
+        </ListItem>
 
         <FormControl >
         <InputLabel id="demo-simple-select-label">Country</InputLabel>
