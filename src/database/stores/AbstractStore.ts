@@ -1,7 +1,7 @@
 import { DriveItem, IDriveItem } from "database/database";
 
 interface IStoreParams {
-  path?: string
+  query?: string
 }
 export abstract class AbstractStore {
 
@@ -27,4 +27,8 @@ export abstract class AbstractStore {
   }
 
   sortByName = (a:IDriveItem, b:IDriveItem) => a.name!.localeCompare(b.name!)
+
+  linkedUrlListToArray(urlListText: string): string[] {
+    return urlListText.split(",").map(url => url.trim())
+  }
 }

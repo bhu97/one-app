@@ -4,7 +4,7 @@ import { AbstractStore } from "./AbstractStore";
 export class FlexStore extends AbstractStore {
 
   async update() {
-    this.isRoot = (this.params.path == null)
+    this.isRoot = (this.params.query == null)
 
     const currentCountry = await db.getCurrentCountry()
     if(currentCountry) {
@@ -15,8 +15,8 @@ export class FlexStore extends AbstractStore {
       if(this.isRoot) {
         allItems = await db.rootItemsForCountry(currentCountry) ?? []   
       } else {
-        if(this.params.path) {
-          allItems = await db.allItems(this.params.path) ?? []
+        if(this.params.query) {
+          allItems = await db.allItems(this.params.query) ?? []
         }
       }
 

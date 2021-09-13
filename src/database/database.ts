@@ -60,6 +60,13 @@ export class AppDatabase extends Dexie {
         const items = await db.driveItems.where(kRoot).toArray()
         return items
     }
+    async getItemForId(uniqueId: string): Promise<IDriveItem> {
+        return (await db.driveItems.where(kUniqueId).equals(uniqueId).toArray())[0]
+    }
+
+    async getItemsForWebUrls(weburls: string[]): Promise<IDriveItem[]> {
+        return await db.driveItems.where(kWebUrl).anyOf(weburls).toArray()
+    }
 
     async rootItemsForCountry(country: string) : Promise<Array<IDriveItem> | null> {
         const items = await db.driveItems.where(kCountryRoot(country)).toArray()
@@ -183,14 +190,81 @@ export class AppDatabase extends Dexie {
         const driveItems = await db.driveItems.where({webUrl: masterFolderWebUrl}).toArray()
         return driveItems.length > 0
     }
+
+
+    async setupInitialFavoriteGroup():Promise<any> {
+        const favoriteGroups = await db.favoriteGroups.toArray()
+        const hasDefaultGroup = favoriteGroups.filter(favoriteGroup => favoriteGroup.name == kDefaultFavoriteGroupName).length > 0
+        if(favoriteGroups.length == 0 || hasDefaultGroup == false) {
+            return await db.favoriteGroups.put({id:0, name: kDefaultFavoriteGroupName})
+        }
+    }
+
+    async favoritesForFavoriteGroup(favoriteGroupName: string) : Promise<Array<IDriveItem>> {
+        const favoriteItems = await db.favorites.where({favoriteGroupName: favoriteGroupName}).toArray()
+        const favoriteitemIds = favoriteItems.map(favoriteItem => favoriteItem.uniqueId)
+
+        const driveItems = await db.driveItems.where(kUniqueId).anyOf(favoriteitemIds).toArray()
+        // favoriteItems.forEach(async favoriteItem => {
+        //     const driveItem = (await db.driveItems.where({uniqueId: favoriteItem.uniqueId}).toArray())[0]
+        //     driveItems.push(driveItem)
+        // })
+
+        return driveItems
+    }
+
+    async getFavoriteGroupsForItem(uniqueId: string):Promise<string[]> {
+        const favoriteItems = await db.favorites.where({uniqueId: uniqueId}).toArray()
+        return favoriteItems.map(favoriteItem => favoriteItem.favoriteGroupName)
+    }
+
+    async getAllFavoriteGroupNames(): Promise<string[]> {
+        return (await db.favoriteGroups.toArray()).map(favoriteGroup => favoriteGroup.name)
+    }
+
+    async removeFavoriteGroup(favoriteGroupName:string): Promise<number> {
+        await db.favorites.where(kFavoriteGroupName).equals(favoriteGroupName).delete()
+        return await db.favoriteGroups.where(kName).equals(favoriteGroupName).delete()
+    }
+    
+
+    async addFavorite(uniqueId: string, favoriteGroupName: string): Promise<number> {
+        return await db.favorites.put({uniqueId: uniqueId, favoriteGroupName: favoriteGroupName})
+    }
+
+    async addRemoveFavorite(uniqueId: string, favoriteGroupName: string): Promise<number> {
+        const favoriteItem = await this.getFavorite(uniqueId, favoriteGroupName)
+        if(favoriteItem) {
+            return await this.removeFavorite(uniqueId, favoriteGroupName)
+        }
+        return await db.favorites.put({uniqueId: uniqueId, favoriteGroupName: favoriteGroupName})
+    }
+
+    async removeFavorite(uniqueId: string, favoriteGroupName: string): Promise<number> {
+        return await db.favorites.where({uniqueId: uniqueId, favoriteGroupName: favoriteGroupName}).delete()
+    }
+
+    async getFavorite(uniqueId: string, favoriteGroupName: string): Promise<IFavorite> {
+        return (await db.favorites.where({uniqueId: uniqueId, favoriteGroupName: favoriteGroupName}).toArray())[0]
+    }
+
+    
+
 }
 const driveItemsToWebUrls = (driveItem: IDriveItem): string | undefined => {return driveItem.webUrl}
 //keys for where clauses
 const kParentReferenceId = "parentReferenceId"
+const kUniqueId = "uniqueId"
+const kName = "name"
+const kFavoriteGroupName = "favoriteGroupName"
+const kWebUrl = "webUrl"
+
 const kMasterFolderName = "master"
 const kRegionalFolderName = "Regional"
 const kFlexFileName = ".flex"
 const kLightFileName = ".light"
+const kDefaultFavoriteGroupName = "Default"
+
 const kRoot = {
     parentReferenceId: "01GX2IG4N6Y2GOVW7725BZO354PWSELRRZ"
 }
@@ -205,7 +279,7 @@ const kCountryRoot = (country: string) => {
 const driveItemsSchema = "uniqueId, name, title, webUrl, serverRelativeUrl, timeLastModified, timeCreated, listItemId, listId, siteId, isDocSet, linkedFiles, linkedFolders, type, fileSize, fileExtension, timeDownloaded, downloadLocation, parentReferenceId, country, contentType"
 const usersSchema = "++id, version, country"
 const favoriteGroupSchema = "++id, name"
-const favoriteSchema = "++id, favoriteGroupId, uniqueId"
+const favoriteSchema = "++id, favoriteGroupName, uniqueId"
 const whitelistsSchema = "country, content"
 
 // Interfaces for our DB Models
@@ -263,8 +337,8 @@ export interface IWhitelist {
     content: string
 }
 export interface IFavorite {
-    id: number,
-    favoriteGroupId: number,
+    id?: number,
+    favoriteGroupName: string,
     uniqueId: string
 }
 export class User implements IUser {

@@ -12,6 +12,7 @@ import { CountryVersion, db } from 'database/database';
 import { LightStore } from 'database/stores/LightStore';
 import { responseToDriveItem, responseToListItem } from 'utils/object.mapping';
 import { FlexStore } from 'database/stores/FlexStore';
+import { LinkedStore } from 'database/stores/LinkedStore';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -203,6 +204,8 @@ const DevSettings: FC<DevSettingsProps> = () => {
       console.log(whitelists);
       db.saveWhitelists(whitelists);
 
+      db.setupInitialFavoriteGroup()
+
       setState({...state, isLoading: false})
     }
   }
@@ -215,6 +218,12 @@ const DevSettings: FC<DevSettingsProps> = () => {
 
   const loadFlexStore = async() => {
     let store = new FlexStore({})
+    await store.update()
+    console.log(store.items)
+  }
+
+  const loadLinkedStore = async() => {
+    let store = new LinkedStore({query: "01GX2IG4JQHK2LKOD6LFA3L54XT2KDUS5W"})
     await store.update()
     console.log(store.items)
   }
@@ -271,6 +280,10 @@ const DevSettings: FC<DevSettingsProps> = () => {
 
         <ListItem button disabled={state.version !== "flex"}>
           <ListItemText primary="Load FlexStore" onClick={() => {loadFlexStore()}}/>
+        </ListItem>
+
+        <ListItem button disabled={state.version !== "flex"}>
+          <ListItemText primary="Load Linked Store for 02 6008 Care System (AUT)" onClick={() => {loadLinkedStore()}}/>
         </ListItem>
 
         <FormControl >

@@ -1,4 +1,5 @@
 import { db, IDriveItem } from "database/database";
+import { normalizeUrl } from "utils/helper";
 import { AbstractStore } from "./AbstractStore";
 
 export class LightStore extends AbstractStore {
@@ -6,7 +7,7 @@ export class LightStore extends AbstractStore {
   async update() {
     //If we get no path as param we query root items
     //in the other case we query by path
-    this.isRoot = (this.params.path == null)
+    this.isRoot = (this.params.query == null)
 
     //what is the currently selected country?
     const currentCountry = await db.getCurrentCountry()
@@ -28,8 +29,8 @@ export class LightStore extends AbstractStore {
         }
         
       } else {
-        if(this.params.path) {
-          allItems = await db.allItems(this.params.path) ?? []
+        if(this.params.query) {
+          allItems = await db.allItems(this.params.query) ?? []
         }
       }
       
@@ -58,8 +59,8 @@ export class LightStore extends AbstractStore {
     
     for (let whitelistUrl of whitelistUrls) {
       for (let driveItem of driveItems) {
-        let ndriveItemUrl = this.normalizeUrl(driveItem.webUrl!)
-        let nwhitelistUrl = this.normalizeUrl(whitelistUrl)
+        let ndriveItemUrl = normalizeUrl(driveItem.webUrl!)
+        let nwhitelistUrl = normalizeUrl(whitelistUrl)
   
         let components1 = nwhitelistUrl.split("/").length
         let components2 = ndriveItemUrl.split("/").length
@@ -79,9 +80,6 @@ export class LightStore extends AbstractStore {
     return Array.from(filteredItems)
   }
 
-  normalizeUrl(url:string) {
-    return url.split("Shared%20Documents")[1]
-  }
   pathContainsSubpath(p1:string, p2:string): boolean {
     return p1.indexOf(p2) !== -1
   }
