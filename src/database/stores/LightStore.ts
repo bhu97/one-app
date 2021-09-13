@@ -11,7 +11,7 @@ export class LightStore extends AbstractStore {
     //If we get no path as param we query root items
     //in the other case we query by path
     this.path = this.params.path ?? null
-    this.path = "01GX2IG4P2JRJHKTJBYVAK666YPBEAJQB4"
+
     this.isRoot = this.path == null
 
     //what is the currently selected country?
@@ -34,7 +34,9 @@ export class LightStore extends AbstractStore {
         }
         
       } else {
-        allItems = await db.allItems(this.path) ?? []
+        if(this.path) {
+          allItems = await db.allItems(this.path) ?? []
+        }
       }
       
       //RULE

@@ -2,7 +2,7 @@ import { Box, Container, makeStyles, Typography, withStyles } from '@material-ui
 import { CallMissedSharp, Title } from '@material-ui/icons';
 import React, { FC, Fragment, useEffect, useState } from 'react';
 import Sidebar from 'renderer/components/ui/Sidebar';
-import {db} from './../../database/database'
+import {db} from '../../../database/database'
 
 import { responseToDriveItem, responseToListItem } from 'utils/object.mapping';
 import { LoadingDialog } from 'renderer/components/ui/Loading';
