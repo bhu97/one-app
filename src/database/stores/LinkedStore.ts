@@ -2,6 +2,8 @@ import { db, IDriveItem } from "database/database";
 import { AbstractStore } from "./AbstractStore";
 
 
+// The store for linked files of a document set
+//pass the unique id of the document set as query
 export class LinkedStore extends AbstractStore {
 
   async update() {
@@ -25,9 +27,7 @@ export class LinkedStore extends AbstractStore {
           allItems = allItems.concat(driveItems)
         }
       }
-    }
-    console.log("set all tiems");
-    
+    }    
     this.items = allItems  
   }
 }

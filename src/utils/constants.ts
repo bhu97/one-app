@@ -4,3 +4,5 @@ export const ipcEvent = {
   refreshToken: "REFRESH_TOKEN",
   whitelists: "GET_WHITELISTS"
 }
+
+export const fileSizeMax = 20971520

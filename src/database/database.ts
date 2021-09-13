@@ -8,6 +8,7 @@ export class AppDatabase extends Dexie {
     favoriteGroups: Dexie.Table<IFavoriteGroup, number>;
     favorites: Dexie.Table<IFavorite, number>;
     whitelists: Dexie.Table<IWhitelist, number>;
+    cartItems: Dexie.Table<ICartItem, number>;
 
     constructor() {
 
@@ -20,7 +21,8 @@ export class AppDatabase extends Dexie {
             users: usersSchema,
             favoriteGroups: favoriteGroupSchema,
             favorites: favoriteSchema,
-            whitelists: whitelistsSchema
+            whitelists: whitelistsSchema,
+            cartItems: cartItemsSchema
         });
 
         this.driveItems = this.table("driveItems");
@@ -28,6 +30,7 @@ export class AppDatabase extends Dexie {
         this.whitelists = this.table("whitelists");
         this.favoriteGroups = this.table("favoriteGroups");
         this.favorites = this.table("favorites");
+        this.cartItems = this.table("cartItems");
     }
 
     async save(items: Array<IDriveItem>): Promise<number> {
@@ -80,6 +83,11 @@ export class AppDatabase extends Dexie {
         foundItems = foundItems.filter(notEmpty)
     
         return foundItems
+    }
+
+    async getItemsForIds(uniqueIds: string[]): Promise<IDriveItem[]> {
+        const driveItems = await db.driveItems.where(kUniqueId).anyOf(uniqueIds).toArray() 
+        return driveItems
     }
 
     async rootItemsForCountry(country: string) : Promise<Array<IDriveItem> | null> {
@@ -236,6 +244,10 @@ export class AppDatabase extends Dexie {
         return (await db.favoriteGroups.toArray()).map(favoriteGroup => favoriteGroup.name)
     }
 
+    async renameFavoriteGroup(id:number, newName: string): Promise<number> {
+        return await db.favoriteGroups.update(id, {name: newName})
+    }
+
     async removeFavoriteGroup(favoriteGroupName:string): Promise<number> {
         await db.favorites.where(kFavoriteGroupName).equals(favoriteGroupName).delete()
         return await db.favoriteGroups.where(kName).equals(favoriteGroupName).delete()
@@ -262,7 +274,22 @@ export class AppDatabase extends Dexie {
         return (await db.favorites.where({uniqueId: uniqueId, favoriteGroupName: favoriteGroupName}).toArray())[0]
     }
 
-    
+    async getAllCartItems(): Promise<IDriveItem[]> {
+        return await db.cartItems.toArray()
+    }
+       
+
+    async addCartItem(uniqueId: string): Promise<number> {
+        return await db.cartItems.put({uniqueId: uniqueId})
+    }
+
+    async removeCartItem(uniqueId: string): Promise<number> {
+        return await db.cartItems.where({uniqueId: uniqueId}).delete()
+    }
+
+    async removeAllCartItems(uniqueId: string): Promise<void> {
+        return await db.cartItems.clear()
+    }
 
 }
 const driveItemsToWebUrls = (driveItem: IDriveItem): string | undefined => {return driveItem.webUrl}
@@ -295,6 +322,7 @@ const usersSchema = "++id, version, country"
 const favoriteGroupSchema = "++id, name"
 const favoriteSchema = "++id, favoriteGroupName, uniqueId"
 const whitelistsSchema = "country, content"
+const cartItemsSchema = "uniqueId"
 
 // Interfaces for our DB Models
 export interface IDriveItem {
@@ -355,6 +383,11 @@ export interface IFavorite {
     favoriteGroupName: string,
     uniqueId: string
 }
+
+export interface ICartItem {
+    uniqueId: string
+}
+
 export class User implements IUser {
     id?: number;
     country: string; 
