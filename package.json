@@ -89,10 +89,7 @@
     "name": "Fresenius Netcare Gmbh",
     "email": "mobile.development@fresenius-netcare.com"
   },
-  "contributors": [
-   
-  ],
-  
+  "contributors": [],
   "keywords": [
     "electron",
     "boilerplate",
