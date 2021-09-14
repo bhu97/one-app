@@ -1,10 +1,8 @@
-import { CircularProgress, Dialog, DialogContentText, DialogTitle, Typography } from "@material-ui/core";
-import React, {FC} from "react";
+import { Box, CircularProgress, Dialog, DialogContentText, DialogTitle } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import React, { FC } from 'react';
 
-import { makeStyles } from '@material-ui/core/styles'
-import { Box } from '@material-ui/core'
-
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   marginAutoContainer: {
     width: 500,
     height: 80,
@@ -12,7 +10,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: 'gold',
   },
   marginAutoItem: {
-    margin: 'auto'
+    margin: 'auto',
   },
   alignItemsAndJustifyContent: {
     width: 500,
@@ -24,13 +22,12 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-type LoadingDialogProps = {
-  open: boolean
+interface ILoadingDialogProps {
+  open: boolean;
 }
 
-export const LoadingDialog:FC<LoadingDialogProps> = (props:LoadingDialogProps) => {
-  const { open } = props;
-  const classes = useStyles()
+export const LoadingDialog: FC<ILoadingDialogProps> = ({ open }) => {
+  const classes = useStyles();
 
   return (
     <Dialog aria-labelledby="simple-dialog-title" open={open}>
@@ -42,3 +39,5 @@ export const LoadingDialog:FC<LoadingDialogProps> = (props:LoadingDialogProps) =
     </Dialog>
   );
 }
+
+export default LoadingDialog;

@@ -1,4 +1,4 @@
-import { createTheme, ThemeOptions, Theme } from '@material-ui/core';
+import { createTheme, Theme, ThemeOptions } from '@material-ui/core';
 
 export const defaultTheme: Theme = createTheme();
 
@@ -9,15 +9,16 @@ export const themeConfig: ThemeOptions = {
   },
   palette: {
     primary: {
-      main: '#0D2754',
+      main: '#071B45',
     },
     secondary: {
       main: '#f48fb1',
     },
     background: {
-      default: '#F3F5FB'
-    }
-  }
+      default: '#F3F5FB',
+      paper: '#fff',
+    },
+  },
 };
 
 export default createTheme(themeConfig);
