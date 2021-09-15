@@ -3,12 +3,11 @@
  * Licensed under the MIT License.
  */
 
-const axios = import('axios');
+import axios from 'axios';
 import config from './../utils/application.config.release'
 import { responseToDriveItem, responseToListItem } from './../utils/object.mapping'
-import { IDriveItem, IListItem, IWhitelist, Whitelist } from './../database/database';
+import { DriveItem, IDriveItem, IListItem, IWhitelist, Whitelist } from './../database/database';
 import { InsertEmoticon } from '@material-ui/icons';
-
 
 /**
  * Makes an Authorization 'Bearer' request with the given accessToken to the given endpoint.
@@ -22,7 +21,7 @@ const callEndpointWithToken = async(endpoint: any, accessToken:any ):Promise<any
         }
     };
     console.log('Request made at: ' + new Date().toString());
-    const response = await (await axios).default.get(endpoint, options);
+    const response = await axios.get(endpoint, options);
     return response.data;
 }
 
@@ -60,7 +59,7 @@ const fetchData = async(url: string, accessToken: string): Promise<any[]> => {
 }
 
 export async function fetchAdditionalMetadata(accessToken: string): Promise<IListItem[]> {
-    let url = config.GRAPH_DRIVEITEM_ENDPOINT;
+    let url = config.GRAPH_DRIVEITEMS_ENDPOINT;
     const responses = await fetchData(url, accessToken);
     const flattenedResponses = responses.flat();
     let listItems = flattenedResponses.map(responseToListItem);
@@ -68,27 +67,45 @@ export async function fetchAdditionalMetadata(accessToken: string): Promise<ILis
     return listItems;
 }
 
-export async function fetchWhitelists(urls: string[], accessToken: string): Promise<string[]> {
-    //const requests = urls.map(async url => (await axios).default.get(url))
-    
+export async function fetchWhitelists(driveItems: IDriveItem[], accessToken: string): Promise<IWhitelist[]> {
+
+    let whitelists:IWhitelist[] = []
+
     const options = {
         headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': "text-plain"
+            Authorization: `Bearer ${accessToken}`
         }
     };
 
-    const testUrl = "https://fresenius.sharepoint.com/teams/FMETS0269990/_layouts/15/download.aspx?UniqueId=f1f488fe-6ca0-4d03-804f-022a722df21f&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvZnJlc2VuaXVzLnNoYXJlcG9pbnQuY29tQGM5OGRmNTM0LTVlMzYtNDU5YS1hYzNmLThjMmU0NDk4NjNiZCIsImlzcyI6IjAwMDAwMDAzLTAwMDAtMGZmMS1jZTAwLTAwMDAwMDAwMDAwMCIsIm5iZiI6IjE2MzEzNTM5ODciLCJleHAiOiIxNjMxMzU3NTg3IiwiZW5kcG9pbnR1cmwiOiJ0NmxSK3VSdnRrdUNFLytQaUJlTGdrSDZwWkw0Zk4rdk5MdDBhTzdHR3dnPSIsImVuZHBvaW50dXJsTGVuZ3RoIjoiMTM5IiwiaXNsb29wYmFjayI6IlRydWUiLCJjaWQiOiJNemMxTURGaFpqQXRNVFF5TlMwMFlqZ3pMVGhqWlRJdE9EZzVNV00yTURrM09USTUiLCJ2ZXIiOiJoYXNoZWRwcm9vZnRva2VuIiwic2l0ZWlkIjoiWldRMk9HRTBNVEF0TVRjM05DMDBZMkprTFRreFlqZ3RaVEl5TkRBelpEQmxNMk0yIiwiYXBwX2Rpc3BsYXluYW1lIjoiR3JhcGggRXhwbG9yZXIiLCJnaXZlbl9uYW1lIjoiTWF0dGhpYXMiLCJmYW1pbHlfbmFtZSI6IkJyb2RhbGthIiwic2lnbmluX3N0YXRlIjoiW1wia21zaVwiXSIsImFwcGlkIjoiZGU4YmM4YjUtZDlmOS00OGIxLWE4YWQtYjc0OGRhNzI1MDY0IiwidGlkIjoiYzk4ZGY1MzQtNWUzNi00NTlhLWFjM2YtOGMyZTQ0OTg2M2JkIiwidXBuIjoibWF0dGhpYXMuYnJvZGFsa2FAZnJlc2VuaXVzLW5ldGNhcmUuY29tIiwicHVpZCI6IjEwMDM3RkZFOUZGRDgzNTQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzN2ZmZTlmZmQ4MzU0QGxpdmUuY29tIiwic2NwIjoiYWxsZmlsZXMud3JpdGUgZ3JvdXAud3JpdGUgYWxsc2l0ZXMud3JpdGUgYWxscHJvZmlsZXMucmVhZCBhbGxwcm9maWxlcy53cml0ZSIsInR0IjoiMiIsInVzZVBlcnNpc3RlbnRDb29raWUiOm51bGx9.ZFhGenFZdnJIOXJFbGp1djNwMlJNVkV2YjF2cUdVQ3FabC9jS29tUzMyND0&ApiVersion=2.0"
-    const dlResponse = await (await axios).default.get(testUrl, options)
-    console.log(dlResponse);
-    
-    if (dlResponse.status == 302) {
-        const response = await (await axios).default.get(dlResponse.request!.responseURL, options)
-        console.log(response);
-        
-    } 
+    for(const driveItem of driveItems) {
+        if(driveItem.listItemId) {
+            let driveItemUrl = config.GRAPH_DRIVEITEM_ENDPOINT(driveItem.listItemId)
+            const driveItemResponse = await axios.get(driveItemUrl, options)
 
-    return []
+            const downloadUrl = driveItemResponse.data.driveItem["@microsoft.graph.downloadUrl"] as string
+            if(downloadUrl) {
+                const whitelistResponse = await axios.get(downloadUrl)
+                const whitelistContent = whitelistResponse.data as string
+                if(whitelistContent && driveItem.country) {
+                    whitelists.push({country: driveItem.country, content: whitelistContent})
+                }
+            }
+        }
+    }
+
+    return whitelists
+}
+
+async function fetchDriveItem(driveItemId: string, accessToken: string): Promise<IDriveItem | null> {
+    let driveItemUrl = config.GRAPH_DRIVEITEM_ENDPOINT(driveItemId)
+    const driveItemResponse = await callEndpointWithToken(driveItemUrl, accessToken)
+    let driveItem = responseToDriveItem(driveItemResponse)
+    return driveItem
+}
+
+export async function fetchLastModifiedDate(accessToken: string): Promise<string> {
+    const response = await callEndpointWithToken(config.GRAPH_LASTMODIFIED_DATE, accessToken)
+    return response.value[0].lastModifiedDateTime    
 }
 
 export async function fakeFetchWhitelists(): Promise<Array<IWhitelist>> {
@@ -112,7 +129,6 @@ function findCountry(string:string): string {
       const countryCode = result[1].replace(".txt", "");
       return countryCode
     }
-  
     return ""
   }
 

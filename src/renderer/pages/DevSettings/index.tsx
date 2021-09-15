@@ -1,4 +1,4 @@
-import { Button, Card, CardActions, CardContent, FormControl, InputLabel, ListItem, ListItemText, makeStyles, MenuItem, Select, Typography} from '@material-ui/core';
+import { Button, Card, CardActions, CardContent, Container, FormControl, Grid, InputLabel, ListItem, ListItemText, makeStyles, MenuItem, Select, Typography} from '@material-ui/core';
 
 import React, { FC, Fragment, useEffect, useState } from 'react';
 import Sidebar from 'renderer/components/ui/Sidebar';
@@ -7,12 +7,13 @@ import Sidebar from 'renderer/components/ui/Sidebar';
 import { LoadingDialog } from 'renderer/components/ui/Loading';
 
 import { AuthenticationResult } from '@azure/msal-node';
-import {fakeFetchWhitelists, fetchAdditionalMetadata, fetchDelta, fetchWhitelists} from './../../../authentication/fetch'
+import {fakeFetchWhitelists, fetchAdditionalMetadata, fetchDelta, fetchLastModifiedDate, fetchWhitelists} from './../../../authentication/fetch'
 import { CountryVersion, db } from 'database/database';
 import { LightStore } from 'database/stores/LightStore';
 import { responseToDriveItem, responseToListItem } from 'utils/object.mapping';
 import { FlexStore } from 'database/stores/FlexStore';
 import { LinkedStore } from 'database/stores/LinkedStore';
+import { localStorgeHelper } from 'database/storage';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -59,7 +60,9 @@ type DevSettingsState = {
   token: string,
   countries: string[],
   selectedCountry: string,
-  version: string
+  version: string,
+  lastModifiedDateTime?: string
+  showUpdateAlert?: boolean
 }
 
 const DevSettings: FC<DevSettingsProps> = () => {
@@ -82,9 +85,18 @@ const DevSettings: FC<DevSettingsProps> = () => {
     //setupDummyData()
     loadCountries()
     loadCurrentUser()
+    setState({...state, showUpdateAlert: localStorgeHelper.shouldShowUpdateAlert()})
   }, [])
   const classes = useStyles();
-  const [state, setState] = useState<DevSettingsState>({isLoading: false, token: "", countries: [], selectedCountry: "", version: "none"})
+  const [state, setState] = useState<DevSettingsState>({
+    isLoading: false, 
+    token: "", 
+    countries: [], 
+    selectedCountry: "", 
+    version: "none", 
+    lastModifiedDateTime: localStorgeHelper.getLastModifiedDate() ?? "",
+    showUpdateAlert: localStorgeHelper.shouldShowUpdateAlert()
+  })
 
   const login = async() => {
     let token = await window.electron.ipcRenderer.login("")
@@ -117,7 +129,7 @@ const DevSettings: FC<DevSettingsProps> = () => {
   const getDelta = async() => {
     const token = localStorage.getItem("token")
     if(token) {
-
+      setState({...state, isLoading: true})
       try {
         //FETCH DETLA
       let deltaData = await fetchDelta(token);
@@ -132,9 +144,20 @@ const DevSettings: FC<DevSettingsProps> = () => {
       //SET COUNTRY/VERSION
       await db.createUserIfEmpty()
 
+      await db.setupInitialFavoriteGroup()
+
+      const whitelistDriveItems = await db.getAllWhitelists()
+      let whitelists = await fetchWhitelists(whitelistDriveItems, token)
+      await db.saveWhitelists(whitelists)
+
+      localStorgeHelper.setLastMetdataUpdate()
+      setState({...state, isLoading: false})
+
+
       //FETCH WHITELISTS
       } catch (error) {
         console.log(error);
+        setState({...state, isLoading: false})
       }
       
     }
@@ -165,22 +188,12 @@ const DevSettings: FC<DevSettingsProps> = () => {
 
   const loadWhitelists = async() => {
     const token = localStorage.getItem("token")
-    //const whitelistUrls = await db.getAllWhitelistUrls()
-    //console.log(whitelistUrls);
-
-    
-    
-    //await window.electron.ipcRenderer.getWhitelists([])
-    // if(token) {
-    //   try {
-    //     const whitelistUrls = await db.getAllWhitelistUrls()
-    //     const responses = await fetchWhitelists(whitelistUrls, token)
-    //     console.log(responses);
-    //   }
-    //   catch(error) {
-    //     console.log(error);
-    //   }
-    // }
+    if(token) {
+      const whitelistDriveItems = await db.getAllWhitelists()
+      let whitelists = await fetchWhitelists(whitelistDriveItems, token)
+      await db.saveWhitelists(whitelists)
+      console.log(whitelists);
+    }
   }
 
   const setupDummyData = async() => {
@@ -227,6 +240,17 @@ const DevSettings: FC<DevSettingsProps> = () => {
     await store.update()
     console.log(store.items)
   }
+
+  const loadLastModifiedDate = async() => {
+    const token = localStorage.getItem("token")
+   
+    if(token) {
+      const date = await fetchLastModifiedDate(token)
+      console.log(date);
+      localStorgeHelper.setLastModifiedDate(date)
+      setState({...state, lastModifiedDateTime: localStorgeHelper.getLastModifiedDate() ?? ""})
+    }
+  }
     return (
       <Fragment>
       <main className={classes.root}>
@@ -235,73 +259,99 @@ const DevSettings: FC<DevSettingsProps> = () => {
         <div className={classes.content}>
         <Card className={classes.card}>
           <CardContent>
-            <Typography variant="body2" component="p">
-              well meaning and kindly.
-              <br />
-              {'"a benevolent smile"'}
+            <Typography variant="h3" component="p">
+              Developer Settings for testing
             </Typography>
           </CardContent>
-          <CardActions>
-            <Button size="small">Learn More</Button>
-          </CardActions>
         </Card> 
+
+        <Grid container spacing={3}>
+          <Grid item>
+            <ListItem button>
+              <ListItemText primary="Login" secondary={state.token} onClick={() => {login()}}/>
+            </ListItem>
+          </Grid>
+          <Grid item>
+            <ListItem button>
+              <ListItemText primary="Get Token Silent" secondary={state.token} onClick={() => {refresh()}}/>
+            </ListItem>     
+          </Grid>
+        </Grid>
         
-        <ListItem button>
-          <ListItemText primary="Setup dummy data" onClick={() => {setupDummyData()}}/>
-        </ListItem>  
+        <Grid container spacing={3}>
+          <Grid item>
+            <ListItem button>
+              <ListItemText primary="Load dummy data" secondary="Load local data" onClick={() => {setupDummyData()}}/>
+            </ListItem>  
+          </Grid>
+          <Grid item>
+            <ListItem button>
+              <ListItemText primary="Load metadata" secondary="Load data from sharepoint api" onClick={() => {getDelta()}}/>
+            </ListItem>  
+          </Grid>
+        </Grid>
 
-        <ListItem button>
-          <ListItemText primary="Login" secondary="nothing here" onClick={() => {login()}}/>
-        </ListItem>
 
-        <ListItem button>
-          <ListItemText primary="Get Token Silent" secondary={state.token} onClick={() => {refresh()}}/>
-        </ListItem>        
-
-        <ListItem button>
-          <ListItemText primary="Get delta" onClick={() => {getDelta()}}/>
-        </ListItem>   
-
-        <ListItem button>
-          <ListItemText primary="Save" onClick={() => {save()}}/>
-        </ListItem>   
-
-        <ListItem button>
+        <Grid container spacing={3}>
+          <Grid item>
+          <ListItem button>
           <ListItemText primary="Get countries" onClick={() => {loadCountries()}}/>
         </ListItem>  
-
-        <ListItem button>
+          </Grid>
+          <Grid item>
+          <ListItem button>
           <ListItemText primary="Get whitelists" onClick={() => {loadWhitelists()}}/>
-        </ListItem>  
+        </ListItem> 
+          </Grid>
+          <Grid item>
+          <ListItem button>
+          <ListItemText primary="Load last modified date" secondary={state.lastModifiedDateTime} onClick={() => {loadLastModifiedDate()}}/>
+        </ListItem> 
+            </Grid>
 
-        <ListItem button disabled={state.version !== "light"}>
-          <ListItemText primary="Load Lighstore Dev" onClick={() => {loadLighStore()}}/>
-        </ListItem>  
+            <Grid item>
+          <ListItem>
+          <ListItemText primary="Should show update alert?" secondary={state.showUpdateAlert ?? false}/>
+        </ListItem> 
+            </Grid>
+        </Grid>
+        
 
-        <ListItem button disabled={state.version !== "flex"}>
-          <ListItemText primary="Load FlexStore" onClick={() => {loadFlexStore()}}/>
-        </ListItem>
+         
 
-        <ListItem button disabled={state.version !== "flex"}>
-          <ListItemText primary="Load Linked Store for 02 6008 Care System (AUT)" onClick={() => {loadLinkedStore()}}/>
-        </ListItem>
+        <Grid container spacing={3}>
+          <Grid item>
+            <ListItem button disabled={state.version !== "light"}>
+              <ListItemText primary="Load Lighstore Dev" onClick={() => {loadLighStore()}}/>
+            </ListItem>  
+          </Grid>
+          <Grid item>
+            <ListItem button disabled={state.version !== "flex"}>
+              <ListItemText primary="Load FlexStore" onClick={() => {loadFlexStore()}}/>
+            </ListItem>
+          </Grid>
+        </Grid>
+          <ListItem button>
+            <ListItemText primary="Load Linked Store for 02 6008 Care System (AUT)" onClick={() => {loadLinkedStore()}}/>
+          </ListItem>
 
-        <FormControl >
-        <InputLabel id="demo-simple-select-label">Country</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={state.selectedCountry}
-          onChange={(e) => { selectedCountry(e.target.value as string ?? "")}}
-        >
-          {
-            state.countries.map(country => <MenuItem value={country}>{country}</MenuItem>)
-          }
-        </Select>
-      </FormControl>
-      <ListItem>
-          <ListItemText primary="Selected Country and Version" secondary={`${state.selectedCountry} / ${state.version} `} />
-        </ListItem>  
+          <Grid container spacing={3}>
+          <Grid item>
+          <ListItem>
+            <ListItemText primary="Selected Country and Version" secondary={`${state.selectedCountry} / ${state.version} `} />
+          </ListItem>  
+        </Grid>
+            <Grid item>
+              <FormControl >
+                <InputLabel>Country</InputLabel>
+                <Select value={state.selectedCountry} onChange={(e) => { selectedCountry(e.target.value as string ?? "")}}> 
+                { state.countries.map(country => <MenuItem value={country}>{country}</MenuItem>)}
+                </Select>
+              </FormControl>
+        </Grid>
+        
+      </Grid>
+     
 
         </div>
       </main>
