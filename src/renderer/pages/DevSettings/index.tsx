@@ -7,7 +7,7 @@ import Sidebar from 'renderer/components/ui/Sidebar';
 import { LoadingDialog } from 'renderer/components/ui/Loading';
 
 import { AuthenticationResult } from '@azure/msal-node';
-import {fakeFetchWhitelists, fetchAdditionalMetadata, fetchDelta, fetchLastModifiedDate, fetchWhitelists} from './../../../authentication/fetch'
+import {fakeFetchWhitelists, fetchAdditionalMetadata, fetchDelta, fetchDriveItem, fetchLastModifiedDate, fetchWhitelists} from './../../../authentication/fetch'
 import { CountryVersion, db } from 'database/database';
 import { LightStore } from 'database/stores/LightStore';
 import { responseToDriveItem, responseToListItem } from 'utils/object.mapping';
@@ -83,9 +83,12 @@ const DevSettings: FC<DevSettingsProps> = () => {
   
   useEffect(() => {
     //setupDummyData()
-    loadCountries()
-    loadCurrentUser()
-    setState({...state, showUpdateAlert: localStorgeHelper.shouldShowUpdateAlert()})
+
+    async() => {
+      await loadCurrentUser()
+      await loadCountries()
+      setState({...state, showUpdateAlert: localStorgeHelper.shouldShowUpdateAlert()})
+    }
   }, [])
   const classes = useStyles();
   const [state, setState] = useState<DevSettingsState>({
@@ -251,6 +254,18 @@ const DevSettings: FC<DevSettingsProps> = () => {
       setState({...state, lastModifiedDateTime: localStorgeHelper.getLastModifiedDate() ?? ""})
     }
   }
+
+  const downloadTestFile = async() => {
+    const token = localStorage.getItem("token")
+   
+    if(token) {
+      const driveItem = await fetchDriveItem("36066", token)
+      if(driveItem && driveItem.graphDownloadUrl) {
+        let downloadItem = await window.electron.ipcRenderer.downloadFile(driveItem.graphDownloadUrl)
+        console.log(downloadItem);
+      }
+    }
+  }
     return (
       <Fragment>
       <main className={classes.root}>
@@ -340,17 +355,26 @@ const DevSettings: FC<DevSettingsProps> = () => {
           <ListItem>
             <ListItemText primary="Selected Country and Version" secondary={`${state.selectedCountry} / ${state.version} `} />
           </ListItem>  
-        </Grid>
+          </Grid>
             <Grid item>
               <FormControl >
                 <InputLabel>Country</InputLabel>
                 <Select value={state.selectedCountry} onChange={(e) => { selectedCountry(e.target.value as string ?? "")}}> 
-                { state.countries.map(country => <MenuItem value={country}>{country}</MenuItem>)}
+                { state.countries.map(country => <MenuItem key="country" value={country}>{country}</MenuItem>)}
                 </Select>
               </FormControl>
-        </Grid>
+          </Grid>
         
-      </Grid>
+          </Grid>
+
+          <Grid container>
+          <Grid item>
+          <ListItem button>
+            <ListItemText primary="Download test file" secondary="Will be saved to home/oneappdesktop/" onClick={() => {downloadTestFile()}}/>
+          </ListItem>
+            </Grid>
+            <Grid item></Grid>  
+          </Grid> 
      
 
         </div>

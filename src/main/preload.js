@@ -14,6 +14,9 @@ contextBridge.exposeInMainWorld('electron', {
     getWhitelists: async (arg) => {
       return await ipcRenderer.invoke('GET_WHITELISTS', arg);
     },
+    downloadFile: async (arg) => {
+      return await ipcRenderer.invoke('download-file', arg);
+    },
     on(channel, func) {
       const validChannels = ['ipc-example'];
       if (validChannels.includes(channel)) {

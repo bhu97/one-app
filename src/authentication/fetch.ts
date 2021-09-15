@@ -96,11 +96,18 @@ export async function fetchWhitelists(driveItems: IDriveItem[], accessToken: str
     return whitelists
 }
 
-async function fetchDriveItem(driveItemId: string, accessToken: string): Promise<IDriveItem | null> {
+export async function fetchDriveItem(driveItemId: string, accessToken: string): Promise<IDriveItem | null> {
     let driveItemUrl = config.GRAPH_DRIVEITEM_ENDPOINT(driveItemId)
     const driveItemResponse = await callEndpointWithToken(driveItemUrl, accessToken)
     let driveItem = responseToDriveItem(driveItemResponse)
     return driveItem
+}
+
+async function downloadDriveItem(driveItemId: string, accessToken: string): Promise<any> {
+    const driveItem = await fetchDriveItem(driveItemId, accessToken)
+    if(driveItem) {
+
+    }
 }
 
 export async function fetchLastModifiedDate(accessToken: string): Promise<string> {

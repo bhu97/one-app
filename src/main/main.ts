@@ -21,6 +21,8 @@ import {ipcEvent} from './../utils/constants'
 import { AuthenticationResult } from '@azure/msal-common';
 import { fetchWhitelists } from './../authentication/fetch';
 import axios from 'axios';
+import { fileManager } from './filemanager/FileManager';
+import { download } from 'electron-dl';
 
 export default class AppUpdater {
   constructor() {
@@ -125,6 +127,8 @@ const createWindow = async () => {
   // eslint-disable-next-line
   new AppUpdater();
 
+  fileManager.setupRootFolder()
+
 };
 
 /**
@@ -172,6 +176,17 @@ ipcMain.handle(ipcEvent.refreshToken, async() => {
     return token;
   }
   return null;
+})
+
+ipcMain.handle('download-file', async(event, url) => {
+  if(mainWindow) {
+    let response = await download(mainWindow, url, {directory: fileManager.rootFolder});
+    return {
+      fileName: response.getFilename(),
+      savePath: fileManager.rootFolder
+    }
+  }
+ // return await download(mainWindow!, url, {directory: fileManager.rootFolder})
 })
 
 const saveTokenToStorage = async (token: string) => {

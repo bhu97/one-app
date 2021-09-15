@@ -347,6 +347,7 @@ export interface IDriveItem {
     downloadLocation?: string;
     country?: string;
     contentType?: string;
+    graphDownloadUrl?: string;
 }
 
 enum DriveItemType {
@@ -419,6 +420,7 @@ export class DriveItem implements IDriveItem {
     parentReferenceId?: string;
     country?: string;
     contentType?:string;
+    graphDownloadUrl?: string;
 
   constructor(item:any) {
     console.log("drive item id:"+ item.id)
@@ -442,6 +444,7 @@ export class DriveItem implements IDriveItem {
     this.country = findCountry(this.country) ?? ""
     //file specific
     this.fileSize = item?.size ?? 0
+    this.graphDownloadUrl = item.driveItem["@microsoft.graph.downloadUrl"] ?? "" 
     //enable this in node
     //this.fileExtension = path.extname(item.file.webUrl)
   }
