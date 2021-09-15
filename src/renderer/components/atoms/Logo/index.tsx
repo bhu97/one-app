@@ -1,5 +1,6 @@
 import { makeStyles } from '@material-ui/core';
 import React, { FC } from 'react';
+import { Link } from 'react-router-dom';
 
 import { LogoIcon } from '../../../svg';
 
@@ -14,7 +15,12 @@ const useStyles = makeStyles((theme) => ({
 
 export const Logo: FC = () => {
   const styles = useStyles();
-  return <div className={styles.logo}>{LogoIcon}</div>;
+  // TODO Link causes flashing
+  return (
+    <div className={styles.logo}>
+      <Link to="/">{LogoIcon}</Link>
+    </div>
+  );
 };
 
 export default Logo;

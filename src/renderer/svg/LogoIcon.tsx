@@ -25,3 +25,5 @@ export const LogoIcon = (
     </g>
   </svg>
 );
+
+export default LogoIcon;

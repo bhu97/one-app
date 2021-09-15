@@ -36,3 +36,5 @@ export const SettingsIcon: FC<IMenuIconProps> = ({ isSelected }) => (
     </g>
   </svg>
 );
+
+export default SettingsIcon;

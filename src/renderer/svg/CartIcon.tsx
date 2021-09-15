@@ -53,3 +53,5 @@ export const CartIcon: FC<IMenuIconProps> = ({ isSelected }) => (
     </g>
   </svg>
 );
+
+export default CartIcon;

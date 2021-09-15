@@ -27,3 +27,5 @@ export const HomeIcon: FC<IMenuIconProps> = ({ isSelected }) => (
     />
   </svg>
 );
+
+export default HomeIcon;

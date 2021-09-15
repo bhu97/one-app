@@ -23,3 +23,5 @@ export const FavIcon: FC<IMenuIconProps> = ({ isSelected }) => (
     />
   </svg>
 );
+
+export default FavIcon;

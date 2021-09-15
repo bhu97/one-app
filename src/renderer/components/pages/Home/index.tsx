@@ -1,77 +1,52 @@
-import { makeStyles } from '@material-ui/core';
-import React, { FC, Fragment, useEffect, useState } from 'react';
-import { responseToDriveItem, responseToListItem } from 'utils/object.mapping';
+import { makeStyles, Typography } from '@material-ui/core';
+import React, { FC, useEffect, useState } from 'react';
 
-import { db } from '../../../../database/database';
-import StackedFileListController from '../..//ui/StackedFileListController';
+import { IDriveItem } from '../../../../database/database';
 import { LoadingDialog } from '../../atoms/Loading';
+import { StackedFileListController } from '../../ui/StackedFileListController';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-  },
-  main: {
-    marginTop: theme.spacing(4),
-    marginBottom: theme.spacing(4),
-  },
-  content: {
-    flexGrow: 1,
-  },
-  button: {
-    marginRight: `${theme.spacing(2)} !important`,
-  },
-  longBuildDurationWarning: {
-    marginBottom: theme.spacing(1),
-  },
-  buildResponse: {
-    marginBottom: theme.spacing(1),
-  },
-  tooltip: {
-    paddingLeft: '1em',
-    paddingRight: '1em',
-    fontSize: '1.4em !important',
-    '& a': {
-      color: '#90caf9',
-    },
+  headers: {
+    marginBottom: '38px',
   },
 }));
 
-type HomePageProps = {};
-
-type HomePageState = {
-  isLoading: boolean;
-};
-
-export const HomePage: FC<HomePageProps> = () => {
+export const HomePage: FC = () => {
   useEffect(() => {
-    //setupDummyData()
+    // setupDummyData()
   }, []);
-  const classes = useStyles();
+  const styles = useStyles();
   const [state, setState] = useState({ isLoading: false });
+  const [currentRoute, setCurrentRoute] = useState<IDriveItem[]>([]);
 
-  const setupDummyData = async () => {
-    if (await db.isEmpty()) {
-      setState({ ...state, isLoading: true });
+  // const setupDummyData = async () => {
+  //   if (await db.isEmpty()) {
+  //     setState({ ...state, isLoading: true });
 
-      let deltaResponse = await fetch('./../../../assets/delta.json');
-      let deltaResponseJson = await deltaResponse.json();
-      //console.log(deltaResponseJson.value[0]);
-      let driveItems = deltaResponseJson.value.map(responseToDriveItem);
-      await db.save(driveItems);
+  //     let deltaResponse = await fetch('./../../../assets/delta.json');
+  //     let deltaResponseJson = await deltaResponse.json();
+  //     //console.log(deltaResponseJson.value[0]);
+  //     let driveItems = deltaResponseJson.value.map(responseToDriveItem);
+  //     await db.save(driveItems);
 
-      let listitemResponse = await fetch('./../../../assets/listitem.json');
-      let listitemResponseJson = await listitemResponse.json();
-      console.log(listitemResponseJson.value[0]);
-      let listItems = listitemResponseJson.value.map(responseToListItem);
-      await db.saveMetaData(listItems);
+  //     let listitemResponse = await fetch('./../../../assets/listitem.json');
+  //     let listitemResponseJson = await listitemResponse.json();
+  //     console.log(listitemResponseJson.value[0]);
+  //     let listItems = listitemResponseJson.value.map(responseToListItem);
+  //     await db.saveMetaData(listItems);
 
-      setState({ ...state, isLoading: false });
-    }
-  };
+  //     setState({ ...state, isLoading: false });
+  //   }
+  // };
+
   return (
     <>
-      <StackedFileListController></StackedFileListController>
-      <LoadingDialog open={state.isLoading}></LoadingDialog>
+      <div className={styles.headers}>
+        <Typography variant="h1">Home</Typography>
+        <Typography variant="h2">Please select your category</Typography>
+      </div>
+      <StackedFileListController />
+      <LoadingDialog open={state.isLoading} />
     </>
   );
 };

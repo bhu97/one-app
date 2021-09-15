@@ -7,12 +7,30 @@ export const themeConfig: ThemeOptions = {
   shape: {
     borderRadius: 0,
   },
+  typography: (palette) => ({
+    h1: {
+      fontSize: '30px',
+      fontWeight: 500,
+      color: palette.primary.main,
+    },
+    h2: {
+      fontSize: '20px',
+      fontWeight: 500,
+      color: palette.primary.main,
+    },
+  }),
   palette: {
     primary: {
       main: '#071B45',
     },
     secondary: {
       main: '#f48fb1',
+    },
+    error: {
+      main: '#E3467D',
+    },
+    grey: {
+      600: '#A8A39D',
     },
     background: {
       default: '#F3F5FB',

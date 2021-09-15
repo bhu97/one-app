@@ -7,11 +7,14 @@ import { Navigation } from '../../molecules';
 const drawerWidth = 215;
 const useStyles = makeStyles((theme) => ({
   drawer: {
-    width: drawerWidth,
     flexShrink: 0,
+    width: drawerWidth,
+    [theme.breakpoints.down('md')]: {
+      width: 'unset',
+    },
   },
   drawerPaper: {
-    width: drawerWidth,
+    width: '100%',
     backgroundColor: theme.palette.primary.main,
     position: 'relative',
   },

@@ -1,7 +1,7 @@
 import { Container, CssBaseline, makeStyles, ThemeProvider } from '@material-ui/core';
 import React, { FunctionComponent } from 'react';
 
-import theme from '../../../theme';
+import themeOverrides from '../../../theme';
 import { Sidebar } from '../../organisms';
 
 const useStyles = makeStyles((theme) => ({
@@ -25,12 +25,12 @@ export const Layout: FunctionComponent = ({ children }) => {
   const styles = useStyles();
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={themeOverrides}>
       <CssBaseline />
       <main className={styles.root}>
-        <Sidebar navigationEnabled={true} />
+        <Sidebar navigationEnabled />
         <div className={styles.content}>
-          <Container className={styles.main}>{children}</Container>
+          <Container className={styles.main}>{children || ''}</Container>
         </div>
       </main>
     </ThemeProvider>
