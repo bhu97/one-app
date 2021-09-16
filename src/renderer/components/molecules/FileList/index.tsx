@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) =>
 );
 
 interface IFileListProps {
-  items: Array<IDriveItem>;
+  items: IDriveItem[];
   selectedItem: IDriveItem | undefined;
   onDriveItemSelected: (item: IDriveItem) => void;
 }

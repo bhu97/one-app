@@ -30,10 +30,11 @@ export const themeConfig: ThemeOptions = {
       main: '#E3467D',
     },
     grey: {
+      300: '#EEEDEB',
       600: '#A8A39D',
     },
     background: {
-      default: '#F3F5FB',
+      default: '#F0F2FB',
       paper: '#fff',
     },
   },

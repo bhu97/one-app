@@ -26,13 +26,18 @@ export const useDriveItems = () => {
   */
 
   const [isLoading, setIsLoading] = useState(true);
-  const [currentRoute, setCurrentRoute] = useState<IDriveItem[]>([]);
+  const [currentRoute, setCurrentRoute] = useState<IDriveItem[]>([
+    {
+      uniqueId: 'home',
+      title: 'Home',
+    },
+  ]);
 
-  const [items, setItems] = useState<Array<Array<IDriveItem>>>([]);
+  const [items, setItems] = useState<IDriveItem[][]>([]);
 
   const getRootData = async () => {
     const rootItems = (await db.rootItemsForCountry('master')) ?? [];
-    setItems([...items, rootItems]);
+    setItems([rootItems]);
     setIsLoading(false);
   };
 
@@ -48,14 +53,33 @@ export const useDriveItems = () => {
   // this happens by country code
   // TODO: change country code to dynamic value
 
-  const onDriveItemSelected = async (item: IDriveItem, index: number) => {
+  const onDriveItemSelected = async (
+    item: IDriveItem,
+    index: number,
+    fromBreadcrumbs = false
+  ) => {
     const ancestors = [...items.slice(0, index + 1)];
-    const ancestorsRoute = [...currentRoute.slice(0, index)];
+    const ancestorsRoute = [...currentRoute.slice(0, index + 1)];
     const levelItems = await getFileListData(item.uniqueId);
-    setItems([...ancestors, levelItems]);
-    setCurrentRoute([...ancestorsRoute, item]);
+    if (fromBreadcrumbs) {
+      setItems(ancestors);
+      setCurrentRoute(ancestorsRoute);
+    } else {
+      setItems([...ancestors, levelItems]);
+      setCurrentRoute([...ancestorsRoute, item]);
+    }
   };
-  return { isLoading, items, currentRoute, onDriveItemSelected };
+
+  const onBreadcrumbItemSelected = async (item: IDriveItem, index: number) => {
+    await onDriveItemSelected(item, index, true);
+  };
+  return {
+    isLoading,
+    items,
+    currentRoute,
+    onDriveItemSelected,
+    onBreadcrumbItemSelected,
+  };
 };
 
 export default useDriveItems;
