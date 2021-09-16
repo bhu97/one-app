@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { PublicClientApplication, LogLevel, CryptoProvider, AuthenticationResult, SilentFlowRequest, AccountInfo } from '@azure/msal-node';
+import { PublicClientApplication, LogLevel, CryptoProvider, AuthenticationResult, SilentFlowRequest, AccountInfo, Configuration } from '@azure/msal-node';
 import { protocol } from 'electron';
 import path from 'path';
 import url from 'url';
@@ -22,11 +22,11 @@ const CUSTOM_FILE_PROTOCOL_NAME = config.REDIRECT_URI.split(':')[0];
  * For a full list of MSAL Node configuration parameters, visit:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-node/docs/configuration.md 
  */
-const MSAL_CONFIG = {
+const MSAL_CONFIG:Configuration = {
     auth: {
         clientId: config.CLIENT_ID,
         authority: `${config.AAD_ENDPOINT_HOST}${config.TENANT_ID}`,
-        redirectUri: config.REDIRECT_URI,
+        //redirectUri: config.REDIRECT_URI,
     },
     system: {
         loggerOptions: {
@@ -66,7 +66,7 @@ class AuthProvider {
      * Initialize request objects used by this AuthModule.
      */
     setRequestObjects() {
-        const requestScopes =  ['user.read'];
+        const requestScopes =  ['User.Read'];
         const redirectUri = config.REDIRECT_URI;
 
         this.authCodeUrlParams = {
@@ -161,7 +161,7 @@ class AuthProvider {
        // Build silent request
        const silentRequest:SilentFlowRequest = {
            account: account!,
-           scopes: ['user.read']
+           scopes: ['User.Read']
         };
         console.log("got an account: " + silentRequest)
         

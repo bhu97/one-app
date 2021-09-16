@@ -17,6 +17,12 @@ contextBridge.exposeInMainWorld('electron', {
     downloadFile: async (arg) => {
       return await ipcRenderer.invoke('download-file', arg);
     },
+    fetchDriveItem: async (arg) => {
+      return await ipcRenderer.invoke('FETCH_DRIVE_ITEM', arg);
+    },
+    unzipFile: async (arg) => {
+      return await ipcRenderer.invoke('UNZIP_FILE', arg);
+    },
     on(channel, func) {
       const validChannels = ['ipc-example'];
       if (validChannels.includes(channel)) {

@@ -19,10 +19,13 @@ import { resolveHtmlPath } from './util';
 import AuthProvider from './../authentication/AuthProvider';
 import {ipcEvent} from './../utils/constants'
 import { AuthenticationResult } from '@azure/msal-common';
-import { fetchWhitelists } from './../authentication/fetch';
 import axios from 'axios';
 import { fileManager } from './filemanager/FileManager';
 import { download } from 'electron-dl';
+import { responseToDriveItem } from './../utils/object.mapping';
+import config from "./../utils/application.config.release"
+import { IDriveItem } from './../database/database';
+import { zipManager } from './zipmanager/ZipManager';
 
 export default class AppUpdater {
   constructor() {
@@ -178,16 +181,68 @@ ipcMain.handle(ipcEvent.refreshToken, async() => {
   return null;
 })
 
-ipcMain.handle('download-file', async(event, url) => {
+ipcMain.handle('download-file', async(event, params) => {
+  
   if(mainWindow) {
-    let response = await download(mainWindow, url, {directory: fileManager.rootFolder});
-    return {
-      fileName: response.getFilename(),
-      savePath: fileManager.rootFolder
+    console.log(params);
+    console.log(mainWindow);
+    try {
+      const accessToken = await getAuthFromStorage()
+      console.log("access "+accessToken!.accessToken);
+      if (accessToken) {
+        let di = await fetchDriveItem("36066", accessToken.accessToken)
+        
+        if(di && di.graphDownloadUrl) {
+          console.log("download url:"+di?.graphDownloadUrl);
+          let response = await download(mainWindow, di.graphDownloadUrl, {directory: fileManager.rootFolder});
+          return {
+            fileName: response.getFilename(),
+            savePath: fileManager.rootFolder,
+            itemId: params.itemId
+          }
+        }
+      }
+      
+      
+    }
+    catch(error) {
+      console.log(error);
+      
     }
   }
- // return await download(mainWindow!, url, {directory: fileManager.rootFolder})
 })
+
+
+ipcMain.handle('FETCH_DRIVE_ITEM', async(event, params) => {
+  const driveItemId = params.driveItemId
+  const accessToken = (await getAuthFromStorage())?.accessToken
+  if(driveItemId && accessToken) {
+    return await fetchDriveItem(driveItemId, accessToken)
+  }
+})
+
+
+ipcMain.handle('UNZIP_FILE', async(event, params) => {
+  const filePath = params.filePath
+  
+  if(filePath) {
+    await zipManager.unzipFile(filePath)
+  }
+})
+
+
+async function fetchDriveItem(driveItemId: string, accessToken: string): Promise<IDriveItem | null> { 
+    const options = {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+        }
+    };
+    let driveItemUrl = config.GRAPH_DRIVEITEM_ENDPOINT(driveItemId)
+    let driveItemResponse = await axios.get(driveItemUrl, options);
+    let driveItem = responseToDriveItem(driveItemResponse.data)
+    return driveItem
+}
 
 const saveTokenToStorage = async (token: string) => {
   return await mainWindow?.webContents

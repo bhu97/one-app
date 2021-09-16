@@ -1,6 +1,7 @@
 import Dexie from 'dexie';
 import { findCountry, normalizeUrl, notEmpty } from './../utils/helper';
 import config from './../utils/application.config.release'
+import dayjs from 'dayjs';
 export class AppDatabase extends Dexie {
 
     driveItems: Dexie.Table<IDriveItem, number>;
@@ -9,6 +10,7 @@ export class AppDatabase extends Dexie {
     favorites: Dexie.Table<IFavorite, number>;
     whitelists: Dexie.Table<IWhitelist, number>;
     cartItems: Dexie.Table<ICartItem, number>;
+    unzippedItems: Dexie.Table<IUnzippedModuleItem, number>;
 
     constructor() {
 
@@ -22,7 +24,8 @@ export class AppDatabase extends Dexie {
             favoriteGroups: favoriteGroupSchema,
             favorites: favoriteSchema,
             whitelists: whitelistsSchema,
-            cartItems: cartItemsSchema
+            cartItems: cartItemsSchema,
+            unzippedItems: unzippedItemSchema
         });
 
         this.driveItems = this.table("driveItems");
@@ -31,6 +34,7 @@ export class AppDatabase extends Dexie {
         this.favoriteGroups = this.table("favoriteGroups");
         this.favorites = this.table("favorites");
         this.cartItems = this.table("cartItems");
+        this.unzippedItems = this.table("unzippedItems");
     }
 
     async save(items: Array<IDriveItem>): Promise<number> {
@@ -102,6 +106,13 @@ export class AppDatabase extends Dexie {
     async getRegionalFolderForCountry(country: string): Promise<IDriveItem | null> {
         const items = await db.driveItems.where({"country":country, "name": kRegionalFolderName}).toArray()
         return items[0] ? items[0] : null
+    }
+
+    async updateDownloadLocationForDriveItem(driveItemId:string, downloadLocation:string): Promise<any> {
+        const driveItem = (await db.driveItems.where({listItemId: driveItemId}).toArray())[0]
+        if(driveItem) {
+            return await db.driveItems.update(driveItem, {downloadLocation: downloadLocation})
+        }
     }
 
     async createUser() {
@@ -291,6 +302,10 @@ export class AppDatabase extends Dexie {
         return await db.cartItems.clear()
     }
 
+    async saveUnzippedItem(item: IUnzippedModuleItem): Promise<any> {
+        return await db.unzippedItems.put(item)
+    }
+
 }
 const driveItemsToWebUrls = (driveItem: IDriveItem): string | undefined => {return driveItem.webUrl}
 //keys for where clauses
@@ -321,6 +336,7 @@ const favoriteGroupSchema = "++id, name"
 const favoriteSchema = "++id, favoriteGroupName, uniqueId"
 const whitelistsSchema = "country, content"
 const cartItemsSchema = "uniqueId"
+const unzippedItemSchema = "++id, modifiedDate, targetPath, zipPath"
 
 // Interfaces for our DB Models
 export interface IDriveItem {
@@ -355,6 +371,12 @@ enum DriveItemType {
     FILE,
     DOCUMENTSET,
     UNKNOWN
+}
+
+export interface IUnzippedModuleItem {
+    modifiedDate: string,
+    targetPath: string,
+    zipPath: string
 }
 
 export interface IUser {
@@ -444,7 +466,9 @@ export class DriveItem implements IDriveItem {
     this.country = findCountry(this.country) ?? ""
     //file specific
     this.fileSize = item?.size ?? 0
-    this.graphDownloadUrl = item.driveItem["@microsoft.graph.downloadUrl"] ?? "" 
+    if(item.driveItem) {
+        this.graphDownloadUrl = item.driveItem["@microsoft.graph.downloadUrl"] ?? "" 
+    }
     //enable this in node
     //this.fileExtension = path.extname(item.file.webUrl)
   }
