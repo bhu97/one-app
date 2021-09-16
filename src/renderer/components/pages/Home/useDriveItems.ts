@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { db, IDriveItem } from '../../../../database/database';
 
-export const useDriveItems = () => {
+export const useDriveItems = (
+  mainRef: React.MutableRefObject<HTMLDivElement | null>
+) => {
   /*
     const setupDummyData = async () => {
       if (await db.isEmpty()) {
@@ -68,6 +70,10 @@ export const useDriveItems = () => {
       setItems([...ancestors, levelItems]);
       setCurrentRoute([...ancestorsRoute, item]);
     }
+    mainRef.current?.parentElement?.parentElement?.scrollTo({
+      left: 10000,
+      behavior: 'smooth',
+    });
   };
 
   const onBreadcrumbItemSelected = async (item: IDriveItem, index: number) => {

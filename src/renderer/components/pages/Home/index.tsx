@@ -1,5 +1,5 @@
 import { makeStyles, Typography } from '@material-ui/core';
-import React, { FC } from 'react';
+import React, { FC, useRef } from 'react';
 
 import { getAssetPath } from '../../../helpers';
 import { LoadingDialog } from '../../atoms';
@@ -23,17 +23,18 @@ const useStyles = makeStyles((theme) => ({
 
 export const HomePage: FC = () => {
   const styles = useStyles();
+  const mainRef = useRef<HTMLDivElement | null>(null);
   const {
     isLoading,
     items,
     currentRoute,
     onDriveItemSelected,
     onBreadcrumbItemSelected,
-  } = useDriveItems();
+  } = useDriveItems(mainRef);
 
   return (
     <>
-      <div className={styles.main}>
+      <div ref={mainRef} className={styles.main}>
         <div>
           <div className={styles.headers}>
             <Typography variant="h1">Home</Typography>
