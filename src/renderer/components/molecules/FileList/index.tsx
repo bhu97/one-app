@@ -18,26 +18,27 @@ const useStyles = makeStyles((theme) =>
   })
 );
 
-type FileListProps = {
+interface IFileListProps {
   items: Array<IDriveItem>;
-  selectedItem: (id: string, index: number) => void;
-  index: number;
-};
+  selectedItem: IDriveItem | undefined;
+  onDriveItemSelected: (item: IDriveItem) => void;
+}
 
-const FileList: FC<FileListProps> = ({ items, selectedItem, index }) => {
+export const FileList: FC<IFileListProps> = ({
+  items,
+  selectedItem,
+  onDriveItemSelected,
+}) => {
   const classes = useStyles();
-
-  const pressedItem = (uniqueId: string, pressedIndex: number) => {
-    selectedItem(uniqueId, pressedIndex);
-  };
 
   return (
     <List className={classes.root}>
       {items.map((item) => (
         <FolderItem
           key={item.uniqueId}
+          isSelected={item.uniqueId === selectedItem?.uniqueId}
           item={item}
-          onClick={(id: string) => pressedItem(id, index)}
+          onDriveItemSelected={onDriveItemSelected}
         />
       ))}
     </List>

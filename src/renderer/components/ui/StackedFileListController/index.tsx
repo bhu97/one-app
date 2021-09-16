@@ -1,8 +1,8 @@
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import React, { FC, useEffect, useState } from 'react';
 
-import { db, IDriveItem } from '../../../../database/database';
-import FileList from '../FileList';
+import { IDriveItem } from '../../../../database/database';
+import { FileList } from '../../molecules';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -21,60 +21,28 @@ const useStyles = makeStyles((theme) =>
   })
 );
 
-export const StackedFileListController: FC = () => {
-  const [state, setState] = useState({ items: Array<Array<IDriveItem>>() });
+interface IStackedFileListControllerProps {
+  items: IDriveItem[][];
+  currentRoute: IDriveItem[];
+  onDriveItemSelected: (item: IDriveItem, level: number) => void;
+}
 
-  const getRootData = async () => {
-    const items = (await db.rootItemsForCountry('master')) ?? [];
-
-    setState({ items: [...state.items, items] });
-  };
-
-  useEffect(() => {
-    getRootData();
-  }, []);
-
-  // get the first level data
-  // this happens by country code
-  // TODO: change country code to dynamic value
-
-  // get all drive items for a parent unique id
-  const getFileListData = async (uniqueId: string) => {
-    const items = (await db.allItems(uniqueId)) ?? [];
-    setState({ items: [...state.items, items] });
-  };
-
-  const addColumn = async (uniqueId: string) => {
-    await getFileListData(uniqueId);
-  };
-
-  const popColumn = (uniqueId: string, index: number) => {
-    setState({
-      items: [...state.items.slice(0, index + 1)],
-    });
-  };
-
+export const StackedFileListController: FC<IStackedFileListControllerProps> = ({
+  items,
+  currentRoute,
+  onDriveItemSelected,
+}) => {
   const classes = useStyles();
-
-  const selectedItem = (item: string, index: number) => {
-    if (index >= state.items.length - 1) {
-      addColumn(item);
-    } else {
-      popColumn(item, index);
-      // TODO: fix this bug
-      // addColumn(item);
-    }
-  };
 
   return (
     <div className={classes.fl}>
-      {state.items.map((items, index) => {
+      {items.map((columnItems, index) => {
         return (
           <FileList
             key={index}
-            items={items}
-            selectedItem={selectedItem}
-            index={index}
+            items={columnItems}
+            selectedItem={currentRoute[index]}
+            onDriveItemSelected={(item) => onDriveItemSelected(item, index)}
           />
         );
       })}

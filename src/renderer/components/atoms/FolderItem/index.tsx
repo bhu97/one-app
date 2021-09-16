@@ -40,22 +40,27 @@ const useStyles = makeStyles((theme) => ({
 
 export interface IFolderItemProps {
   item: IDriveItem;
-  onClick: (id: string) => void;
+  isSelected: boolean;
+  onDriveItemSelected: (item: IDriveItem) => void;
 }
 
-export const FolderItem: FC<IFolderItemProps> = ({ item, onClick }) => {
+export const FolderItem: FC<IFolderItemProps> = ({
+  item,
+  isSelected,
+  onDriveItemSelected,
+}) => {
   const styles = useStyles();
   const { uniqueId, name, title } = item;
   const text = title || name;
   return (
     <ListItem
       key={uniqueId}
-      selected={/* TODO */ Math.random() > 0.25}
+      selected={isSelected}
       classes={{
         root: styles.folderItem,
       }}
       button
-      onClick={() => onClick(uniqueId)}
+      onClick={() => onDriveItemSelected(item)}
     >
       <ListItemText classes={{ primary: styles.text }} primary={text} />
       <ListItemIcon
