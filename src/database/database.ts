@@ -306,6 +306,10 @@ export class AppDatabase extends Dexie {
         return await db.unzippedItems.put(item)
     }
 
+    async getUnzippedItem(id?:string): Promise<string> {
+        return (await db.unzippedItems.toArray())[0].indexHtmlPath
+    }
+
 }
 const driveItemsToWebUrls = (driveItem: IDriveItem): string | undefined => {return driveItem.webUrl}
 //keys for where clauses
@@ -336,7 +340,7 @@ const favoriteGroupSchema = "++id, name"
 const favoriteSchema = "++id, favoriteGroupName, uniqueId"
 const whitelistsSchema = "country, content"
 const cartItemsSchema = "uniqueId"
-const unzippedItemSchema = "++id, modifiedDate, targetPath, zipPath"
+const unzippedItemSchema = "uniqueId, modifiedDate, targetPath, zipPath, indexHtmlPath, driveItemId"
 
 // Interfaces for our DB Models
 export interface IDriveItem {
@@ -374,9 +378,12 @@ enum DriveItemType {
 }
 
 export interface IUnzippedModuleItem {
+    uniqueId: string,
+    driveItemId: string,
     modifiedDate: string,
     targetPath: string,
-    zipPath: string
+    zipPath: string,
+    indexHtmlPath: string
 }
 
 export interface IUser {

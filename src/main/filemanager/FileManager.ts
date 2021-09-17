@@ -4,9 +4,13 @@ import path from 'path';
 
 const APP_FOLDER = "oneappdesktop"
 const ROOT_DIR = path.join(app.getPath("appData"), APP_FOLDER)
+const MODULES_FOLDER = "modules"
+const CART_FOLDER = "cart"
 
 class FileManager {
   rootFolder = ROOT_DIR
+  modulesFolder = ROOT_DIR + MODULES_FOLDER
+  cartFolder = ROOT_DIR + CART_FOLDER
 
   setupRootFolder():Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -33,6 +37,12 @@ class FileManager {
     return fs.existsSync(folderName)
   }
 
+  // removeFolderIfExists = (folderName:string):boolean => {
+  //   if(this.doesFolderExist(folderName)) {
+  //     fs.dele
+  //   }
+  // }
+
   createFolder(folderName: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       fs.mkdir(path.join(app.getPath("appData"), folderName), (err) => {
@@ -43,6 +53,32 @@ class FileManager {
       });
     })
   }
+
+  findEntryPathForModule(pathToModule: string): string | null {
+    let rootContents = fs.readdirSync( pathToModule );
+    let files = rootContents.filter(this.filterForIndexHtml)
+
+    if(files.length > 0) {
+      //found index html
+      return path.join(pathToModule,files[0])
+    } else {
+      //search second level again
+      console.log("found another dir: "+ rootContents[0]);
+      let secondLevelRootPath = path.join(pathToModule, rootContents[0])
+      let secondLevelRootContents = fs.readdirSync( secondLevelRootPath );
+      let secondLevelFiles = secondLevelRootContents.filter(this.filterForIndexHtml)
+      if(secondLevelFiles.length > 0) {
+        return path.join(secondLevelRootPath,secondLevelFiles[0])
+      }
+    }
+    return null
+  }
+
+  getDirectoryContents(path: string): string[] {
+    return fs.readdirSync( path );
+  }
+
+  filterForIndexHtml = (elm:string) => elm.match("index.html")
 }
 
 export const fileManager = new FileManager()

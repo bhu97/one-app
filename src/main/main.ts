@@ -13,7 +13,7 @@ import 'regenerator-runtime/runtime';
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
+import log, { create } from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import AuthProvider from './../authentication/AuthProvider';
@@ -190,10 +190,24 @@ ipcMain.handle('download-file', async(event, params) => {
       const accessToken = await getAuthFromStorage()
       console.log("access "+accessToken!.accessToken);
       if (accessToken) {
-        let di = await fetchDriveItem("36066", accessToken.accessToken)
+        let di = await fetchDriveItem(params.itemId, accessToken.accessToken)
         
         if(di && di.graphDownloadUrl) {
-          console.log("download url:"+di?.graphDownloadUrl);
+          //console.log("download url:"+di?.graphDownloadUrl);
+          let directory = fileManager.rootFolder
+          if(params.directory) {
+            switch(params.directory) {
+              case "MODULES":
+                directory = fileManager.modulesFolder
+                break;
+              case "CART":
+                directory = fileManager.cartFolder
+                break;
+              default:
+                directory = fileManager.rootFolder
+                break;
+            }
+          }
           let response = await download(mainWindow, di.graphDownloadUrl, {directory: fileManager.rootFolder});
           return {
             fileName: response.getFilename(),
@@ -222,14 +236,36 @@ ipcMain.handle('FETCH_DRIVE_ITEM', async(event, params) => {
 })
 
 
-ipcMain.handle('UNZIP_FILE', async(event, params) => {
+ipcMain.handle('UNZIP_FILE', async(_, params) => {
   const filePath = params.filePath
-  
   if(filePath) {
-    await zipManager.unzipFile(filePath)
+    return await zipManager.unzipFile(filePath)
   }
 })
 
+ipcMain.handle('PERFORM_REQUEST', async(_, params) => {
+  let response;
+  if(params.url) {
+    response = await axios.get(params.url, params.options);
+  }
+  return response?.data
+})
+
+ipcMain.handle('FIND_INDEX_HTML', async(_, params) => {
+  return fileManager.findEntryPathForModule(params.path)
+})
+
+ipcMain.handle('OPEN_HTML', (_, path: string) => {
+  console.log("open html:"+path);
+  
+  try {
+    let window = createModalWindow(mainWindow!)
+    window.loadFile(path)
+  }
+  catch(error) {
+    console.log(error); 
+  }
+})
 
 async function fetchDriveItem(driveItemId: string, accessToken: string): Promise<IDriveItem | null> { 
     const options = {
@@ -265,27 +301,27 @@ const getAuthFromStorage = async (): Promise<AuthenticationResult | null> => {
     return null
 }
 
-ipcMain.handle(ipcEvent.whitelists, async(event, urls:string[]) => {
-console.log("get whitelists main");
+// ipcMain.handle(ipcEvent.whitelists, async(event, urls:string[]) => {
+// console.log("get whitelists main");
 
-  const accessToken = await getAuthFromStorage()
+//   const accessToken = await getAuthFromStorage()
   
-  const options = {
-    headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': "text-plain"
-    }
-};
+//   const options = {
+//     headers: {
+//         'Authorization': `Bearer ${accessToken}`,
+//         'Content-Type': "text-plain"
+//     }
+// };
 
-    const testUrl = "https://fresenius.sharepoint.com/teams/FMETS0269990/_layouts/15/download.aspx?UniqueId=f1f488fe-6ca0-4d03-804f-022a722df21f&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvZnJlc2VuaXVzLnNoYXJlcG9pbnQuY29tQGM5OGRmNTM0LTVlMzYtNDU5YS1hYzNmLThjMmU0NDk4NjNiZCIsImlzcyI6IjAwMDAwMDAzLTAwMDAtMGZmMS1jZTAwLTAwMDAwMDAwMDAwMCIsIm5iZiI6IjE2MzEzNTM5ODciLCJleHAiOiIxNjMxMzU3NTg3IiwiZW5kcG9pbnR1cmwiOiJ0NmxSK3VSdnRrdUNFLytQaUJlTGdrSDZwWkw0Zk4rdk5MdDBhTzdHR3dnPSIsImVuZHBvaW50dXJsTGVuZ3RoIjoiMTM5IiwiaXNsb29wYmFjayI6IlRydWUiLCJjaWQiOiJNemMxTURGaFpqQXRNVFF5TlMwMFlqZ3pMVGhqWlRJdE9EZzVNV00yTURrM09USTUiLCJ2ZXIiOiJoYXNoZWRwcm9vZnRva2VuIiwic2l0ZWlkIjoiWldRMk9HRTBNVEF0TVRjM05DMDBZMkprTFRreFlqZ3RaVEl5TkRBelpEQmxNMk0yIiwiYXBwX2Rpc3BsYXluYW1lIjoiR3JhcGggRXhwbG9yZXIiLCJnaXZlbl9uYW1lIjoiTWF0dGhpYXMiLCJmYW1pbHlfbmFtZSI6IkJyb2RhbGthIiwic2lnbmluX3N0YXRlIjoiW1wia21zaVwiXSIsImFwcGlkIjoiZGU4YmM4YjUtZDlmOS00OGIxLWE4YWQtYjc0OGRhNzI1MDY0IiwidGlkIjoiYzk4ZGY1MzQtNWUzNi00NTlhLWFjM2YtOGMyZTQ0OTg2M2JkIiwidXBuIjoibWF0dGhpYXMuYnJvZGFsa2FAZnJlc2VuaXVzLW5ldGNhcmUuY29tIiwicHVpZCI6IjEwMDM3RkZFOUZGRDgzNTQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzN2ZmZTlmZmQ4MzU0QGxpdmUuY29tIiwic2NwIjoiYWxsZmlsZXMud3JpdGUgZ3JvdXAud3JpdGUgYWxsc2l0ZXMud3JpdGUgYWxscHJvZmlsZXMucmVhZCBhbGxwcm9maWxlcy53cml0ZSIsInR0IjoiMiIsInVzZVBlcnNpc3RlbnRDb29raWUiOm51bGx9.ZFhGenFZdnJIOXJFbGp1djNwMlJNVkV2YjF2cUdVQ3FabC9jS29tUzMyND0&ApiVersion=2.0"
-    const dlResponse = await axios.get(testUrl, options)
-    console.log(dlResponse);
+//     const testUrl = "https://fresenius.sharepoint.com/teams/FMETS0269990/_layouts/15/download.aspx?UniqueId=f1f488fe-6ca0-4d03-804f-022a722df21f&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvZnJlc2VuaXVzLnNoYXJlcG9pbnQuY29tQGM5OGRmNTM0LTVlMzYtNDU5YS1hYzNmLThjMmU0NDk4NjNiZCIsImlzcyI6IjAwMDAwMDAzLTAwMDAtMGZmMS1jZTAwLTAwMDAwMDAwMDAwMCIsIm5iZiI6IjE2MzEzNTM5ODciLCJleHAiOiIxNjMxMzU3NTg3IiwiZW5kcG9pbnR1cmwiOiJ0NmxSK3VSdnRrdUNFLytQaUJlTGdrSDZwWkw0Zk4rdk5MdDBhTzdHR3dnPSIsImVuZHBvaW50dXJsTGVuZ3RoIjoiMTM5IiwiaXNsb29wYmFjayI6IlRydWUiLCJjaWQiOiJNemMxTURGaFpqQXRNVFF5TlMwMFlqZ3pMVGhqWlRJdE9EZzVNV00yTURrM09USTUiLCJ2ZXIiOiJoYXNoZWRwcm9vZnRva2VuIiwic2l0ZWlkIjoiWldRMk9HRTBNVEF0TVRjM05DMDBZMkprTFRreFlqZ3RaVEl5TkRBelpEQmxNMk0yIiwiYXBwX2Rpc3BsYXluYW1lIjoiR3JhcGggRXhwbG9yZXIiLCJnaXZlbl9uYW1lIjoiTWF0dGhpYXMiLCJmYW1pbHlfbmFtZSI6IkJyb2RhbGthIiwic2lnbmluX3N0YXRlIjoiW1wia21zaVwiXSIsImFwcGlkIjoiZGU4YmM4YjUtZDlmOS00OGIxLWE4YWQtYjc0OGRhNzI1MDY0IiwidGlkIjoiYzk4ZGY1MzQtNWUzNi00NTlhLWFjM2YtOGMyZTQ0OTg2M2JkIiwidXBuIjoibWF0dGhpYXMuYnJvZGFsa2FAZnJlc2VuaXVzLW5ldGNhcmUuY29tIiwicHVpZCI6IjEwMDM3RkZFOUZGRDgzNTQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzN2ZmZTlmZmQ4MzU0QGxpdmUuY29tIiwic2NwIjoiYWxsZmlsZXMud3JpdGUgZ3JvdXAud3JpdGUgYWxsc2l0ZXMud3JpdGUgYWxscHJvZmlsZXMucmVhZCBhbGxwcm9maWxlcy53cml0ZSIsInR0IjoiMiIsInVzZVBlcnNpc3RlbnRDb29raWUiOm51bGx9.ZFhGenFZdnJIOXJFbGp1djNwMlJNVkV2YjF2cUdVQ3FabC9jS29tUzMyND0&ApiVersion=2.0"
+//     const dlResponse = await axios.get(testUrl, options)
+//     console.log(dlResponse);
 
-    if (dlResponse.status == 302) {
-        const response = await axios.get(dlResponse.request!.responseURL, options)
-        console.log(response);
-    } 
-})
+//     if (dlResponse.status == 302) {
+//         const response = await axios.get(dlResponse.request!.responseURL, options)
+//         console.log(response);
+//     } 
+// })
 
 export function createModalWindow(mainWindow: BrowserWindow) {
   console.log("create modal");

@@ -106,13 +106,17 @@ export async function fetchDriveItem(driveItemId: string, accessToken: string): 
             "Content-Type": "application/json",
         }
     };
-    let driveItemUrl = config.GRAPH_DRIVEITEM_ENDPOINT(driveItemId)
-    let driveItemResponse = await axios.get(driveItemUrl, options);
+     let driveItemUrl = config.GRAPH_DRIVEITEM_ENDPOINT(driveItemId)
+    // let driveItemResponse = await axios.get(driveItemUrl, options);
     //console.log("driveitemresponse: "+JSON.stringify(driveItemResponse.data));
     //console.log("download url "+JSON.stringify(driveItemResponse.data.driveItem["@microsoft.graph.downloadUrl"]));
-    let driveItem = responseToDriveItem(driveItemResponse.data)
+    let driveItemResponse = await window.electron.ipcRenderer.performRequest({url: driveItemUrl, options: options})
+    if(driveItemResponse) {
+        let driveItem = responseToDriveItem(driveItemResponse)
+        return driveItem
+    }
 
-    return driveItem
+    return null
 }
 
 async function downloadDriveItem(driveItemId: string, accessToken: string): Promise<any> {

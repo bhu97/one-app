@@ -35,6 +35,7 @@ import { responseToDriveItem, responseToListItem } from 'utils/object.mapping';
 import { FlexStore } from 'database/stores/FlexStore';
 import { LinkedStore } from 'database/stores/LinkedStore';
 import { localStorgeHelper } from 'database/storage';
+import dayjs from 'dayjs';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -294,9 +295,11 @@ const DevSettings: FC<DevSettingsProps> = () => {
       //console.log(driveItem);
 
       if (driveItem && driveItem.graphDownloadUrl) {
+        console.log(driveItem.graphDownloadUrl);
         let downloadItem = await window.electron.ipcRenderer.downloadFile({
           url: driveItem.graphDownloadUrl,
           itemId: driveItemId,
+          directory: 'MODULES',
         });
 
         console.log(downloadItem);
@@ -306,13 +309,38 @@ const DevSettings: FC<DevSettingsProps> = () => {
             `${downloadItem.savePath}/${downloadItem.fileName}`
           );
 
-          await window.electron.ipcRenderer.unzipFile({
+          let zipResponse = await window.electron.ipcRenderer.unzipFile({
             filePath: `${downloadItem.savePath}/${downloadItem.fileName}`,
           });
+
+          console.log(zipResponse);
+          if (zipResponse) {
+            db.saveUnzippedItem({
+              driveItemId: driveItemId,
+              zipPath: `${downloadItem.savePath}/${downloadItem.fileName}`,
+              targetPath: zipResponse.targetDir,
+              modifiedDate: driveItem.timeLastModified ?? dayjs().toISOString(),
+              uniqueId: driveItem.uniqueId,
+              indexHtmlPath: zipResponse.indexHtmlPath,
+            });
+            let indexHtmlPath = await window.electron.ipcRenderer.findIndexHTML(
+              {
+                path: zipResponse.targetDir,
+              }
+            );
+            console.log('index html path' + indexHtmlPath);
+          }
         }
       }
     }
   };
+
+  const openUnzippedModule = async () => {
+    let indexHtmlPath = await db.getUnzippedItem();
+    console.log(indexHtmlPath);
+    window.electron.ipcRenderer.openHTML(indexHtmlPath);
+  };
+
   return (
     <Fragment>
       <main className={classes.root}>
@@ -490,7 +518,16 @@ const DevSettings: FC<DevSettingsProps> = () => {
                 />
               </ListItem>
             </Grid>
-            <Grid item></Grid>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Open unzipped file"
+                  onClick={() => {
+                    openUnzippedModule();
+                  }}
+                />
+              </ListItem>
+            </Grid>
           </Grid>
         </div>
       </main>

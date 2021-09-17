@@ -23,6 +23,15 @@ contextBridge.exposeInMainWorld('electron', {
     unzipFile: async (arg) => {
       return await ipcRenderer.invoke('UNZIP_FILE', arg);
     },
+    performRequest: async (arg) => {
+      return await ipcRenderer.invoke('PERFORM_REQUEST', arg);
+    },
+    findIndexHTML: async (arg) => {
+      return await ipcRenderer.invoke('FIND_INDEX_HTML', arg);
+    },
+    openHTML: (path) => {
+      ipcRenderer.invoke('OPEN_HTML', path);
+    },
     on(channel, func) {
       const validChannels = ['ipc-example'];
       if (validChannels.includes(channel)) {
