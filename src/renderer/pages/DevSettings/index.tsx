@@ -341,6 +341,34 @@ const DevSettings: FC<DevSettingsProps> = () => {
     window.electron.ipcRenderer.openHTML(indexHtmlPath);
   };
 
+  const downloadFilesForSending = async () => {
+    let driveItemIds: string[] = [
+      '36066',
+      '36015',
+      '735',
+      '36014',
+      '36013',
+      '712',
+      '713',
+    ];
+
+    setState({ ...state, isLoading: true });
+    try {
+      for (let driveItemId of driveItemIds) {
+        let downloadItem = await window.electron.ipcRenderer.downloadFile({
+          url: '',
+          itemId: driveItemId,
+          directory: 'CART',
+        });
+      }
+
+      window.electron.ipcRenderer.openCartFolder();
+    } catch (error) {
+      console.log(error);
+    }
+    setState({ ...state, isLoading: false });
+  };
+
   return (
     <Fragment>
       <main className={classes.root}>
@@ -524,6 +552,30 @@ const DevSettings: FC<DevSettingsProps> = () => {
                   primary="Open unzipped file"
                   onClick={() => {
                     openUnzippedModule();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+          </Grid>
+
+          <Grid container>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Download files for sending"
+                  secondary="Will be saved to home/oneappdesktop/cart/"
+                  onClick={() => {
+                    downloadFilesForSending();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Open cart folder"
+                  onClick={() => {
+                    window.electron.ipcRenderer.openCartFolder();
                   }}
                 />
               </ListItem>

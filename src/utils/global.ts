@@ -16,6 +16,7 @@ declare global {
         performRequest: (params: {url: string, options?: AxiosRequestConfig}) => Promise<any | undefined>;
         findIndexHTML: (params: {path: string}) => Promise<any | undefined>;
         openHTML:(path: string) => void; 
+        openCartFolder: (path?:string) => void;
       }
     }
   }

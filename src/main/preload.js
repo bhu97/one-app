@@ -32,6 +32,9 @@ contextBridge.exposeInMainWorld('electron', {
     openHTML: (path) => {
       ipcRenderer.invoke('OPEN_HTML', path);
     },
+    openCartFolder: (path) => {
+      ipcRenderer.invoke('OPEN_CART_FOLDER', path);
+    },
     on(channel, func) {
       const validChannels = ['ipc-example'];
       if (validChannels.includes(channel)) {

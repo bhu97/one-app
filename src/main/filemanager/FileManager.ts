@@ -9,8 +9,8 @@ const CART_FOLDER = "cart"
 
 class FileManager {
   rootFolder = ROOT_DIR
-  modulesFolder = ROOT_DIR + MODULES_FOLDER
-  cartFolder = ROOT_DIR + CART_FOLDER
+  modulesFolder = path.join(ROOT_DIR, MODULES_FOLDER)
+  cartFolder = path.join(ROOT_DIR, CART_FOLDER)
 
   setupRootFolder():Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -76,6 +76,10 @@ class FileManager {
 
   getDirectoryContents(path: string): string[] {
     return fs.readdirSync( path );
+  }
+
+  removeCartFolder() {
+    fs.rmdirSync(this.cartFolder, { recursive: true });
   }
 
   filterForIndexHtml = (elm:string) => elm.match("index.html")

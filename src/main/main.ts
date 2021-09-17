@@ -208,7 +208,7 @@ ipcMain.handle('download-file', async(event, params) => {
                 break;
             }
           }
-          let response = await download(mainWindow, di.graphDownloadUrl, {directory: fileManager.rootFolder});
+          let response = await download(mainWindow, di.graphDownloadUrl, {directory: directory});
           return {
             fileName: response.getFilename(),
             savePath: fileManager.rootFolder,
@@ -266,6 +266,15 @@ ipcMain.handle('OPEN_HTML', (_, path: string) => {
     console.log(error); 
   }
 })
+
+ipcMain.handle('OPEN_CART_FOLDER', async(_, path: string) => {
+  let response = await openFolder(fileManager.cartFolder)
+  console.log(`open folder response : ${response} for folder path: ${fileManager.cartFolder}`);
+})
+
+const openFolder = async (path:string):Promise<string>  => {
+  return shell.openPath(path)
+}
 
 async function fetchDriveItem(driveItemId: string, accessToken: string): Promise<IDriveItem | null> { 
     const options = {
