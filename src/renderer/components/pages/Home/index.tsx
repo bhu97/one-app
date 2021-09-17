@@ -1,10 +1,10 @@
-import { makeStyles, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import React, { FC, useRef } from 'react';
 
-import { getAssetPath } from '../../../helpers';
+import { DriveItemType } from '../../../../database/database';
 import { LoadingDialog } from '../../atoms';
 import { Breadcrumbs } from '../../molecules';
-import { StackedFileListController } from '../../ui/StackedFileListController';
+import { FolderList } from '../../organisms';
 import { useDriveItems } from './useDriveItems';
 
 const useStyles = makeStyles((theme) => ({
@@ -32,29 +32,20 @@ export const HomePage: FC = () => {
     onBreadcrumbItemSelected,
   } = useDriveItems(mainRef);
 
+  const lastItemType = currentRoute[currentRoute.length - 1].type;
+
   return (
     <>
       <div ref={mainRef} className={styles.main}>
-        <div>
-          <div className={styles.headers}>
-            <Typography variant="h1">Home</Typography>
-            <Typography variant="h2">Please select your category</Typography>
-          </div>
-          <StackedFileListController
+        {lastItemType === DriveItemType.DOCUMENTSET ? (
+          <div>SHOW DOCUMENT SET</div>
+        ) : (
+          <FolderList
             items={items}
+            currentRoute={currentRoute}
             onDriveItemSelected={onDriveItemSelected}
-            currentRoute={currentRoute.slice(1)}
           />
-        </div>
-        {currentRoute.length === 1 ? (
-          <img
-            className={styles.image}
-            src={getAssetPath(
-              '../../../../../assets/home/200921_FMC_OneApp_Illustrationen_Final_Gruppe_02.png'
-            )}
-            alt=""
-          />
-        ) : null}
+        )}
       </div>
       <Breadcrumbs
         items={currentRoute}

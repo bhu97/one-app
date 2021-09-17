@@ -351,7 +351,7 @@ export interface IDriveItem {
     contentType?: string;
 }
 
-enum DriveItemType {
+export enum DriveItemType {
     FOLDER,
     FILE,
     DOCUMENTSET,

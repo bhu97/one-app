@@ -1,5 +1,5 @@
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC } from 'react';
 
 import { IDriveItem } from '../../../../database/database';
 import { FileList } from '../../molecules';
@@ -7,14 +7,6 @@ import { FileList } from '../../molecules';
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
-      // width: '100%',
-      // maxWidth: '36ch',
-      backgroundColor: theme.palette.background.paper,
-    },
-    inline: {
-      display: 'inline',
-    },
-    fl: {
       display: 'flex',
       width: '100%',
     },
@@ -35,7 +27,7 @@ export const StackedFileListController: FC<IStackedFileListControllerProps> = ({
   const classes = useStyles();
 
   return (
-    <div className={classes.fl}>
+    <div className={classes.root}>
       {items.map((columnItems, index) => {
         return (
           <FileList
