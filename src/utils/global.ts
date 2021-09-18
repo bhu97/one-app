@@ -11,7 +11,7 @@ declare global {
         refreshTokenSilently: () => Promise<AuthenticationResult>;
         //getWhitelists: (urls: string[]) => Promise<string[]>;
         downloadFile: (params: {url: string, itemId: string, directory?: string}) => Promise<any>;
-        fetchDriveItem: (params: {driveItemId: string}) => Promise<IDriveItem>;
+        fetchDriveItem: (params: {driveItemId: string, accessToken:string}) => Promise<IDriveItem>;
         unzipFile: (params: {filePath: string}) => Promise<any>;
         performRequest: (params: {url: string, options?: AxiosRequestConfig}) => Promise<any | undefined>;
         findIndexHTML: (params: {path: string}) => Promise<any | undefined>;

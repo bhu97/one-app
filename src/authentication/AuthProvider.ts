@@ -96,6 +96,14 @@ class AuthProvider {
         return this.handleResponse(authResult);
     }
 
+    async loginSilent(): Promise<AccountInfo> {
+        if (!this.account) {
+            this.account = await this.getAccount();
+        }
+
+        return this.account;
+    }
+
     async logout() {
         if (this.account) {
             await this.clientApplication.getTokenCache().removeAccount(this.account);
@@ -158,7 +166,7 @@ class AuthProvider {
         return authResponse;
     }
 
-    async getTokenSilent(currentAccount: AccountInfo | null): Promise<AuthenticationResult | null> {
+    async getTokenSilent(currentAccount: AccountInfo | null | undefined): Promise<AuthenticationResult | null> {
        // alternativley: await msalTokenCache.getAccountByLocalId(localAccountId) if using localAccountId
        let account = await this.getAccount()
        if(!account) { return null}
@@ -197,7 +205,7 @@ class AuthProvider {
      * Handles the response from a popup or redirect. If response is null, will check if we have any accounts and attempt to sign in.
      * @param response 
      */
-    async handleResponse(response:any) {
+    async handleResponse(response:AuthenticationResult | null):Promise<AccountInfo | null> {
         if (response !== null) {
             this.account = response.account;
         } else {

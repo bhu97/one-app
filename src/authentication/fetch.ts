@@ -81,7 +81,7 @@ export async function fetchWhitelists(driveItems: IDriveItem[], accessToken: str
     for(const driveItem of driveItems) {
         if(driveItem.listItemId) {
             let driveItemUrl = config.GRAPH_DRIVEITEM_ENDPOINT(driveItem.listItemId)
-            const driveItemResponse = await window.electron.ipcRenderer.fetchDriveItem({driveItemId: driveItem.listItemId})
+            const driveItemResponse = await window.electron.ipcRenderer.fetchDriveItem({driveItemId: driveItem.listItemId, accessToken: accessToken})
 
             const downloadUrl = driveItemResponse.graphDownloadUrl as string
             if(downloadUrl) {

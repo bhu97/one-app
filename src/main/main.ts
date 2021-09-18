@@ -173,12 +173,11 @@ ipcMain.handle(ipcEvent.login, async() => {
 })
 
 ipcMain.handle(ipcEvent.refreshToken, async() => {
-  let account = await getAuthFromStorage();
-  if(account) {
-    let token = await authProvider.getTokenSilent(account.account);
-    return token;
-  }
-  return null;
+    let authorizationResult = await authProvider.getTokenSilent(null);
+    if(authorizationResult) {
+      await saveTokenToStorage(authorizationResult.accessToken)
+    }
+    return authorizationResult;
 })
 
 ipcMain.handle('download-file', async(event, params) => {
@@ -229,7 +228,7 @@ ipcMain.handle('download-file', async(event, params) => {
 
 ipcMain.handle('FETCH_DRIVE_ITEM', async(event, params) => {
   const driveItemId = params.driveItemId
-  const accessToken = (await getAuthFromStorage())?.accessToken
+  const accessToken = params.accessToken
   if(driveItemId && accessToken) {
     return await fetchDriveItem(driveItemId, accessToken)
   }

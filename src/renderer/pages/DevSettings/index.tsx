@@ -36,6 +36,7 @@ import { FlexStore } from 'database/stores/FlexStore';
 import { LinkedStore } from 'database/stores/LinkedStore';
 import { localStorgeHelper } from 'database/storage';
 import dayjs from 'dayjs';
+import { AppError, dataManager } from './../../../renderer/DataManager';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -154,39 +155,51 @@ const DevSettings: FC<DevSettingsProps> = () => {
     return null;
   };
 
+  // const getDelta = async () => {
+  //   const token = localStorage.getItem('token');
+  //   if (token) {
+  //     setState({ ...state, isLoading: true });
+  //     try {
+  //       //FETCH DETLA
+  //       let deltaData = await fetchDelta(token);
+  //       console.log(deltaData);
+  //       await db.save(deltaData);
+
+  //       //FETCH METADATA
+  //       let metaData = await fetchAdditionalMetadata(token);
+  //       await db.saveMetaData(metaData);
+
+  //       //CREATE USER
+  //       //SET COUNTRY/VERSION
+  //       await db.createUserIfEmpty();
+
+  //       await db.setupInitialFavoriteGroup();
+
+  //       const whitelistDriveItems = await db.getAllWhitelists();
+  //       let whitelists = await fetchWhitelists(whitelistDriveItems, token);
+  //       await db.saveWhitelists(whitelists);
+
+  //       localStorgeHelper.setLastMetdataUpdate();
+  //       setState({ ...state, isLoading: false });
+
+  //       //FETCH WHITELISTS
+  //     } catch (error) {
+  //       console.log(error);
+  //       setState({ ...state, isLoading: false });
+  //     }
+  //   }
+  // };
+
   const getDelta = async () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setState({ ...state, isLoading: true });
-      try {
-        //FETCH DETLA
-        let deltaData = await fetchDelta(token);
-        console.log(deltaData);
-        await db.save(deltaData);
-
-        //FETCH METADATA
-        let metaData = await fetchAdditionalMetadata(token);
-        await db.saveMetaData(metaData);
-
-        //CREATE USER
-        //SET COUNTRY/VERSION
-        await db.createUserIfEmpty();
-
-        await db.setupInitialFavoriteGroup();
-
-        const whitelistDriveItems = await db.getAllWhitelists();
-        let whitelists = await fetchWhitelists(whitelistDriveItems, token);
-        await db.saveWhitelists(whitelists);
-
-        localStorgeHelper.setLastMetdataUpdate();
-        setState({ ...state, isLoading: false });
-
-        //FETCH WHITELISTS
-      } catch (error) {
-        console.log(error);
-        setState({ ...state, isLoading: false });
-      }
+    setState({ ...state, isLoading: true });
+    let result = await dataManager.getMetaData((state) =>
+      console.log('loading' + state)
+    );
+    setState({ ...state, isLoading: false });
+    if (result as boolean) {
+      console.log('result: ' + result);
     }
+    console.log('result: ' + result);
   };
 
   const loadCountries = async () => {
@@ -273,15 +286,18 @@ const DevSettings: FC<DevSettingsProps> = () => {
   };
 
   const loadLastModifiedDate = async () => {
-    const token = localStorage.getItem('token');
-
+    //const token = localStorage.getItem('token');
+    const authResult = await window.electron.ipcRenderer.refreshTokenSilently();
+    const token = authResult.accessToken;
     if (token) {
       const date = await fetchLastModifiedDate(token);
       console.log(date);
       localStorgeHelper.setLastModifiedDate(date);
+      let showAlert = localStorgeHelper.shouldShowUpdateAlert();
       setState({
         ...state,
         lastModifiedDateTime: localStorgeHelper.getLastModifiedDate() ?? '',
+        showUpdateAlert: showAlert,
       });
     }
   };
@@ -469,7 +485,7 @@ const DevSettings: FC<DevSettingsProps> = () => {
               <ListItem>
                 <ListItemText
                   primary="Should show update alert?"
-                  secondary={state.showUpdateAlert ?? false}
+                  secondary={state.showUpdateAlert ? 'true' : 'false'}
                 />
               </ListItem>
             </Grid>
