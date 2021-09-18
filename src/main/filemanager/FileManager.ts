@@ -6,11 +6,13 @@ const APP_FOLDER = "oneappdesktop"
 const ROOT_DIR = path.join(app.getPath("appData"), APP_FOLDER)
 const MODULES_FOLDER = "modules"
 const CART_FOLDER = "cart"
+const CACHE_FOLDER = "cache"
 
 class FileManager {
   rootFolder = ROOT_DIR
   modulesFolder = path.join(ROOT_DIR, MODULES_FOLDER)
   cartFolder = path.join(ROOT_DIR, CART_FOLDER)
+  cacheFolder = path.join(ROOT_DIR, CACHE_FOLDER)
 
   setupRootFolder():Promise<void> {
     return new Promise<void>((resolve, reject) => {

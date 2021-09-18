@@ -9,6 +9,7 @@ import path from 'path';
 import url from 'url';
 import config from '../utils/application.config.release'
 import dayjs from 'dayjs';
+import { cachePlugin } from "./CachePlugin";
 
 /**
  * To demonstrate best security practices, this Electron sample application makes use of 
@@ -36,6 +37,9 @@ const MSAL_CONFIG:Configuration = {
             piiLoggingEnabled: false,
             logLevel: LogLevel.Verbose,
         }
+    },
+    cache: {
+        cachePlugin: cachePlugin
     }
 };
 
@@ -156,7 +160,7 @@ class AuthProvider {
 
     async getTokenSilent(currentAccount: AccountInfo | null): Promise<AuthenticationResult | null> {
        // alternativley: await msalTokenCache.getAccountByLocalId(localAccountId) if using localAccountId
-       let account = await this.getAccount() ?? currentAccount;
+       let account = await this.getAccount()
        if(!account) { return null}
        // Build silent request
        const silentRequest:SilentFlowRequest = {
