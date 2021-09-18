@@ -29,8 +29,8 @@ contextBridge.exposeInMainWorld('electron', {
     findIndexHTML: async (arg) => {
       return await ipcRenderer.invoke('FIND_INDEX_HTML', arg);
     },
-    openHTML: (path) => {
-      ipcRenderer.invoke('OPEN_HTML', path);
+    openHTML: (path, local) => {
+      ipcRenderer.invoke('OPEN_HTML', path, local);
     },
     openCartFolder: (path) => {
       ipcRenderer.invoke('OPEN_CART_FOLDER', path);

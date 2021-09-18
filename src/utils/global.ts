@@ -15,7 +15,7 @@ declare global {
         unzipFile: (params: {filePath: string}) => Promise<any>;
         performRequest: (params: {url: string, options?: AxiosRequestConfig}) => Promise<any | undefined>;
         findIndexHTML: (params: {path: string}) => Promise<any | undefined>;
-        openHTML:(path: string) => void; 
+        openHTML:(path: string, local?:boolean) => void; 
         openCartFolder: (path?:string) => void;
       }
     }

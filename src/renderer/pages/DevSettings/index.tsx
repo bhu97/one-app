@@ -29,7 +29,7 @@ import {
   fetchLastModifiedDate,
   fetchWhitelists,
 } from './../../../authentication/fetch';
-import { CountryVersion, db } from 'database/database';
+import { CountryVersion, db, DriveItem } from 'database/database';
 import { LightStore } from 'database/stores/LightStore';
 import { responseToDriveItem, responseToListItem } from 'utils/object.mapping';
 import { FlexStore } from 'database/stores/FlexStore';
@@ -385,6 +385,11 @@ const DevSettings: FC<DevSettingsProps> = () => {
     setState({ ...state, isLoading: false });
   };
 
+  const openAFile = async () => {
+    const uniqueId = '01GX2IG4MP7ZMYQEVALFBLAL2N4OXU7WQS';
+    await dataManager.openDriveItem(uniqueId);
+  };
+
   return (
     <Fragment>
       <main className={classes.root}>
@@ -568,6 +573,17 @@ const DevSettings: FC<DevSettingsProps> = () => {
                   primary="Open unzipped file"
                   onClick={() => {
                     openUnzippedModule();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Open a file"
+                  onClick={() => {
+                    openAFile();
                   }}
                 />
               </ListItem>

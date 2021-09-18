@@ -370,7 +370,7 @@ export interface IDriveItem {
     graphDownloadUrl?: string;
 }
 
-enum DriveItemType {
+export enum DriveItemType {
     FOLDER,
     FILE,
     DOCUMENTSET,

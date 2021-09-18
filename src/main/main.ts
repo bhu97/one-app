@@ -11,7 +11,7 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, session, Session } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log, { create } from 'electron-log';
 import MenuBuilder from './menu';
@@ -70,6 +70,7 @@ const installExtensions = async () => {
     )
     .catch(console.log);
 };
+let ses:Session | undefined;
 
 const createWindow = async () => {
   if (
@@ -87,6 +88,10 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+
+  ses = session.fromPartition('persist:oneappdesktop')
+  console.log(ses.storagePath)
+
   mainWindow = new BrowserWindow({
     show: false,
     width: 1024,
@@ -94,6 +99,7 @@ const createWindow = async () => {
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      session: ses
     },
   });
 
@@ -131,6 +137,8 @@ const createWindow = async () => {
   new AppUpdater();
 
   fileManager.setupRootFolder()
+
+
 
 };
 
@@ -254,12 +262,33 @@ ipcMain.handle('FIND_INDEX_HTML', async(_, params) => {
   return fileManager.findEntryPathForModule(params.path)
 })
 
-ipcMain.handle('OPEN_HTML', (_, path: string) => {
+ipcMain.handle('SESSION', (_, path: string, local?: boolean) => {
+  //set cookie session to false
+})
+
+ipcMain.handle('OPEN_HTML', (_, path: string, local?: boolean) => {
+
+  ses!.cookies.get({ url: 'https://fresenius.sharepoint.com' })
+  .then((cookies) => {
+    console.log(cookies)
+  }).catch((error) => {
+    console.log(error)
+  })
+
   console.log("open html:"+path);
-  
+
   try {
+    console.log(local);
+    
     let window = createModalWindow(mainWindow!)
-    window.loadFile(path)
+    if(local === true || local === undefined) {  
+      window.loadFile(path)
+      console.log("loading local file:"+path);
+    } else {
+      console.log("loading url:"+path);
+      
+      window.loadURL(path)
+    }
   }
   catch(error) {
     console.log(error); 
@@ -341,7 +370,8 @@ export function createModalWindow(mainWindow: BrowserWindow) {
     webPreferences: {
       enableRemoteModule: true,
       nodeIntegration: true,
-      webSecurity: false
+      webSecurity: false,
+      session: ses
     },
   });
 

@@ -1,6 +1,7 @@
 import { localStorgeHelper } from "./../database/storage";
 import { fetchAdditionalMetadata, fetchDelta, fetchWhitelists } from "./../authentication/fetch";
-import { db } from "./../database/database";
+import { db, DriveItem, DriveItemType, IDriveItem } from "./../database/database";
+import { isNullOrUndefined } from "util";
 
 
 /**
@@ -69,7 +70,18 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
 const login = async() => {}
 const downloadModule = async() => {}
 const openModule = async() => {}
-const openDriveItem = async() => {}
+const openDriveItem = async(uniqueId:string) => {
+  
+  const driveItem = await db.getItemForId(uniqueId)
+  
+  const shouldOpenLocal = (!(driveItem.type  === null || driveItem.type === undefined) && driveItem.type === DriveItemType.DOCUMENTSET) 
+  console.log(shouldOpenLocal);
+  
+  if(driveItem.webUrl) {
+    window.electron.ipcRenderer.openHTML(driveItem.webUrl, shouldOpenLocal)
+  }
+    
+}
 const openOrDownloadModule = async() => {}
 const shouldShowUpdateAlert = async() => {}
 const getThumbnails = async() => {}
@@ -77,7 +89,8 @@ const getThumbnails = async() => {}
 export const dataManager = {
   login: login,
   getMetaData: getMetaData,
-  downloadFiles: downloadFiles
+  downloadFiles: downloadFiles,
+  openDriveItem: openDriveItem
 }
 
 export enum AppError {
