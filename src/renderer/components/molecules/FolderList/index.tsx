@@ -3,7 +3,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { IDriveItem } from 'database/database';
 import React, { FC } from 'react';
 
-import { FileItem } from '../../atoms';
+import { FolderItem } from '../../atoms';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -18,20 +18,31 @@ const useStyles = makeStyles((theme) =>
   })
 );
 
-interface IFileListProps {
+interface IFolderListProps {
   items: IDriveItem[];
+  selectedItem: IDriveItem | undefined;
+  onDriveItemSelected: (item: IDriveItem) => void;
 }
 
-export const FileList: FC<IFileListProps> = ({ items }) => {
+export const FolderList: FC<IFolderListProps> = ({
+  items,
+  selectedItem,
+  onDriveItemSelected,
+}) => {
   const classes = useStyles();
 
   return (
     <List className={classes.root}>
       {items.map((item) => (
-        <FileItem key={item.uniqueId} item={item} />
+        <FolderItem
+          key={item.uniqueId}
+          isSelected={item.uniqueId === selectedItem?.uniqueId}
+          item={item}
+          onDriveItemSelected={onDriveItemSelected}
+        />
       ))}
     </List>
   );
 };
 
-export default FileList;
+export default FolderList;

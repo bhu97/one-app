@@ -4,7 +4,7 @@ import React, { FC, useRef } from 'react';
 import { DriveItemType } from '../../../../database/database';
 import { LoadingDialog } from '../../atoms';
 import { Breadcrumbs } from '../../molecules';
-import { FolderList } from '../../organisms';
+import { DocumentSet, FolderList } from '../../organisms';
 import { useDriveItems } from './useDriveItems';
 
 const useStyles = makeStyles((theme) => ({
@@ -31,14 +31,14 @@ export const HomePage: FC = () => {
     onDriveItemSelected,
     onBreadcrumbItemSelected,
   } = useDriveItems(mainRef);
-
-  const lastItemType = currentRoute[currentRoute.length - 1].type;
+  const lastItem = currentRoute[currentRoute.length - 1];
 
   return (
     <>
       <div ref={mainRef} className={styles.main}>
-        {lastItemType === DriveItemType.DOCUMENTSET ? (
-          <div>SHOW DOCUMENT SET</div>
+        {lastItem.contentType === 'Document Set' ||
+        lastItem?.type === DriveItemType.DOCUMENTSET ? ( // TODO BUG IN BACKEND ENUM
+          <DocumentSet documentSet={lastItem} />
         ) : (
           <FolderList
             items={items}

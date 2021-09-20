@@ -2,7 +2,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 import React, { FC } from 'react';
 
 import { IDriveItem } from '../../../../database/database';
-import { FileList } from '../../molecules';
+import { FolderList } from '../../molecules';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -30,7 +30,7 @@ export const StackedFileListController: FC<IStackedFileListControllerProps> = ({
     <div className={classes.root}>
       {items.map((columnItems, index) => {
         return (
-          <FileList
+          <FolderList
             key={index}
             items={columnItems}
             selectedItem={currentRoute[index]}
