@@ -8,7 +8,7 @@ import { BreadcrumbItem } from '../../atoms';
 const useStyles = makeStyles((theme) =>
   createStyles({
     container: {
-      position: 'absolute',
+      position: 'fixed',
       bottom: 0,
       padding: 0,
     },

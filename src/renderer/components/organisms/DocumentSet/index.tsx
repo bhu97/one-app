@@ -10,6 +10,9 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
   },
+  wrapper: {
+    marginBottom: theme.spacing(11),
+  },
 }));
 
 interface IDocumentSetProps {
@@ -31,7 +34,7 @@ export const DocumentSet: FC<IDocumentSetProps> = ({ documentSet }) => {
   return (
     <div className={styles.root}>
       <PageHeader title={documentSet.title} description={documentSet.name} />
-      <div>
+      <div className={styles.wrapper}>
         <FileList items={items} />
       </div>
     </div>
