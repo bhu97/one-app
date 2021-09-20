@@ -1,25 +1,48 @@
 import { localStorgeHelper } from "./../database/storage";
-import { fetchAdditionalMetadata, fetchDelta, fetchDriveItem, fetchWhitelists } from "./../authentication/fetch";
-import { db, DriveItem, DriveItemType, IDriveItem, IUnzippedModuleItem } from "./../database/database";
+import { fetchAdditionalMetadata, fetchDelta, fetchDriveItem, fetchThumbnails, fetchWhitelists } from "./../authentication/fetch";
+import { db, DriveItem, DriveItemType, IDriveItem, IUnzippedModuleItem, Thumbnail } from "./../database/database";
 import { isNullOrUndefined } from "util";
 import dayjs from "dayjs";
 import { cartStore } from "database/stores/CartStore";
+import { notEmpty } from "utils/helper";
 
 
 /**
  * Downloads driveItems and updates their download location
- * @param driveItemIds driveItem uniqueIds to download
+ * @param driveItemIds driveItem listItemId to download
  * @returns download paths or error
  */
-const downloadFiles = async(driveItemIds: string[]) => {
+const downloadFiles = async(driveItemIds: string[], token: string):Promise<any[]> => {
 
+  return new Promise(async(resolve, _) => {
+    let downloadItems: any[] = []
+    try {
+      for (let driveItemId of driveItemIds) {
+        let downloadItem = await window.electron.ipcRenderer.downloadFile({
+          url: '',
+          itemId: driveItemId,
+          directory: 'CART',
+          accessToken: token
+        });
+        downloadItems.push(downloadItem)
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    resolve(downloadItems)
+  })
 }
 
 
 const downloadCartFiles = async() => {
-  const driveItemIds = cartStore.items.map(driveItem => driveItem.uniqueId)
-  await downloadFiles(driveItemIds)
-  window.electron.ipcRenderer.openCartFolder()
+  const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
+  const token = authResult.accessToken
+  if (token) {
+    const driveItemIds = cartStore.items.map(driveItem => driveItem.listItemId).filter(notEmpty)
+    console.log("cart items:" +driveItemIds)
+    await downloadFiles(driveItemIds, token)
+    window.electron.ipcRenderer.openCartFolder()
+  }
 }
 
 const getMetaData = async(progressState?:(state: string) => void):Promise<boolean | AppError> => {
@@ -37,8 +60,8 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         console.log(deltaData);
         await db.save(deltaData);
       } catch (error) {
-        reject(AppError.DELTA_ERROR)
-        throw(error)
+        resolve(AppError.DELTA_ERROR)
+        //throw(error)
       }
 
       //FETCH METADATA
@@ -47,8 +70,8 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         let metaData = await fetchAdditionalMetadata(token);
         await db.saveMetaData(metaData)
       } catch (error) {
-        reject(AppError.METADATA_ERROR)
-        throw(error)
+        resolve(AppError.METADATA_ERROR)
+        //throw(error)
       }
       
         //CREATE USER
@@ -63,7 +86,7 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         await db.saveWhitelists(whitelists)
         } catch (error) {
           console.error(error);
-          reject(AppError.WHITELIST_ERROR)
+          resolve(AppError.WHITELIST_ERROR)
         }
 
         localStorgeHelper.setLastMetdataUpdate()
@@ -77,8 +100,19 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
 }
 
 
-const login = async() => {}
-const downloadModule = async(uniqueId: string, token?:string) => {
+const login = async():Promise<boolean> => {
+
+  return new Promise<boolean>(async(resolve, reject) => {
+
+    //check if a login is needed
+    let token = await window.electron.ipcRenderer.login('');
+    if(token) {
+      resolve(true)
+    }
+    resolve(false)
+  })
+}
+const downloadModule = async(uniqueId: string, token?:string, progressState?:(state: string) => void) => {
 
   return new Promise<IUnzippedModuleItem|undefined>(async(resolve, reject) => {
 
@@ -97,6 +131,7 @@ const downloadModule = async(uniqueId: string, token?:string) => {
         console.log(driveItem.graphDownloadUrl);
         console.log("download module item");
         
+        progressState?.("download")
         let downloadItem = await window.electron.ipcRenderer.downloadFile({
           url: driveItem.graphDownloadUrl ?? "",
           itemId: driveItemId,
@@ -112,6 +147,7 @@ const downloadModule = async(uniqueId: string, token?:string) => {
 
           console.log("unzipping module");
           
+          progressState?.("unzip")
           let zipResponse = await window.electron.ipcRenderer.unzipFile({
             filePath: `${downloadItem.savePath}/${downloadItem.fileName}`,
           });
@@ -137,7 +173,6 @@ const downloadModule = async(uniqueId: string, token?:string) => {
     } 
     catch(error) {
       console.error(error);
-      
       reject(error)
     }
     
@@ -145,10 +180,11 @@ const downloadModule = async(uniqueId: string, token?:string) => {
   })
 }
 
-const openModule = async(uniqueId:string) => {
+const openModule = async(uniqueId:string, progressState?:(state: string) => void) => {
   const localDriveItem = await db.getItemForId(uniqueId)
   const driveItemId = localDriveItem.listItemId
 
+  progressState?.("authentication")
   const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
   const token = authResult.accessToken
 
@@ -170,7 +206,7 @@ const openModule = async(uniqueId:string) => {
           await window.electron.ipcRenderer.deleteFile(unzippedItem.zipPath)
           await window.electron.ipcRenderer.deleteFolder(unzippedItem.targetPath)
           //download new zip
-          let newUnzippedItem = await downloadModule(driveItem.uniqueId, token)
+          let newUnzippedItem = await downloadModule(driveItem.uniqueId, token, progressState)
           if(newUnzippedItem) {
             //open zip
             window.electron.ipcRenderer.openHTML(newUnzippedItem.indexHtmlPath, true)
@@ -195,7 +231,7 @@ const openModule = async(uniqueId:string) => {
 
 }
 
-const openDriveItem = async(uniqueId:string) => {
+const openDriveItem = async(uniqueId:string, progressState?:(state: string) => void) => {
   
   const driveItem = await db.getItemForId(uniqueId)
   
@@ -203,7 +239,7 @@ const openDriveItem = async(uniqueId:string) => {
   console.log("should open local"+shouldOpenLocal);
   
   if(shouldOpenLocal) {
-    openModule(driveItem.uniqueId)
+    openModule(driveItem.uniqueId, progressState)
   } else {  
     if(driveItem.webUrl) {
       window.electron.ipcRenderer.openHTML(driveItem.webUrl, shouldOpenLocal)
@@ -212,8 +248,19 @@ const openDriveItem = async(uniqueId:string) => {
     
 }
 //const openOrDownloadModule = async() => {}
-const shouldShowUpdateAlert = async() => {}
-const getThumbnails = async() => {}
+const shouldShowUpdateAlert = ():boolean => {
+  return localStorgeHelper.shouldShowUpdateAlert()
+}
+
+const getThumbnails = async(uniqueId: string):Promise<Thumbnail[]> => {
+  const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
+  const token = authResult.accessToken
+
+  if(token) {
+    return await fetchThumbnails(uniqueId, token)
+  }
+  return []
+}
 
 export enum AppError {
   NO_LOGIN,
@@ -233,5 +280,8 @@ export const dataManager = {
   getMetaData: getMetaData,
   downloadFiles: downloadFiles,
   openDriveItem: openDriveItem,
-  openModule: openModule
+  openModule: openModule,
+  downloadCartFiles: downloadCartFiles,
+  shouldShowUpdateAlert: shouldShowUpdateAlert,
+  getThumbnails: getThumbnails 
 }

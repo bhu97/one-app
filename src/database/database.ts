@@ -525,6 +525,28 @@ export class ListItem implements IListItem {
         this.listItemId = item.id
     }
 }
+export interface IThumbnail {
+    uniqueId: string,
+    smallUrl: string,
+    mediumUrl: string,
+    largeUrl: string
+}
+export class Thumbnail implements IThumbnail {
+   uniqueId: string
+    smallUrl: string = ""
+    mediumUrl: string = ""
+    largeUrl: string = ""
+
+    constructor(response: any) {
+        this.uniqueId = response?.id
+        const thumbnailObject = response?.thumbnails[0]
+        if(thumbnailObject) {
+            this.smallUrl = thumbnailObject.small?.url ?? ""
+            this.mediumUrl = thumbnailObject.medium?.url ?? ""
+            this.largeUrl = thumbnailObject.large?.url ?? ""
+        }
+    }
+}
 
 export class Whitelist implements IWhitelist {
     whitelistPaths = Array<string>()

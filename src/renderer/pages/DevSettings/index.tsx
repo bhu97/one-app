@@ -37,6 +37,7 @@ import { LinkedStore } from 'database/stores/LinkedStore';
 import { localStorgeHelper } from 'database/storage';
 import dayjs from 'dayjs';
 import { AppError, dataManager } from './../../../renderer/DataManager';
+import { cartStore } from 'database/stores/CartStore';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -285,6 +286,13 @@ const DevSettings: FC<DevSettingsProps> = () => {
     console.log(store.items);
   };
 
+  const loadThumbnails = async () => {
+    let thumbnails = await dataManager.getThumbnails(
+      '01GX2IG4KBBI3T2OYLYBFZGWRUKA2FXBWM'
+    );
+    console.log(thumbnails);
+  };
+
   const loadLastModifiedDate = async () => {
     //const token = localStorage.getItem('token');
     const authResult = await window.electron.ipcRenderer.refreshTokenSilently();
@@ -364,30 +372,43 @@ const DevSettings: FC<DevSettingsProps> = () => {
   };
 
   const downloadFilesForSending = async () => {
-    let driveItemIds: string[] = [
-      '36066',
-      '36015',
-      '735',
-      '36014',
-      '36013',
-      '712',
-      '713',
+    // let driveItemIds: string[] = [
+    //   '36066',
+    //   '36015',
+    //   '735',
+    //   '36014',
+    //   '36013',
+    //   '712',
+    //   '713',
+    // ];
+
+    let driveItemIds = [
+      '01GX2IG4P6QO77G3ADXZH3SMDM54ETHNPG',
+      '01GX2IG4JYEJQTQI6Y65B2CVEUSFXILTVD',
+      '01GX2IG4JWHVRXD6MAKNEJ6XLO5XFHQFCQ',
+      '01GX2IG4O7AE7DKXCO4RAKXKHWI3RLDQUH',
     ];
-
     setState({ ...state, isLoading: true });
-    try {
-      for (let driveItemId of driveItemIds) {
-        let downloadItem = await window.electron.ipcRenderer.downloadFile({
-          url: '',
-          itemId: driveItemId,
-          directory: 'CART',
-        });
-      }
+    cartStore.removeAll();
+    driveItemIds.forEach((uniqueId) => cartStore.addDriveItem(uniqueId));
 
-      window.electron.ipcRenderer.openCartFolder();
-    } catch (error) {
-      console.log(error);
-    }
+    await cartStore.update();
+
+    await dataManager.downloadCartFiles();
+
+    // try {
+    //   for (let driveItemId of driveItemIds) {
+    //     let downloadItem = await window.electron.ipcRenderer.downloadFile({
+    //       url: '',
+    //       itemId: driveItemId,
+    //       directory: 'CART',
+    //     });
+    //   }
+
+    //   window.electron.ipcRenderer.openCartFolder();
+    // } catch (error) {
+    //   console.log(error);
+    // }
     setState({ ...state, isLoading: false });
   };
 
@@ -614,6 +635,19 @@ const DevSettings: FC<DevSettingsProps> = () => {
                   primary="Open cart folder"
                   onClick={() => {
                     window.electron.ipcRenderer.openCartFolder();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+          </Grid>
+
+          <Grid container>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Get thumbnails"
+                  onClick={() => {
+                    loadThumbnails();
                   }}
                 />
               </ListItem>

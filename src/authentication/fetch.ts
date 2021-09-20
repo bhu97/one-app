@@ -5,8 +5,8 @@
 
 import axios from 'axios';
 import config from './../utils/application.config.release'
-import { responseToDriveItem, responseToListItem } from './../utils/object.mapping'
-import { IDriveItem, IListItem, IWhitelist, Whitelist } from './../database/database';
+import { responseToDriveItem, responseToListItem, responseToThumbnail } from './../utils/object.mapping'
+import { IDriveItem, IListItem, IWhitelist, Thumbnail, Whitelist } from './../database/database';
 
 /**
  * Makes an Authorization 'Bearer' request with the given accessToken to the given endpoint.
@@ -129,6 +129,16 @@ async function downloadDriveItem(driveItemId: string, accessToken: string): Prom
 export async function fetchLastModifiedDate(accessToken: string): Promise<string> {
     const response = await callEndpointWithToken(config.GRAPH_LASTMODIFIED_DATE, accessToken)
     return response.value[0].lastModifiedDateTime    
+}
+
+export async function fetchThumbnails(uniqueId: string, accessToken: string): Promise<Thumbnail[]> {
+    const response = await callEndpointWithToken(config.GRAPH_THUMBNAILS_ENDPOINT(uniqueId), accessToken)
+    if(response && response.value) {
+        let thumbnails = response.value.map((item: any) => responseToThumbnail(item))
+        console.log("thumbnails:"+JSON.stringify(thumbnails))
+        return thumbnails
+    }
+    return []
 }
 
 export async function fakeFetchWhitelists(): Promise<Array<IWhitelist>> {
