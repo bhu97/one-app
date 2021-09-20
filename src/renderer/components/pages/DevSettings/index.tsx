@@ -226,13 +226,13 @@ export const DevSettings: FC<DevSettingsProps> = () => {
   const loadLighStore = async () => {
     let store = new LightStore({});
     await store.update();
-    console.log(store.items);
+    console.log('light', store.items);
   };
 
   const loadFlexStore = async () => {
     let store = new FlexStore({});
     await store.update();
-    console.log(store.items);
+    console.log('flex', store.items);
   };
 
   const loadLinkedStore = async () => {

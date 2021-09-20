@@ -3,15 +3,11 @@ import React, { FC } from 'react';
 
 import { IDriveItem } from '../../../../database/database';
 import { getAssetPath } from '../../../helpers';
-import { BackButton } from '../../atoms';
 import { StackedFileListController } from '../StackedFileListController';
 
 const useStyles = makeStyles((theme) => ({
   headers: {
     marginBottom: '38px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
   },
   image: {
     alignSelf: 'flex-end',
@@ -43,16 +39,6 @@ export const FolderList: FC<IFolderListProps> = ({
     <>
       <div>
         <div className={styles.headers}>
-          <BackButton
-            isHidden={currentRoute.length < 2}
-            onClick={() =>
-              onDriveItemSelected(
-                currentRoute[currentRoute.length - 2],
-                currentRoute.length - 2,
-                true
-              )
-            }
-          />
           <Typography variant="h1">{lastItemName}</Typography>
           <Typography variant="h2">Please select your category</Typography>
         </div>

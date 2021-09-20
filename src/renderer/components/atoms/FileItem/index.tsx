@@ -1,33 +1,51 @@
 import { ListItem, ListItemText, makeStyles } from '@material-ui/core';
 import React, { FC } from 'react';
+import { Link } from 'react-router-dom';
 
 import { IDriveItem } from '../../../../database/database';
+import { getFileSizeLiteral, getIconByExtension } from '../../../helpers';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: `${theme.spacing(1, 3)} !important`,
-    marginBottom: theme.spacing(3),
-    minHeight: theme.spacing(7),
-    backgroundColor: theme.palette.background.paper,
+    display: 'block',
+    padding: 0,
     color: theme.palette.primary.main,
+    backgroundColor: theme.palette.grey[300],
+  },
+  image: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    height: '150px',
+    backgroundColor: theme.palette.grey[900],
+    '& svg': {
+      transform: 'scale(2)',
+    },
+  },
+  description: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: theme.spacing(1),
     borderLeftWidth: '5px',
     borderStyle: 'solid',
     borderColor: 'transparent',
-    '&:hover': {
-      backgroundColor: theme.palette.grey[600],
-    },
-    '&.Mui-selected': {
-      backgroundColor: theme.palette.grey[600],
-      '&:hover': {
-        backgroundColor: theme.palette.grey[600],
-      },
-    },
-    downloaded: {
+    '&.downloaded': {
       borderColor: theme.palette.primary.main,
     },
-    outdated: {
+    '&.outdated': {
       borderColor: theme.palette.error.main,
     },
+  },
+  text: {},
+  rightWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+  fileSize: {
+    fontSize: '8px',
   },
 }));
 
@@ -37,7 +55,7 @@ export interface IFileItemProps {
 
 export const FileItem: FC<IFileItemProps> = ({ item }) => {
   const styles = useStyles();
-  const { uniqueId, name, title } = item;
+  const { uniqueId, name, title, webUrl, fileExtension, fileSize } = item;
   const text = title || name;
   return (
     <ListItem
@@ -45,9 +63,30 @@ export const FileItem: FC<IFileItemProps> = ({ item }) => {
       classes={{
         root: styles.root,
       }}
+      component={Link}
+      to={webUrl} // TODO correct param?
       button
     >
-      <ListItemText primary={text} />
+      <div
+        className={styles.image}
+        // style={{
+        //   backgroundImage: item. // TODO preview?
+        // }}
+      >
+        {getIconByExtension(fileExtension)}
+      </div>
+      <div className={styles.description}>
+        <ListItemText
+          primary={text}
+          classes={{
+            primary: styles.text,
+          }}
+        />
+        <div className={styles.rightWrapper}>
+          <div />
+          <div className={styles.fileSize}>{getFileSizeLiteral(fileSize)}</div>
+        </div>
+      </div>
     </ListItem>
   );
 };

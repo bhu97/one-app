@@ -7,7 +7,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     marginBottom: theme.spacing(1),
     padding: theme.spacing(1),
-    display: 'flex',
+    display: 'inline-flex',
     justifyContent: 'center',
     alignItems: 'center',
     fill: theme.palette.primary.main,

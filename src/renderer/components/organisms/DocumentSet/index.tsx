@@ -1,7 +1,8 @@
 import { makeStyles } from '@material-ui/core';
-import React, { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
 import { IDriveItem } from '../../../../database/database';
+import { FlexStore } from '../../../../database/stores/FlexStore';
 import { PageHeader } from '../../atoms';
 import { FileList } from '../../molecules';
 
@@ -17,11 +18,21 @@ interface IDocumentSetProps {
 
 export const DocumentSet: FC<IDocumentSetProps> = ({ documentSet }) => {
   const styles = useStyles();
+  const [items, setItems] = useState<IDriveItem[]>([]);
+
+  const getData = async () => {
+    const store = new FlexStore({ query: documentSet.uniqueId });
+    await store.update();
+    setItems(store.items);
+  };
+  useEffect(() => {
+    getData();
+  }, [documentSet]);
   return (
     <div className={styles.root}>
       <PageHeader title={documentSet.title} description={documentSet.name} />
       <div>
-        <FileList items={[{}, {}]} />
+        <FileList items={items} />
       </div>
     </div>
   );

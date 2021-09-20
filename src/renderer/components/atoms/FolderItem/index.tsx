@@ -23,10 +23,10 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: theme.palette.grey[600],
       },
     },
-    downloaded: {
+    '&.downloaded': {
       borderColor: theme.palette.primary.main,
     },
-    outdated: {
+    '&.outdated': {
       borderColor: theme.palette.error.main,
     },
   },

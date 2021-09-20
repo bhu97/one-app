@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { db, IDriveItem } from '../../../../database/database';
+import { FlexStore } from '../../../../database/stores/FlexStore';
 
 export const useDriveItems = (
   mainRef: React.MutableRefObject<HTMLDivElement | null>
@@ -38,8 +39,9 @@ export const useDriveItems = (
   const [items, setItems] = useState<IDriveItem[][]>([]);
 
   const getRootData = async () => {
-    const rootItems = (await db.rootItemsForCountry('master')) ?? [];
-    setItems([rootItems]);
+    const store = new FlexStore({});
+    await store.update();
+    setItems([store.items]);
     setIsLoading(false);
   };
 
