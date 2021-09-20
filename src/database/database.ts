@@ -177,11 +177,11 @@ export class AppDatabase extends Dexie {
         return (await this.getUser())?.version ?? null
     } 
 
-    async getAllWhitelistUrls(): Promise<string[]> {
+    async getAllWhitelists(): Promise<IDriveItem[]> {
         const driveItems = await db.driveItems.where({name: 'whitelist.txt'}).toArray()
         return driveItems
-        .flatMap(driveItemsToWebUrls)
-        .filter((item): item is string => !!item)
+        // .flatMap(driveItemsToWebUrls)
+        // .filter((item): item is string => !!item)
     }
 
     async getAllAvailableCountries(): Promise<string[] | null> {
@@ -306,9 +306,7 @@ const kFlexFileName = ".flex"
 const kLightFileName = ".light"
 const kDefaultFavoriteGroupName = "Default"
 
-const kRoot = {
-    parentReferenceId: "01GX2IG4N6Y2GOVW7725BZO354PWSELRRZ"
-}
+const kRoot = { parentReferenceId: config.ROOT_ID }
 
 const kCountryRoot = (country: string) => {
     return {
