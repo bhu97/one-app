@@ -193,7 +193,7 @@ const DevSettings: FC<DevSettingsProps> = () => {
   const getDelta = async () => {
     setState({ ...state, isLoading: true });
     let result = await dataManager.getMetaData((state) =>
-      console.log('loading' + state)
+      console.log('loading ' + state)
     );
     setState({ ...state, isLoading: false });
     if (result as boolean) {
@@ -352,9 +352,15 @@ const DevSettings: FC<DevSettingsProps> = () => {
   };
 
   const openUnzippedModule = async () => {
-    let indexHtmlPath = await db.getUnzippedItem();
-    console.log(indexHtmlPath);
-    window.electron.ipcRenderer.openHTML(indexHtmlPath);
+    // let indexHtmlPath = await db.getUnzippedItemIndexPath('36066');
+    // if (indexHtmlPath) {
+    //   console.log('opening:' + indexHtmlPath);
+    //   window.electron.ipcRenderer.openHTML(indexHtmlPath);
+    // }
+    const driveItem = await db.getItemForId(
+      '01GX2IG4NLQILFUAXN2ZHJGAZYWZRHMXFX'
+    );
+    await dataManager.openDriveItem(driveItem.uniqueId);
   };
 
   const downloadFilesForSending = async () => {

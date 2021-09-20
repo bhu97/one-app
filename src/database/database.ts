@@ -306,8 +306,12 @@ export class AppDatabase extends Dexie {
         return await db.unzippedItems.put(item)
     }
 
-    async getUnzippedItem(id?:string): Promise<string> {
-        return (await db.unzippedItems.toArray())[0].indexHtmlPath
+    async getUnzippedItem(id?:string): Promise<IUnzippedModuleItem|undefined> {
+        return (await db.unzippedItems.where({"uniqueId": id}).toArray())[0]
+    }
+
+    async getUnzippedItemIndexPath(id?:string): Promise<string | undefined> {
+        return (await db.unzippedItems.where({"uniqueId": id}).toArray())[0].indexHtmlPath
     }
 
 }
@@ -458,7 +462,7 @@ export class DriveItem implements IDriveItem {
     this.webUrl = item.webUrl ?? "";
     this.name = item.name ?? ""
     this.serverRelativeUrl = item?.serverRelativeUrl ?? ""
-    this.timeLastModified = item?.timeLastModified ?? ""
+    this.timeLastModified = item?.lastModifiedDateTime ?? ""
     this.timeCreated = item?.timeCreated ?? ""
     this.listItemId = item?.listItemId ?? ""
     this.listId = item?.listId ?? ""
@@ -477,7 +481,9 @@ export class DriveItem implements IDriveItem {
         this.graphDownloadUrl = item.driveItem["@microsoft.graph.downloadUrl"] ?? "" 
     }
     //enable this in node
-    //this.fileExtension = path.extname(item.file.webUrl)
+    if(item?.file?.mimeType) {
+        this.fileExtension = item.file.mimeType
+    }
   }
 }
 

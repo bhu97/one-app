@@ -1,5 +1,6 @@
 import { app } from 'electron';
 import fs from 'fs'
+import { promises as fsPromises } from 'fs';
 import path from 'path';
 
 const APP_FOLDER = "oneappdesktop"
@@ -80,8 +81,19 @@ class FileManager {
     return fs.readdirSync( path );
   }
 
-  removeCartFolder() {
-    fs.rmdirSync(this.cartFolder, { recursive: true });
+  removeCartFolder(): Promise<void> {
+    return fsPromises.rmdir(this.cartFolder, { recursive: true });
+  }
+
+  removeFile(path: string): Promise<void> {
+    return fsPromises.unlink(path) 
+  }
+
+  removeFolder(path: string): Promise<void> {
+    if(path.includes(APP_FOLDER)) {
+      return fsPromises.rmdir(path, { recursive: true });
+    }
+    return new Promise((resolve, _) => {resolve()})
   }
 
   filterForIndexHtml = (elm:string) => elm.match("index.html")

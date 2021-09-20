@@ -194,14 +194,13 @@ ipcMain.handle('download-file', async(event, params) => {
     console.log(params);
     console.log(mainWindow);
     try {
-      const accessToken = await getAuthFromStorage()
-      console.log("access "+accessToken!.accessToken);
+      const accessToken = params.accessToken
       if (accessToken) {
-        let di = await fetchDriveItem(params.itemId, accessToken.accessToken)
+        let di = await fetchDriveItem(params.itemId, accessToken)
         
+        let directory = fileManager.rootFolder
         if(di && di.graphDownloadUrl) {
           //console.log("download url:"+di?.graphDownloadUrl);
-          let directory = fileManager.rootFolder
           if(params.directory) {
             switch(params.directory) {
               case "MODULES":
@@ -218,7 +217,7 @@ ipcMain.handle('download-file', async(event, params) => {
           let response = await download(mainWindow, di.graphDownloadUrl, {directory: directory});
           return {
             fileName: response.getFilename(),
-            savePath: fileManager.rootFolder,
+            savePath: directory,
             itemId: params.itemId
           }
         }
@@ -265,6 +264,15 @@ ipcMain.handle('FIND_INDEX_HTML', async(_, params) => {
 ipcMain.handle('SESSION', (_, path: string, local?: boolean) => {
   //set cookie session to false
 })
+
+ipcMain.handle('DELETE_FILE', async(_, path: string) => {
+  return fileManager.removeFile(path)
+})
+
+ipcMain.handle('DELETE_FOLDER', async(_, path: string) => {
+  return fileManager.removeFolder(path)
+})
+
 
 ipcMain.handle('OPEN_HTML', (_, path: string, local?: boolean) => {
 
