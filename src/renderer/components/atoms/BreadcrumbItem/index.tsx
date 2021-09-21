@@ -4,10 +4,13 @@ import React, { FC } from 'react';
 import { IDriveItem } from '../../../../database/database';
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    padding: theme.spacing(1, 0),
+    backgroundColor: theme.palette.background.paper,
+  },
   breadcrumbItem: {
+    padding: theme.spacing(0),
     minHeight: theme.spacing(4),
-    // marginRight: theme.spacing(-2),
-    padding: 0,
     width: 'unset',
     backgroundColor: theme.palette.grey[300],
     color: theme.palette.primary.main,
@@ -45,7 +48,7 @@ export const BreadcrumbItem: FC<IBreadcrumbItemProps> = ({
   const { uniqueId, name, title } = item;
   const text = title || name;
   return (
-    <>
+    <div className={styles.root}>
       <ListItem
         key={uniqueId}
         classes={{
@@ -65,7 +68,7 @@ export const BreadcrumbItem: FC<IBreadcrumbItemProps> = ({
           <path d="M 0 0 L 88 0 L 88 100 L 0 100 L 88 50Z" />
         </svg>
       </ListItem>
-    </>
+    </div>
   );
 };
 

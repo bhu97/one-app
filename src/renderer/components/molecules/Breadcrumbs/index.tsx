@@ -1,4 +1,4 @@
-import { Container, List } from '@material-ui/core';
+import { List } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { IDriveItem } from 'database/database';
 import React, { FC } from 'react';
@@ -7,14 +7,14 @@ import { BreadcrumbItem } from '../../atoms';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
-    container: {
-      position: 'fixed',
-      bottom: 0,
-      padding: 0,
-    },
     root: {
+      position: 'sticky',
+      bottom: 0,
+      left: 0,
+    },
+    list: {
       display: 'flex',
-      padding: theme.spacing(1),
+      padding: theme.spacing(0, 1, 0, 1),
       background: theme.palette.background.paper,
       boxShadow: `0 0 4px 3px ${theme.palette.grey[300]}, 0 0.3px 0.9px 0 rgb(168 0 0 / 54%)`,
     },
@@ -36,8 +36,8 @@ export const Breadcrumbs: FC<IBreadcrumbsProps> = ({
   const classes = useStyles();
 
   return (
-    <Container className={classes.container}>
-      <List className={classes.root}>
+    <div className={classes.root}>
+      <List className={classes.list}>
         {items.map((item, index) => (
           <BreadcrumbItem
             key={item.uniqueId}
@@ -50,7 +50,7 @@ export const Breadcrumbs: FC<IBreadcrumbsProps> = ({
           />
         ))}
       </List>
-    </Container>
+    </div>
   );
 };
 

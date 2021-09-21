@@ -12,6 +12,8 @@ const useStyles = makeStyles((theme) => ({
   image: {
     alignSelf: 'flex-end',
     maxHeight: '50vh',
+    position: 'sticky',
+    bottom: '100px',
   },
 }));
 

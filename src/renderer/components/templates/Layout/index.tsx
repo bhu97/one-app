@@ -12,13 +12,12 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
   },
   main: {
-    marginTop: theme.spacing(4),
-    marginBottom: theme.spacing(4),
-  },
-  content: {
+    padding: theme.spacing(6, 4, 0),
     flexGrow: 1,
     overflow: 'auto',
-    position: 'relative',
+    display: 'flex',
+    alignItems: 'stretch',
+    flexDirection: 'column',
   },
 }));
 
@@ -28,12 +27,10 @@ export const Layout: FunctionComponent = ({ children }) => {
   return (
     <ThemeProvider theme={themeOverrides}>
       <CssBaseline />
-      <main className={styles.root}>
+      <div className={styles.root}>
         <Sidebar navigationEnabled />
-        <div className={styles.content}>
-          <div className={styles.main}>{children || ''}</div>
-        </div>
-      </main>
+        <main className={styles.main}>{children || ''}</main>
+      </div>
     </ThemeProvider>
   );
 };

@@ -14,10 +14,7 @@ const useStyles = makeStyles((theme) => ({
   main: {
     display: 'flex',
     justifyContent: 'space-between',
-  },
-  image: {
-    alignSelf: 'flex-end',
-    maxHeight: '50vh',
+    flexGrow: 1,
   },
 }));
 

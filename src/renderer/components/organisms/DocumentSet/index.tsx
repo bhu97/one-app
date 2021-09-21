@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
   wrapper: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: theme.spacing(14),
+    marginBottom: theme.spacing(3),
   },
 }));
 
