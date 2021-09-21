@@ -1,10 +1,11 @@
-import { AuthenticationResult } from '@azure/msal-node';
 import {
   Button,
   Card,
   CardActions,
   CardContent,
+  Container,
   FormControl,
+  Grid,
   InputLabel,
   ListItem,
   ListItemText,
@@ -13,14 +14,30 @@ import {
   Select,
   Typography,
 } from '@material-ui/core';
-import { CountryVersion, db } from 'database/database';
-import { FlexStore } from 'database/stores/FlexStore';
-import { LightStore } from 'database/stores/LightStore';
-import { LinkedStore } from 'database/stores/LinkedStore';
-import React, { FC, useEffect, useState } from 'react';
-import { responseToDriveItem, responseToListItem } from 'utils/object.mapping';
 
-import { fakeFetchWhitelists, fetchAdditionalMetadata, fetchDelta } from '../../../../authentication/fetch';
+import React, { FC, Fragment, useEffect, useState } from 'react';
+import { Sidebar } from '../../organisms';
+
+import { LoadingDialog } from '../../atoms';
+
+import { AuthenticationResult } from '@azure/msal-node';
+import {
+  fakeFetchWhitelists,
+  fetchAdditionalMetadata,
+  fetchDelta,
+  fetchDriveItem,
+  fetchLastModifiedDate,
+  fetchWhitelists,
+} from '../../../../authentication/fetch';
+import { CountryVersion, db, DriveItem } from 'database/database';
+import { LightStore } from 'database/stores/LightStore';
+import { responseToDriveItem, responseToListItem } from 'utils/object.mapping';
+import { FlexStore } from 'database/stores/FlexStore';
+import { LinkedStore } from 'database/stores/LinkedStore';
+import { localStorgeHelper } from 'database/storage';
+import dayjs from 'dayjs';
+import { AppError, dataManager } from '../../../DataManager';
+import { cartStore } from 'database/stores/CartStore';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -66,6 +83,8 @@ type DevSettingsState = {
   countries: string[];
   selectedCountry: string;
   version: string;
+  lastModifiedDateTime?: string;
+  showUpdateAlert?: boolean;
 };
 
 export const DevSettings: FC<DevSettingsProps> = () => {
@@ -85,8 +104,15 @@ export const DevSettings: FC<DevSettingsProps> = () => {
 
   useEffect(() => {
     //setupDummyData()
-    loadCountries();
-    loadCurrentUser();
+
+    async () => {
+      await loadCurrentUser();
+      await loadCountries();
+      setState({
+        ...state,
+        showUpdateAlert: localStorgeHelper.shouldShowUpdateAlert(),
+      });
+    };
   }, []);
   const classes = useStyles();
   const [state, setState] = useState<DevSettingsState>({
@@ -95,6 +121,8 @@ export const DevSettings: FC<DevSettingsProps> = () => {
     countries: [],
     selectedCountry: '',
     version: 'none',
+    lastModifiedDateTime: localStorgeHelper.getLastModifiedDate() ?? '',
+    showUpdateAlert: localStorgeHelper.shouldShowUpdateAlert(),
   });
 
   const login = async () => {
@@ -128,28 +156,51 @@ export const DevSettings: FC<DevSettingsProps> = () => {
     return null;
   };
 
+  // const getDelta = async () => {
+  //   const token = localStorage.getItem('token');
+  //   if (token) {
+  //     setState({ ...state, isLoading: true });
+  //     try {
+  //       //FETCH DETLA
+  //       let deltaData = await fetchDelta(token);
+  //       console.log(deltaData);
+  //       await db.save(deltaData);
+
+  //       //FETCH METADATA
+  //       let metaData = await fetchAdditionalMetadata(token);
+  //       await db.saveMetaData(metaData);
+
+  //       //CREATE USER
+  //       //SET COUNTRY/VERSION
+  //       await db.createUserIfEmpty();
+
+  //       await db.setupInitialFavoriteGroup();
+
+  //       const whitelistDriveItems = await db.getAllWhitelists();
+  //       let whitelists = await fetchWhitelists(whitelistDriveItems, token);
+  //       await db.saveWhitelists(whitelists);
+
+  //       localStorgeHelper.setLastMetdataUpdate();
+  //       setState({ ...state, isLoading: false });
+
+  //       //FETCH WHITELISTS
+  //     } catch (error) {
+  //       console.log(error);
+  //       setState({ ...state, isLoading: false });
+  //     }
+  //   }
+  // };
+
   const getDelta = async () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        //FETCH DETLA
-        let deltaData = await fetchDelta(token);
-        console.log(deltaData);
-        await db.save(deltaData);
-
-        //FETCH METADATA
-        let metaData = await fetchAdditionalMetadata(token);
-        await db.saveMetaData(metaData);
-
-        //CREATE USER
-        //SET COUNTRY/VERSION
-        await db.createUserIfEmpty();
-
-        //FETCH WHITELISTS
-      } catch (error) {
-        console.log(error);
-      }
+    setState({ ...state, isLoading: true });
+    let result = await dataManager.getMetaData((state) =>
+      console.log('loading ' + state)
+    );
+    setState({ ...state, isLoading: false });
+    if (result as boolean) {
+      console.log('result: ' + result);
     }
+    console.log('result: ' + result);
   };
 
   const loadCountries = async () => {
@@ -181,20 +232,12 @@ export const DevSettings: FC<DevSettingsProps> = () => {
 
   const loadWhitelists = async () => {
     const token = localStorage.getItem('token');
-    //const whitelistUrls = await db.getAllWhitelistUrls()
-    //console.log(whitelistUrls);
-
-    //await window.electron.ipcRenderer.getWhitelists([])
-    // if(token) {
-    //   try {
-    //     const whitelistUrls = await db.getAllWhitelistUrls()
-    //     const responses = await fetchWhitelists(whitelistUrls, token)
-    //     console.log(responses);
-    //   }
-    //   catch(error) {
-    //     console.log(error);
-    //   }
-    // }
+    if (token) {
+      const whitelistDriveItems = await db.getAllWhitelists();
+      let whitelists = await fetchWhitelists(whitelistDriveItems, token);
+      await db.saveWhitelists(whitelists);
+      console.log(whitelists);
+    }
   };
 
   const setupDummyData = async () => {
@@ -226,13 +269,13 @@ export const DevSettings: FC<DevSettingsProps> = () => {
   const loadLighStore = async () => {
     let store = new LightStore({});
     await store.update();
-    console.log('light', store.items);
+    console.log(store.items);
   };
 
   const loadFlexStore = async () => {
     let store = new FlexStore({});
     await store.update();
-    console.log('flex', store.items);
+    console.log(store.items);
   };
 
   const loadLinkedStore = async () => {
@@ -242,135 +285,378 @@ export const DevSettings: FC<DevSettingsProps> = () => {
     await store.update();
     console.log(store.items);
   };
+
+  const loadThumbnails = async () => {
+    let thumbnails = await dataManager.getThumbnails(
+      '01GX2IG4KBBI3T2OYLYBFZGWRUKA2FXBWM'
+    );
+    console.log(thumbnails);
+  };
+
+  const loadLastModifiedDate = async () => {
+    //const token = localStorage.getItem('token');
+    const authResult = await window.electron.ipcRenderer.refreshTokenSilently();
+    const token = authResult.accessToken;
+    if (token) {
+      const date = await fetchLastModifiedDate(token);
+      console.log(date);
+      localStorgeHelper.setLastModifiedDate(date);
+      let showAlert = localStorgeHelper.shouldShowUpdateAlert();
+      setState({
+        ...state,
+        lastModifiedDateTime: localStorgeHelper.getLastModifiedDate() ?? '',
+        showUpdateAlert: showAlert,
+      });
+    }
+  };
+
+  const downloadTestFile = async () => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      const driveItemId = '36066';
+      const driveItem = await fetchDriveItem(driveItemId, token);
+      //console.log(driveItem);
+
+      if (driveItem && driveItem.graphDownloadUrl) {
+        console.log(driveItem.graphDownloadUrl);
+        let downloadItem = await window.electron.ipcRenderer.downloadFile({
+          url: driveItem.graphDownloadUrl,
+          itemId: driveItemId,
+          directory: 'MODULES',
+        });
+
+        console.log(downloadItem);
+        if (downloadItem) {
+          db.updateDownloadLocationForDriveItem(
+            driveItemId,
+            `${downloadItem.savePath}/${downloadItem.fileName}`
+          );
+
+          let zipResponse = await window.electron.ipcRenderer.unzipFile({
+            filePath: `${downloadItem.savePath}/${downloadItem.fileName}`,
+          });
+
+          console.log(zipResponse);
+          if (zipResponse) {
+            db.saveUnzippedItem({
+              driveItemId: driveItemId,
+              zipPath: `${downloadItem.savePath}/${downloadItem.fileName}`,
+              targetPath: zipResponse.targetDir,
+              modifiedDate: driveItem.timeLastModified ?? dayjs().toISOString(),
+              uniqueId: driveItem.uniqueId,
+              indexHtmlPath: zipResponse.indexHtmlPath,
+            });
+            let indexHtmlPath = await window.electron.ipcRenderer.findIndexHTML(
+              {
+                path: zipResponse.targetDir,
+              }
+            );
+            console.log('index html path' + indexHtmlPath);
+          }
+        }
+      }
+    }
+  };
+
+  const openUnzippedModule = async () => {
+    // let indexHtmlPath = await db.getUnzippedItemIndexPath('36066');
+    // if (indexHtmlPath) {
+    //   console.log('opening:' + indexHtmlPath);
+    //   window.electron.ipcRenderer.openHTML(indexHtmlPath);
+    // }
+    const driveItem = await db.getItemForId(
+      '01GX2IG4NLQILFUAXN2ZHJGAZYWZRHMXFX'
+    );
+    await dataManager.openDriveItem(driveItem.uniqueId);
+  };
+
+  const downloadFilesForSending = async () => {
+    // let driveItemIds: string[] = [
+    //   '36066',
+    //   '36015',
+    //   '735',
+    //   '36014',
+    //   '36013',
+    //   '712',
+    //   '713',
+    // ];
+
+    let driveItemIds = [
+      '01GX2IG4P6QO77G3ADXZH3SMDM54ETHNPG',
+      '01GX2IG4JYEJQTQI6Y65B2CVEUSFXILTVD',
+      '01GX2IG4JWHVRXD6MAKNEJ6XLO5XFHQFCQ',
+      '01GX2IG4O7AE7DKXCO4RAKXKHWI3RLDQUH',
+    ];
+    setState({ ...state, isLoading: true });
+    cartStore.removeAll();
+    driveItemIds.forEach((uniqueId) => cartStore.addDriveItem(uniqueId));
+
+    await cartStore.update();
+
+    await dataManager.downloadCartFiles();
+
+    // try {
+    //   for (let driveItemId of driveItemIds) {
+    //     let downloadItem = await window.electron.ipcRenderer.downloadFile({
+    //       url: '',
+    //       itemId: driveItemId,
+    //       directory: 'CART',
+    //     });
+    //   }
+
+    //   window.electron.ipcRenderer.openCartFolder();
+    // } catch (error) {
+    //   console.log(error);
+    // }
+    setState({ ...state, isLoading: false });
+  };
+
+  const openAFile = async () => {
+    const uniqueId = '01GX2IG4MP7ZMYQEVALFBLAL2N4OXU7WQS';
+    await dataManager.openDriveItem(uniqueId);
+  };
+
   return (
-    <>
-      <Card className={classes.card}>
-        <CardContent>
-          <Typography variant="body2" component="p">
-            well meaning and kindly.
-            <br />
-            {'"a benevolent smile"'}
-          </Typography>
-        </CardContent>
-        <CardActions>
-          <Button size="small">Learn More</Button>
-        </CardActions>
-      </Card>
+    <Fragment>
+      <main className={classes.root}>
 
-      <ListItem button>
-        <ListItemText
-          primary="Setup dummy data"
-          onClick={() => {
-            setupDummyData();
-          }}
-        />
-      </ListItem>
+        <div className={classes.content}>
+          <Card className={classes.card}>
+            <CardContent>
+              <Typography variant="h3" component="p">
+                Developer Settings for testing
+              </Typography>
+            </CardContent>
+          </Card>
 
-      <ListItem button>
-        <ListItemText
-          primary="Login"
-          secondary="nothing here"
-          onClick={() => {
-            login();
-          }}
-        />
-      </ListItem>
+          <Grid container spacing={3}>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Login"
+                  secondary={state.token}
+                  onClick={() => {
+                    login();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Get Token Silent"
+                  secondary={state.token}
+                  onClick={() => {
+                    refresh();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+          </Grid>
 
-      <ListItem button>
-        <ListItemText
-          primary="Get Token Silent"
-          secondary={state.token}
-          onClick={() => {
-            refresh();
-          }}
-        />
-      </ListItem>
+          <Grid container spacing={3}>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Load dummy data"
+                  secondary="Load local data"
+                  onClick={() => {
+                    setupDummyData();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Load metadata"
+                  secondary="Load data from sharepoint api"
+                  onClick={() => {
+                    getDelta();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+          </Grid>
 
-      <ListItem button>
-        <ListItemText
-          primary="Get delta"
-          onClick={() => {
-            getDelta();
-          }}
-        />
-      </ListItem>
+          <Grid container spacing={3}>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Get countries"
+                  onClick={() => {
+                    loadCountries();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Get whitelists"
+                  onClick={() => {
+                    loadWhitelists();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Load last modified date"
+                  secondary={state.lastModifiedDateTime}
+                  onClick={() => {
+                    loadLastModifiedDate();
+                  }}
+                />
+              </ListItem>
+            </Grid>
 
-      <ListItem button>
-        <ListItemText
-          primary="Save"
-          onClick={() => {
-            save();
-          }}
-        />
-      </ListItem>
+            <Grid item>
+              <ListItem>
+                <ListItemText
+                  primary="Should show update alert?"
+                  secondary={state.showUpdateAlert ? 'true' : 'false'}
+                />
+              </ListItem>
+            </Grid>
+          </Grid>
 
-      <ListItem button>
-        <ListItemText
-          primary="Get countries"
-          onClick={() => {
-            loadCountries();
-          }}
-        />
-      </ListItem>
+          <Grid container spacing={3}>
+            <Grid item>
+              <ListItem button disabled={state.version !== 'light'}>
+                <ListItemText
+                  primary="Load Lighstore Dev"
+                  onClick={() => {
+                    loadLighStore();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+            <Grid item>
+              <ListItem button disabled={state.version !== 'flex'}>
+                <ListItemText
+                  primary="Load FlexStore"
+                  onClick={() => {
+                    loadFlexStore();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+          </Grid>
+          <ListItem button>
+            <ListItemText
+              primary="Load Linked Store for 02 6008 Care System (AUT)"
+              onClick={() => {
+                loadLinkedStore();
+              }}
+            />
+          </ListItem>
 
-      <ListItem button>
-        <ListItemText
-          primary="Get whitelists"
-          onClick={() => {
-            loadWhitelists();
-          }}
-        />
-      </ListItem>
+          <Grid container spacing={3}>
+            <Grid item>
+              <ListItem>
+                <ListItemText
+                  primary="Selected Country and Version"
+                  secondary={`${state.selectedCountry} / ${state.version} `}
+                />
+              </ListItem>
+            </Grid>
+            <Grid item>
+              <FormControl>
+                <InputLabel>Country</InputLabel>
+                <Select
+                  value={state.selectedCountry}
+                  onChange={(e) => {
+                    selectedCountry((e.target.value as string) ?? '');
+                  }}
+                >
+                  {state.countries.map((country) => (
+                    <MenuItem key="country" value={country}>
+                      {country}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
 
-      <ListItem button disabled={state.version !== 'light'}>
-        <ListItemText
-          primary="Load Lighstore Dev"
-          onClick={() => {
-            loadLighStore();
-          }}
-        />
-      </ListItem>
+          <Grid container>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Download test file"
+                  secondary="Will be saved to home/oneappdesktop/"
+                  onClick={() => {
+                    downloadTestFile();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Open unzipped file"
+                  onClick={() => {
+                    openUnzippedModule();
+                  }}
+                />
+              </ListItem>
+            </Grid>
 
-      <ListItem button disabled={state.version !== 'flex'}>
-        <ListItemText
-          primary="Load FlexStore"
-          onClick={() => {
-            loadFlexStore();
-          }}
-        />
-      </ListItem>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Open a file"
+                  onClick={() => {
+                    openAFile();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+          </Grid>
 
-      <ListItem button disabled={state.version !== 'flex'}>
-        <ListItemText
-          primary="Load Linked Store for 02 6008 Care System (AUT)"
-          onClick={() => {
-            loadLinkedStore();
-          }}
-        />
-      </ListItem>
+          <Grid container>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Download files for sending"
+                  secondary="Will be saved to home/oneappdesktop/cart/"
+                  onClick={() => {
+                    downloadFilesForSending();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Open cart folder"
+                  onClick={() => {
+                    window.electron.ipcRenderer.openCartFolder();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+          </Grid>
 
-      <FormControl>
-        <InputLabel id="demo-simple-select-label">Country</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={state.selectedCountry}
-          onChange={(e) => {
-            selectedCountry((e.target.value as string) ?? '');
-          }}
-        >
-          {state.countries.map((country) => (
-            <MenuItem value={country}>{country}</MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <ListItem>
-        <ListItemText
-          primary="Selected Country and Version"
-          secondary={`${state.selectedCountry} / ${state.version} `}
-        />
-      </ListItem>
-    </>
+          <Grid container>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Get thumbnails"
+                  onClick={() => {
+                    loadThumbnails();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+          </Grid>
+        </div>
+      </main>
+      <LoadingDialog open={state.isLoading}></LoadingDialog>
+    </Fragment>
   );
 };
 

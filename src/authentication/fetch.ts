@@ -5,9 +5,8 @@
 
 import axios from 'axios';
 import config from './../utils/application.config.release'
-import { responseToDriveItem, responseToListItem } from './../utils/object.mapping'
-import { DriveItem, IDriveItem, IListItem, IWhitelist, Whitelist } from './../database/database';
-import { InsertEmoticon } from '@material-ui/icons';
+import { responseToDriveItem, responseToListItem, responseToThumbnail } from './../utils/object.mapping'
+import { IDriveItem, IListItem, IWhitelist, Thumbnail, Whitelist } from './../database/database';
 
 /**
  * Makes an Authorization 'Bearer' request with the given accessToken to the given endpoint.
@@ -77,12 +76,14 @@ export async function fetchWhitelists(driveItems: IDriveItem[], accessToken: str
         }
     };
 
+    const network = axios.create()
+
     for(const driveItem of driveItems) {
         if(driveItem.listItemId) {
             let driveItemUrl = config.GRAPH_DRIVEITEM_ENDPOINT(driveItem.listItemId)
-            const driveItemResponse = await axios.get(driveItemUrl, options)
+            const driveItemResponse = await window.electron.ipcRenderer.fetchDriveItem({driveItemId: driveItem.listItemId, accessToken: accessToken})
 
-            const downloadUrl = driveItemResponse.data.driveItem["@microsoft.graph.downloadUrl"] as string
+            const downloadUrl = driveItemResponse.graphDownloadUrl as string
             if(downloadUrl) {
                 const whitelistResponse = await axios.get(downloadUrl)
                 const whitelistContent = whitelistResponse.data as string
@@ -96,16 +97,48 @@ export async function fetchWhitelists(driveItems: IDriveItem[], accessToken: str
     return whitelists
 }
 
-async function fetchDriveItem(driveItemId: string, accessToken: string): Promise<IDriveItem | null> {
-    let driveItemUrl = config.GRAPH_DRIVEITEM_ENDPOINT(driveItemId)
-    const driveItemResponse = await callEndpointWithToken(driveItemUrl, accessToken)
-    let driveItem = responseToDriveItem(driveItemResponse)
-    return driveItem
+export async function fetchDriveItem(driveItemId: string, accessToken: string): Promise<IDriveItem | null> {
+
+    //window.sessionStorage.clear()
+    const options = {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+        }
+    };
+     let driveItemUrl = config.GRAPH_DRIVEITEM_ENDPOINT(driveItemId)
+    // let driveItemResponse = await axios.get(driveItemUrl, options);
+    //console.log("driveitemresponse: "+JSON.stringify(driveItemResponse.data));
+    //console.log("download url "+JSON.stringify(driveItemResponse.data.driveItem["@microsoft.graph.downloadUrl"]));
+    let driveItemResponse = await window.electron.ipcRenderer.performRequest({url: driveItemUrl, options: options})
+    if(driveItemResponse) {
+        let driveItem = responseToDriveItem(driveItemResponse)
+        return driveItem
+    }
+
+    return null
+}
+
+async function downloadDriveItem(driveItemId: string, accessToken: string): Promise<any> {
+    const driveItem = await fetchDriveItem(driveItemId, accessToken)
+    if(driveItem) {
+
+    }
 }
 
 export async function fetchLastModifiedDate(accessToken: string): Promise<string> {
     const response = await callEndpointWithToken(config.GRAPH_LASTMODIFIED_DATE, accessToken)
     return response.value[0].lastModifiedDateTime    
+}
+
+export async function fetchThumbnails(uniqueId: string, accessToken: string): Promise<Thumbnail[]> {
+    const response = await callEndpointWithToken(config.GRAPH_THUMBNAILS_ENDPOINT(uniqueId), accessToken)
+    if(response && response.value) {
+        let thumbnails = response.value.map((item: any) => responseToThumbnail(item))
+        console.log("thumbnails:"+JSON.stringify(thumbnails))
+        return thumbnails
+    }
+    return []
 }
 
 export async function fakeFetchWhitelists(): Promise<Array<IWhitelist>> {

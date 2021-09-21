@@ -11,16 +11,21 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, session, Session } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
+import log, { create } from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import AuthProvider from './../authentication/AuthProvider';
 import {ipcEvent} from './../utils/constants'
 import { AuthenticationResult } from '@azure/msal-common';
-import { fetchWhitelists } from './../authentication/fetch';
 import axios from 'axios';
+import { fileManager } from './filemanager/FileManager';
+import { download } from 'electron-dl';
+import { responseToDriveItem } from './../utils/object.mapping';
+import config from "./../utils/application.config.release"
+import { IDriveItem } from './../database/database';
+import { zipManager } from './zipmanager/ZipManager';
 
 export default class AppUpdater {
   constructor() {
@@ -65,6 +70,7 @@ const installExtensions = async () => {
     )
     .catch(console.log);
 };
+let ses:Session | undefined;
 
 const createWindow = async () => {
   if (
@@ -82,6 +88,10 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+
+  ses = session.fromPartition('persist:oneappdesktop')
+  console.log(ses.storagePath)
+
   mainWindow = new BrowserWindow({
     show: false,
     width: 1024,
@@ -89,6 +99,7 @@ const createWindow = async () => {
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      session: ses
     },
   });
 
@@ -124,6 +135,10 @@ const createWindow = async () => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
+
+  fileManager.setupRootFolder()
+
+
 
 };
 
@@ -166,13 +181,149 @@ ipcMain.handle(ipcEvent.login, async() => {
 })
 
 ipcMain.handle(ipcEvent.refreshToken, async() => {
-  let account = await getAuthFromStorage();
-  if(account) {
-    let token = await authProvider.getTokenSilent(account.account);
-    return token;
-  }
-  return null;
+    let authorizationResult = await authProvider.getTokenSilent(null);
+    if(authorizationResult) {
+      await saveTokenToStorage(authorizationResult.accessToken)
+    }
+    return authorizationResult;
 })
+
+ipcMain.handle('download-file', async(event, params) => {
+  
+  if(mainWindow) {
+    console.log(params);
+    console.log(mainWindow);
+    try {
+      const accessToken = params.accessToken
+      if (accessToken) {
+        let di = await fetchDriveItem(params.itemId, accessToken)
+        
+        let directory = fileManager.rootFolder
+        if(di && di.graphDownloadUrl) {
+          //console.log("download url:"+di?.graphDownloadUrl);
+          if(params.directory) {
+            switch(params.directory) {
+              case "MODULES":
+                directory = fileManager.modulesFolder
+                break;
+              case "CART":
+                directory = fileManager.cartFolder
+                break;
+              default:
+                directory = fileManager.rootFolder
+                break;
+            }
+          }
+          let response = await download(mainWindow, di.graphDownloadUrl, {directory: directory});
+          return {
+            fileName: response.getFilename(),
+            savePath: directory,
+            itemId: params.itemId
+          }
+        }
+      }
+      
+      
+    }
+    catch(error) {
+      console.log(error);
+      
+    }
+  }
+})
+
+
+ipcMain.handle('FETCH_DRIVE_ITEM', async(event, params) => {
+  const driveItemId = params.driveItemId
+  const accessToken = params.accessToken
+  if(driveItemId && accessToken) {
+    return await fetchDriveItem(driveItemId, accessToken)
+  }
+})
+
+
+ipcMain.handle('UNZIP_FILE', async(_, params) => {
+  const filePath = params.filePath
+  if(filePath) {
+    return await zipManager.unzipFile(filePath)
+  }
+})
+
+ipcMain.handle('PERFORM_REQUEST', async(_, params) => {
+  let response;
+  if(params.url) {
+    response = await axios.get(params.url, params.options);
+  }
+  return response?.data
+})
+
+ipcMain.handle('FIND_INDEX_HTML', async(_, params) => {
+  return fileManager.findEntryPathForModule(params.path)
+})
+
+ipcMain.handle('SESSION', (_, path: string, local?: boolean) => {
+  //set cookie session to false
+})
+
+ipcMain.handle('DELETE_FILE', async(_, path: string) => {
+  return fileManager.removeFile(path)
+})
+
+ipcMain.handle('DELETE_FOLDER', async(_, path: string) => {
+  return fileManager.removeFolder(path)
+})
+
+
+ipcMain.handle('OPEN_HTML', (_, path: string, local?: boolean) => {
+
+  ses!.cookies.get({ url: 'https://fresenius.sharepoint.com' })
+  .then((cookies) => {
+    console.log(cookies)
+  }).catch((error) => {
+    console.log(error)
+  })
+
+  console.log("open html:"+path);
+
+  try {
+    console.log(local);
+    
+    let window = createModalWindow(mainWindow!)
+    if(local === true || local === undefined) {  
+      window.loadFile(path)
+      console.log("loading local file:"+path);
+    } else {
+      console.log("loading url:"+path);
+      
+      window.loadURL(path)
+    }
+  }
+  catch(error) {
+    console.log(error); 
+  }
+})
+
+ipcMain.handle('OPEN_CART_FOLDER', async(_, path: string) => {
+  let response = await openFolder(fileManager.cartFolder)
+  console.log(`open folder response : ${response} for folder path: ${fileManager.cartFolder}`);
+})
+
+const openFolder = async (path:string):Promise<string>  => {
+  return shell.openPath(path)
+}
+
+async function fetchDriveItem(driveItemId: string, accessToken: string): Promise<IDriveItem | null> { 
+    const options = {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+        }
+    };
+    let driveItemUrl = config.GRAPH_DRIVEITEM_ENDPOINT(driveItemId)
+    let driveItemResponse = await axios.get(driveItemUrl, options);
+    let driveItem = responseToDriveItem(driveItemResponse.data)
+    return driveItem
+}
 
 const saveTokenToStorage = async (token: string) => {
   return await mainWindow?.webContents
@@ -195,27 +346,27 @@ const getAuthFromStorage = async (): Promise<AuthenticationResult | null> => {
     return null
 }
 
-ipcMain.handle(ipcEvent.whitelists, async(event, urls:string[]) => {
-console.log("get whitelists main");
+// ipcMain.handle(ipcEvent.whitelists, async(event, urls:string[]) => {
+// console.log("get whitelists main");
 
-  const accessToken = await getAuthFromStorage()
+//   const accessToken = await getAuthFromStorage()
   
-  const options = {
-    headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': "text-plain"
-    }
-};
+//   const options = {
+//     headers: {
+//         'Authorization': `Bearer ${accessToken}`,
+//         'Content-Type': "text-plain"
+//     }
+// };
 
-    const testUrl = "https://fresenius.sharepoint.com/teams/FMETS0269990/_layouts/15/download.aspx?UniqueId=f1f488fe-6ca0-4d03-804f-022a722df21f&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvZnJlc2VuaXVzLnNoYXJlcG9pbnQuY29tQGM5OGRmNTM0LTVlMzYtNDU5YS1hYzNmLThjMmU0NDk4NjNiZCIsImlzcyI6IjAwMDAwMDAzLTAwMDAtMGZmMS1jZTAwLTAwMDAwMDAwMDAwMCIsIm5iZiI6IjE2MzEzNTM5ODciLCJleHAiOiIxNjMxMzU3NTg3IiwiZW5kcG9pbnR1cmwiOiJ0NmxSK3VSdnRrdUNFLytQaUJlTGdrSDZwWkw0Zk4rdk5MdDBhTzdHR3dnPSIsImVuZHBvaW50dXJsTGVuZ3RoIjoiMTM5IiwiaXNsb29wYmFjayI6IlRydWUiLCJjaWQiOiJNemMxTURGaFpqQXRNVFF5TlMwMFlqZ3pMVGhqWlRJdE9EZzVNV00yTURrM09USTUiLCJ2ZXIiOiJoYXNoZWRwcm9vZnRva2VuIiwic2l0ZWlkIjoiWldRMk9HRTBNVEF0TVRjM05DMDBZMkprTFRreFlqZ3RaVEl5TkRBelpEQmxNMk0yIiwiYXBwX2Rpc3BsYXluYW1lIjoiR3JhcGggRXhwbG9yZXIiLCJnaXZlbl9uYW1lIjoiTWF0dGhpYXMiLCJmYW1pbHlfbmFtZSI6IkJyb2RhbGthIiwic2lnbmluX3N0YXRlIjoiW1wia21zaVwiXSIsImFwcGlkIjoiZGU4YmM4YjUtZDlmOS00OGIxLWE4YWQtYjc0OGRhNzI1MDY0IiwidGlkIjoiYzk4ZGY1MzQtNWUzNi00NTlhLWFjM2YtOGMyZTQ0OTg2M2JkIiwidXBuIjoibWF0dGhpYXMuYnJvZGFsa2FAZnJlc2VuaXVzLW5ldGNhcmUuY29tIiwicHVpZCI6IjEwMDM3RkZFOUZGRDgzNTQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzN2ZmZTlmZmQ4MzU0QGxpdmUuY29tIiwic2NwIjoiYWxsZmlsZXMud3JpdGUgZ3JvdXAud3JpdGUgYWxsc2l0ZXMud3JpdGUgYWxscHJvZmlsZXMucmVhZCBhbGxwcm9maWxlcy53cml0ZSIsInR0IjoiMiIsInVzZVBlcnNpc3RlbnRDb29raWUiOm51bGx9.ZFhGenFZdnJIOXJFbGp1djNwMlJNVkV2YjF2cUdVQ3FabC9jS29tUzMyND0&ApiVersion=2.0"
-    const dlResponse = await axios.get(testUrl, options)
-    console.log(dlResponse);
+//     const testUrl = "https://fresenius.sharepoint.com/teams/FMETS0269990/_layouts/15/download.aspx?UniqueId=f1f488fe-6ca0-4d03-804f-022a722df21f&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvZnJlc2VuaXVzLnNoYXJlcG9pbnQuY29tQGM5OGRmNTM0LTVlMzYtNDU5YS1hYzNmLThjMmU0NDk4NjNiZCIsImlzcyI6IjAwMDAwMDAzLTAwMDAtMGZmMS1jZTAwLTAwMDAwMDAwMDAwMCIsIm5iZiI6IjE2MzEzNTM5ODciLCJleHAiOiIxNjMxMzU3NTg3IiwiZW5kcG9pbnR1cmwiOiJ0NmxSK3VSdnRrdUNFLytQaUJlTGdrSDZwWkw0Zk4rdk5MdDBhTzdHR3dnPSIsImVuZHBvaW50dXJsTGVuZ3RoIjoiMTM5IiwiaXNsb29wYmFjayI6IlRydWUiLCJjaWQiOiJNemMxTURGaFpqQXRNVFF5TlMwMFlqZ3pMVGhqWlRJdE9EZzVNV00yTURrM09USTUiLCJ2ZXIiOiJoYXNoZWRwcm9vZnRva2VuIiwic2l0ZWlkIjoiWldRMk9HRTBNVEF0TVRjM05DMDBZMkprTFRreFlqZ3RaVEl5TkRBelpEQmxNMk0yIiwiYXBwX2Rpc3BsYXluYW1lIjoiR3JhcGggRXhwbG9yZXIiLCJnaXZlbl9uYW1lIjoiTWF0dGhpYXMiLCJmYW1pbHlfbmFtZSI6IkJyb2RhbGthIiwic2lnbmluX3N0YXRlIjoiW1wia21zaVwiXSIsImFwcGlkIjoiZGU4YmM4YjUtZDlmOS00OGIxLWE4YWQtYjc0OGRhNzI1MDY0IiwidGlkIjoiYzk4ZGY1MzQtNWUzNi00NTlhLWFjM2YtOGMyZTQ0OTg2M2JkIiwidXBuIjoibWF0dGhpYXMuYnJvZGFsa2FAZnJlc2VuaXVzLW5ldGNhcmUuY29tIiwicHVpZCI6IjEwMDM3RkZFOUZGRDgzNTQiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzN2ZmZTlmZmQ4MzU0QGxpdmUuY29tIiwic2NwIjoiYWxsZmlsZXMud3JpdGUgZ3JvdXAud3JpdGUgYWxsc2l0ZXMud3JpdGUgYWxscHJvZmlsZXMucmVhZCBhbGxwcm9maWxlcy53cml0ZSIsInR0IjoiMiIsInVzZVBlcnNpc3RlbnRDb29raWUiOm51bGx9.ZFhGenFZdnJIOXJFbGp1djNwMlJNVkV2YjF2cUdVQ3FabC9jS29tUzMyND0&ApiVersion=2.0"
+//     const dlResponse = await axios.get(testUrl, options)
+//     console.log(dlResponse);
 
-    if (dlResponse.status == 302) {
-        const response = await axios.get(dlResponse.request!.responseURL, options)
-        console.log(response);
-    } 
-})
+//     if (dlResponse.status == 302) {
+//         const response = await axios.get(dlResponse.request!.responseURL, options)
+//         console.log(response);
+//     } 
+// })
 
 export function createModalWindow(mainWindow: BrowserWindow) {
   console.log("create modal");
@@ -227,7 +378,8 @@ export function createModalWindow(mainWindow: BrowserWindow) {
     webPreferences: {
       enableRemoteModule: true,
       nodeIntegration: true,
-      webSecurity: false
+      webSecurity: false,
+      session: ses
     },
   });
 

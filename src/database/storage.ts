@@ -22,7 +22,7 @@ class LocalStorgeHelper {
   }
 
   setSupressWarningDate() {
-    window.localStorage.setItem(ksuppressWarningDate, dayjs().toISOString())
+    window.localStorage.setItem(ksuppressWarningDate, dayjs().add(1, "d").toISOString())
   }
 
   shouldShowUpdateAlert(): boolean {

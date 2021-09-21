@@ -14,6 +14,33 @@ contextBridge.exposeInMainWorld('electron', {
     getWhitelists: async (arg) => {
       return await ipcRenderer.invoke('GET_WHITELISTS', arg);
     },
+    downloadFile: async (arg) => {
+      return await ipcRenderer.invoke('download-file', arg);
+    },
+    fetchDriveItem: async (arg) => {
+      return await ipcRenderer.invoke('FETCH_DRIVE_ITEM', arg);
+    },
+    unzipFile: async (arg) => {
+      return await ipcRenderer.invoke('UNZIP_FILE', arg);
+    },
+    performRequest: async (arg) => {
+      return await ipcRenderer.invoke('PERFORM_REQUEST', arg);
+    },
+    findIndexHTML: async (arg) => {
+      return await ipcRenderer.invoke('FIND_INDEX_HTML', arg);
+    },
+    openHTML: (path, local) => {
+      ipcRenderer.invoke('OPEN_HTML', path, local);
+    },
+    openCartFolder: (path) => {
+      ipcRenderer.invoke('OPEN_CART_FOLDER', path);
+    },
+    deleteFile: (path) => {
+      ipcRenderer.invoke('DELETE_FILE', path);
+    },
+    deleteFolder: (path) => {
+      ipcRenderer.invoke('DELETE_FOLDER', path);
+    },
     on(channel, func) {
       const validChannels = ['ipc-example'];
       if (validChannels.includes(channel)) {

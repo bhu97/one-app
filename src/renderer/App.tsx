@@ -4,7 +4,7 @@ import './App.global.css';
 import React from 'react';
 import { MemoryRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
-import { CartPage, DevSettings, FavoritesPage, HomePage, SettingsPage } from './components/pages';
+import { CartPage, FavoritesPage, HomePage, SettingsPage, DevSettings } from './components/pages';
 import { Layout } from './components/templates';
 
 async function checkAuth() {

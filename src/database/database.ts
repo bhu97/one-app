@@ -1,6 +1,8 @@
 import Dexie from 'dexie';
 import { findCountry, normalizeUrl, notEmpty } from './../utils/helper';
 import config from './../utils/application.config.release'
+import dayjs from 'dayjs';
+import { getExtension } from 'utils/object.mapping';
 export class AppDatabase extends Dexie {
 
     driveItems: Dexie.Table<IDriveItem, number>;
@@ -9,6 +11,7 @@ export class AppDatabase extends Dexie {
     favorites: Dexie.Table<IFavorite, number>;
     whitelists: Dexie.Table<IWhitelist, number>;
     cartItems: Dexie.Table<ICartItem, number>;
+    unzippedItems: Dexie.Table<IUnzippedModuleItem, number>;
 
     constructor() {
 
@@ -22,7 +25,8 @@ export class AppDatabase extends Dexie {
             favoriteGroups: favoriteGroupSchema,
             favorites: favoriteSchema,
             whitelists: whitelistsSchema,
-            cartItems: cartItemsSchema
+            cartItems: cartItemsSchema,
+            unzippedItems: unzippedItemSchema
         });
 
         this.driveItems = this.table("driveItems");
@@ -31,6 +35,7 @@ export class AppDatabase extends Dexie {
         this.favoriteGroups = this.table("favoriteGroups");
         this.favorites = this.table("favorites");
         this.cartItems = this.table("cartItems");
+        this.unzippedItems = this.table("unzippedItems");
     }
 
     async save(items: Array<IDriveItem>): Promise<number> {
@@ -102,6 +107,13 @@ export class AppDatabase extends Dexie {
     async getRegionalFolderForCountry(country: string): Promise<IDriveItem | null> {
         const items = await db.driveItems.where({"country":country, "name": kRegionalFolderName}).toArray()
         return items[0] ? items[0] : null
+    }
+
+    async updateDownloadLocationForDriveItem(driveItemId:string, downloadLocation:string): Promise<any> {
+        const driveItem = (await db.driveItems.where({listItemId: driveItemId}).toArray())[0]
+        if(driveItem) {
+            return await db.driveItems.update(driveItem, {downloadLocation: downloadLocation})
+        }
     }
 
     async createUser() {
@@ -291,6 +303,18 @@ export class AppDatabase extends Dexie {
         return await db.cartItems.clear()
     }
 
+    async saveUnzippedItem(item: IUnzippedModuleItem): Promise<any> {
+        return await db.unzippedItems.put(item)
+    }
+
+    async getUnzippedItem(id?:string): Promise<IUnzippedModuleItem|undefined> {
+        return (await db.unzippedItems.where({"uniqueId": id}).toArray())[0]
+    }
+
+    async getUnzippedItemIndexPath(id?:string): Promise<string | undefined> {
+        return (await db.unzippedItems.where({"uniqueId": id}).toArray())[0].indexHtmlPath
+    }
+
 }
 const driveItemsToWebUrls = (driveItem: IDriveItem): string | undefined => {return driveItem.webUrl}
 //keys for where clauses
@@ -321,6 +345,7 @@ const favoriteGroupSchema = "++id, name"
 const favoriteSchema = "++id, favoriteGroupName, uniqueId"
 const whitelistsSchema = "country, content"
 const cartItemsSchema = "uniqueId"
+const unzippedItemSchema = "uniqueId, modifiedDate, targetPath, zipPath, indexHtmlPath, driveItemId"
 
 // Interfaces for our DB Models
 export interface IDriveItem {
@@ -347,6 +372,7 @@ export interface IDriveItem {
     downloadLocation?: string;
     country?: string;
     contentType?: string;
+    graphDownloadUrl?: string;
 }
 
 export enum DriveItemType {
@@ -354,6 +380,15 @@ export enum DriveItemType {
     FILE,
     DOCUMENTSET,
     UNKNOWN
+}
+
+export interface IUnzippedModuleItem {
+    uniqueId: string,
+    driveItemId: string,
+    modifiedDate: string,
+    targetPath: string,
+    zipPath: string,
+    indexHtmlPath: string
 }
 
 export interface IUser {
@@ -419,6 +454,7 @@ export class DriveItem implements IDriveItem {
     parentReferenceId?: string;
     country?: string;
     contentType?:string;
+    graphDownloadUrl?: string;
 
   constructor(item:any) {
     console.log("drive item id:"+ item.id)
@@ -427,7 +463,7 @@ export class DriveItem implements IDriveItem {
     this.webUrl = item.webUrl ?? "";
     this.name = item.name ?? ""
     this.serverRelativeUrl = item?.serverRelativeUrl ?? ""
-    this.timeLastModified = item?.timeLastModified ?? ""
+    this.timeLastModified = item?.lastModifiedDateTime ?? ""
     this.timeCreated = item?.timeCreated ?? ""
     this.listItemId = item?.listItemId ?? ""
     this.listId = item?.listId ?? ""
@@ -442,10 +478,15 @@ export class DriveItem implements IDriveItem {
     this.country = findCountry(this.country) ?? ""
     //file specific
     this.fileSize = item?.size ?? 0
-    //enable this in node
-    //this.fileExtension = path.extname(item.file.webUrl)
+    if(item.driveItem) {
+        this.graphDownloadUrl = item.driveItem["@microsoft.graph.downloadUrl"] ?? "" 
+    }
+    
+    this.fileExtension = getExtension(this.name)
   }
 }
+
+
 
 export interface IListItem {
     uniqueId: string;
@@ -483,6 +524,28 @@ export class ListItem implements IListItem {
         this.isDocSet = this.type === DriveItemType.DOCUMENTSET
 
         this.listItemId = item.id
+    }
+}
+export interface IThumbnail {
+    uniqueId: string,
+    smallUrl: string,
+    mediumUrl: string,
+    largeUrl: string
+}
+export class Thumbnail implements IThumbnail {
+   uniqueId: string
+    smallUrl: string = ""
+    mediumUrl: string = ""
+    largeUrl: string = ""
+
+    constructor(response: any) {
+        this.uniqueId = response?.id
+        const thumbnailObject = response?.thumbnails[0]
+        if(thumbnailObject) {
+            this.smallUrl = thumbnailObject.small?.url ?? ""
+            this.mediumUrl = thumbnailObject.medium?.url ?? ""
+            this.largeUrl = thumbnailObject.large?.url ?? ""
+        }
     }
 }
 
