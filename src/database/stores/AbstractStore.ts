@@ -1,9 +1,17 @@
 import { DriveItem, IDriveItem } from "database/database";
 
-interface IStoreParams {
+export interface IStoreParams {
   query?: string
 }
-export abstract class AbstractStore {
+
+export interface IStore {
+  items: IDriveItem[]
+  update: () => void
+  getItems: () => Array<IDriveItem>
+}
+
+
+export abstract class AbstractStore implements IStore{
 
   items: IDriveItem[] = []
   isRoot: boolean = false
