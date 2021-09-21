@@ -5,7 +5,7 @@ import { IDriveItem, Thumbnail } from '../../../../database/database';
 import { FlexLightStoreFactory } from '../../../../database/stores/FlexLightStoreFactory';
 import { dataManager } from '../../../DataManager';
 import { PageHeader } from '../../atoms';
-import { FileList } from '../../molecules';
+import { FileList, LinkedItems } from '../../molecules';
 import { thumbnailsMock } from './thumbnailsMock';
 
 const useStyles = makeStyles((theme) => ({
@@ -13,7 +13,9 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   wrapper: {
-    marginBottom: theme.spacing(11),
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing(14),
   },
 }));
 
@@ -49,6 +51,9 @@ export const DocumentSet: FC<IDocumentSetProps> = ({ documentSet }) => {
       <PageHeader title={documentSet.title} description={documentSet.name} />
       <div className={styles.wrapper}>
         <FileList items={items} thumbnails={thumbnails} />
+        {true || documentSet.linkedFiles || documentSet.linkedFolders ? ( // TODO remove TRUE
+          <LinkedItems documentSet={documentSet} />
+        ) : null}
       </div>
     </div>
   );

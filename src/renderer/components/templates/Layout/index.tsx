@@ -1,4 +1,4 @@
-import { Container, CssBaseline, makeStyles, ThemeProvider } from '@material-ui/core';
+import { CssBaseline, makeStyles, ThemeProvider } from '@material-ui/core';
 import React, { FunctionComponent } from 'react';
 
 import themeOverrides from '../../../theme';
@@ -31,7 +31,7 @@ export const Layout: FunctionComponent = ({ children }) => {
       <main className={styles.root}>
         <Sidebar navigationEnabled />
         <div className={styles.content}>
-          <Container className={styles.main}>{children || ''}</Container>
+          <div className={styles.main}>{children || ''}</div>
         </div>
       </main>
     </ThemeProvider>

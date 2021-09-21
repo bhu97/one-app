@@ -9,11 +9,11 @@ import { FileItem } from '../../atoms';
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
+      flexGrow: 1,
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
       gridGap: theme.spacing(2),
       padding: theme.spacing(2, 4),
-      marginBottom: theme.spacing(3),
       background: theme.palette.background.paper,
       boxShadow: `0 0 4px 3px ${theme.palette.grey[300]}, 0 0.3px 0.9px 0 rgb(168 0 0 / 54%)`,
     },
