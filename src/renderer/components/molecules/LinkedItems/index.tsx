@@ -1,4 +1,4 @@
-import { List } from '@material-ui/core';
+import { List, Typography } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { IDriveItem } from 'database/database';
 import React, { FC } from 'react';
@@ -22,7 +22,12 @@ interface ILinkedItemsProps {
 export const LinkedItems: FC<ILinkedItemsProps> = ({ documentSet }) => {
   const classes = useStyles();
 
-  return <List className={classes.root}>ELO</List>;
+  return (
+    <div className={classes.root}>
+      <Typography variant="h2">More information</Typography>
+      <List>ITEMS HERE</List>
+    </div>
+  );
 };
 
 export default LinkedItems;

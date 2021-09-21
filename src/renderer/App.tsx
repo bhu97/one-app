@@ -1,10 +1,11 @@
 import '../utils/global';
 import './App.global.css';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { MemoryRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
-import { CartPage, FavoritesPage, HomePage, SettingsPage, DevSettings } from './components/pages';
+import { IDriveItem } from '../database/database';
+import { CartPage, DevSettings, FavoritesPage, HomePage, SettingsPage } from './components/pages';
 import { Layout } from './components/templates';
 
 async function checkAuth() {
@@ -18,6 +19,15 @@ async function checkAuth() {
 }
 
 export default function App() {
+  const currentRouteRef = useRef<IDriveItem[]>([
+    {
+      uniqueId: 'home',
+      title: 'Home',
+    },
+  ]);
+  const onRouteChanged = (currentRoute: IDriveItem[]) => {
+    currentRouteRef.current = currentRoute;
+  };
   return (
     <Router>
       <Layout>
@@ -25,7 +35,16 @@ export default function App() {
           <Route exact path="/">
             <Redirect to="/home" />
           </Route>
-          <Route path="/home" component={HomePage} />
+          <Route
+            path="/home"
+            render={(props) => (
+              <HomePage
+                {...props}
+                initialRoute={currentRouteRef.current}
+                onRouteChanged={onRouteChanged}
+              />
+            )}
+          />
           <Route path="/favorites" component={FavoritesPage} />
           <Route path="/cart" component={CartPage} />
           <Route path="/settings" component={SettingsPage} />

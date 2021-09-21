@@ -4,7 +4,9 @@ import { db, IDriveItem } from '../../../../database/database';
 import { FlexLightStoreFactory } from '../../../../database/stores/FlexLightStoreFactory';
 
 export const useDriveItems = (
-  mainRef: React.MutableRefObject<HTMLDivElement | null>
+  mainRef: React.MutableRefObject<HTMLDivElement | null>,
+  initialRoute: IDriveItem[],
+  onRouteChanged: (currentRoute: IDriveItem[]) => void
 ) => {
   /*
     const setupDummyData = async () => {
@@ -29,12 +31,7 @@ export const useDriveItems = (
   */
 
   const [isLoading, setIsLoading] = useState(true);
-  const [currentRoute, setCurrentRoute] = useState<IDriveItem[]>([
-    {
-      uniqueId: 'home',
-      title: 'Home',
-    },
-  ]);
+  const [currentRoute, setCurrentRoute] = useState<IDriveItem[]>(initialRoute);
 
   const [items, setItems] = useState<IDriveItem[][]>([]);
 
@@ -69,9 +66,11 @@ export const useDriveItems = (
     if (fromBreadcrumbs) {
       setItems(ancestors);
       setCurrentRoute(ancestorsRoute);
+      onRouteChanged(ancestorsRoute);
     } else {
       setItems([...ancestors, levelItems]);
       setCurrentRoute([...ancestorsRoute, item]);
+      onRouteChanged([...ancestorsRoute, item]);
     }
     mainRef.current?.parentElement?.parentElement?.scrollTo({
       left: 10000,

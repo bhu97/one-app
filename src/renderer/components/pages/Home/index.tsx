@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core';
 import React, { FC, useRef } from 'react';
 
-import { DriveItemType } from '../../../../database/database';
+import { DriveItemType, IDriveItem } from '../../../../database/database';
 import { BackButton, LoadingDialog } from '../../atoms';
 import { Breadcrumbs } from '../../molecules';
 import { DocumentSet, FolderList } from '../../organisms';
@@ -18,7 +18,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const HomePage: FC = () => {
+interface IHomePageProps {
+  initialRoute: IDriveItem[];
+  onRouteChanged: (currentRoute: IDriveItem[]) => void;
+}
+
+export const HomePage: FC = ({ initialRoute, onRouteChanged }) => {
   const styles = useStyles();
   const mainRef = useRef<HTMLDivElement | null>(null);
   const {
@@ -27,7 +32,7 @@ export const HomePage: FC = () => {
     currentRoute,
     onDriveItemSelected,
     onBreadcrumbItemSelected,
-  } = useDriveItems(mainRef);
+  } = useDriveItems(mainRef, initialRoute, onRouteChanged);
   const lastItem = currentRoute[currentRoute.length - 1];
 
   return (
@@ -43,8 +48,7 @@ export const HomePage: FC = () => {
         }
       />
       <div ref={mainRef} className={styles.main}>
-        {lastItem.contentType === 'Document Set' ||
-        lastItem?.type === DriveItemType.DOCUMENTSET ? ( // TODO BUG IN BACKEND ENUM
+        {lastItem?.type === DriveItemType.DOCUMENTSET ? (
           <DocumentSet documentSet={lastItem} />
         ) : (
           <FolderList
