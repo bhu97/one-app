@@ -97,6 +97,16 @@ class FileManager {
   }
 
   filterForIndexHtml = (elm:string) => elm.match("index.html")
+
+  isSubDirectory = (parent:string, dir:string) => {
+    if(parent == dir) {
+      return true
+    }
+      const relative = path.relative(parent, dir);
+      const isSubdir = relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+    
+    return isSubdir
+  }
 }
 
 export const fileManager = new FileManager()

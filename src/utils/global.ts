@@ -20,6 +20,7 @@ declare global {
         deleteFile: (path: string) => Promise<void>;
         deleteFolder: (path: string) => Promise<void>;
         deleteCartFolder: () => Promise<void>;
+        isSubDirectory: (parent:string, dir:string) => Promise<boolean>;
       }
     }
   }

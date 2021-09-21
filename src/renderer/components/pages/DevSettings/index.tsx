@@ -271,7 +271,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
     let store = await FlexLightStoreFactory.getStoreForCurrentUser()
     if(store) {
       await store.update()
-      console.log(store.items);
+      console.table(store.items.map(item => item.title ?? item.name));
     };
   };
 

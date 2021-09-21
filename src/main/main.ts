@@ -277,6 +277,11 @@ ipcMain.handle('DELETE_CART_FOLDER', async() => {
   return fileManager.removeCartFolder()
 })
 
+ipcMain.handle('IS_SUB_DIRECTORY', (_, parent, dir) => {
+  let contains = fileManager.isSubDirectory(parent, dir)
+  return contains
+})
+
 ipcMain.handle('OPEN_HTML', (_, path: string, local?: boolean) => {
 
   ses!.cookies.get({ url: 'https://fresenius.sharepoint.com' })
