@@ -31,7 +31,7 @@ import {
 } from '../../../../authentication/fetch';
 import { CountryVersion, db, DriveItem } from 'database/database';
 import { LightStore } from 'database/stores/LightStore';
-import { responseToDriveItem, responseToListItem } from 'utils/object.mapping';
+import { responseToDriveItem, responseToListItem } from '../../../../utils/object.mapping';
 import { FlexStore } from 'database/stores/FlexStore';
 import { LinkedStore } from 'database/stores/LinkedStore';
 import { localStorgeHelper } from 'database/storage';
