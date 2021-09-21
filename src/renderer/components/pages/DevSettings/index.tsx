@@ -38,6 +38,7 @@ import { localStorgeHelper } from 'database/storage';
 import dayjs from 'dayjs';
 import { AppError, dataManager } from '../../../DataManager';
 import { cartStore } from 'database/stores/CartStore';
+import { FlexLightStoreFactory } from 'database/stores/FlexLightStoreFactory';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -267,15 +268,19 @@ export const DevSettings: FC<DevSettingsProps> = () => {
   };
 
   const loadLighStore = async () => {
-    let store = new LightStore({});
-    await store.update();
-    console.log(store.items);
+    let store = await FlexLightStoreFactory.getStoreForCurrentUser()
+    if(store) {
+      await store.update()
+      console.log(store.items);
+    };
   };
 
   const loadFlexStore = async () => {
-    let store = new FlexStore({});
-    await store.update();
-    console.log(store.items);
+    let store = await FlexLightStoreFactory.getStoreForCurrentUser()
+    if(store) {
+      await store.update()
+      console.log(store.items);
+    }
   };
 
   const loadLinkedStore = async () => {
