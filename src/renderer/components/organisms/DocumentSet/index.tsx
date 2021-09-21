@@ -2,7 +2,7 @@ import { makeStyles } from '@material-ui/core';
 import React, { FC, useEffect, useState } from 'react';
 
 import { IDriveItem } from '../../../../database/database';
-import { FlexStore } from '../../../../database/stores/FlexStore';
+import { FlexLightStoreFactory } from '../../../../database/stores/FlexLightStoreFactory';
 import { dataManager } from '../../../DataManager';
 import { PageHeader } from '../../atoms';
 import { FileList } from '../../molecules';
@@ -25,13 +25,20 @@ export const DocumentSet: FC<IDocumentSetProps> = ({ documentSet }) => {
   const [items, setItems] = useState<IDriveItem[]>([]);
 
   const getData = async () => {
-    const store = new FlexStore({ query: documentSet.uniqueId });
+    const store = await FlexLightStoreFactory.getStoreForCurrentUser({
+      query: documentSet.uniqueId,
+    });
+    if (!store) return;
     await store.update();
     setItems(store.items);
-    const thumbnails = await Promise.all(
-      store.items.map((item) => dataManager.getThumbnails(item.uniqueId))
-    );
-    console.log(thumbnails);
+    try {
+      const thumbnails = await Promise.all(
+        store.items.map((item) => dataManager.getThumbnails(item.uniqueId))
+      );
+      console.log(thumbnails);
+    } catch (e) {
+      console.error('No thumbnails for you');
+    }
   };
   useEffect(() => {
     getData();
