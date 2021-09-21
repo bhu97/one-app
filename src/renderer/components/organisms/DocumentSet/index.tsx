@@ -3,6 +3,7 @@ import React, { FC, useEffect, useState } from 'react';
 
 import { IDriveItem } from '../../../../database/database';
 import { FlexStore } from '../../../../database/stores/FlexStore';
+import { dataManager } from '../../../DataManager';
 import { PageHeader } from '../../atoms';
 import { FileList } from '../../molecules';
 
@@ -27,6 +28,10 @@ export const DocumentSet: FC<IDocumentSetProps> = ({ documentSet }) => {
     const store = new FlexStore({ query: documentSet.uniqueId });
     await store.update();
     setItems(store.items);
+    const thumbnails = await Promise.all(
+      store.items.map((item) => dataManager.getThumbnails(item.uniqueId))
+    );
+    console.log(thumbnails);
   };
   useEffect(() => {
     getData();
