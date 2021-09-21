@@ -5,3 +5,9 @@ export const responseToDriveItem = (response: any) => {
 };
 export const responseToListItem = (response: any) => new ListItem(response);
 export const responseToThumbnail = (response: any) => new Thumbnail(response);
+
+export const getExtension = (fileName:string): string => {
+  var re = /(?:\.([^.]+))?$/;
+  let extension = re.exec(fileName)?.[1] 
+  return extension ?? ""
+}

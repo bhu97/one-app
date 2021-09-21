@@ -235,7 +235,7 @@ const openDriveItem = async(uniqueId:string, progressState?:(state: string) => v
   
   const driveItem = await db.getItemForId(uniqueId)
   
-  const shouldOpenLocal = (!(driveItem.fileExtension  === null || driveItem.fileExtension === undefined) && driveItem.fileExtension === "application/zip") 
+  const shouldOpenLocal = (!(driveItem.fileExtension  === null || driveItem.fileExtension === undefined) && driveItem.fileExtension === "zip") 
   console.log("should open local"+shouldOpenLocal);
   
   if(shouldOpenLocal) {
