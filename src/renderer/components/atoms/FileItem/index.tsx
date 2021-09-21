@@ -51,9 +51,10 @@ const useStyles = makeStyles((theme) => ({
 
 export interface IFileItemProps {
   item: IDriveItem;
+  thumbnailUrl: string | undefined;
 }
 
-export const FileItem: FC<IFileItemProps> = ({ item }) => {
+export const FileItem: FC<IFileItemProps> = ({ item, thumbnailUrl }) => {
   const styles = useStyles();
   const { uniqueId, name, title, webUrl, fileExtension, fileSize } = item;
   const text = title || name;
@@ -69,9 +70,9 @@ export const FileItem: FC<IFileItemProps> = ({ item }) => {
     >
       <div
         className={styles.image}
-        // style={{
-        //   backgroundImage: item. // TODO preview?
-        // }}
+        style={{
+          backgroundImage: `url(${thumbnailUrl})`,
+        }}
       >
         {getIconByExtension(fileExtension)}
       </div>

@@ -1,11 +1,12 @@
 import { makeStyles } from '@material-ui/core';
 import React, { FC, useEffect, useState } from 'react';
 
-import { IDriveItem } from '../../../../database/database';
+import { IDriveItem, Thumbnail } from '../../../../database/database';
 import { FlexLightStoreFactory } from '../../../../database/stores/FlexLightStoreFactory';
 import { dataManager } from '../../../DataManager';
 import { PageHeader } from '../../atoms';
 import { FileList } from '../../molecules';
+import { thumbnailsMock } from './thumbnailsMock';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,6 +24,7 @@ interface IDocumentSetProps {
 export const DocumentSet: FC<IDocumentSetProps> = ({ documentSet }) => {
   const styles = useStyles();
   const [items, setItems] = useState<IDriveItem[]>([]);
+  const [thumbnails, setThumbnails] = useState<Thumbnail[]>([]);
 
   const getData = async () => {
     const store = await FlexLightStoreFactory.getStoreForCurrentUser({
@@ -31,14 +33,13 @@ export const DocumentSet: FC<IDocumentSetProps> = ({ documentSet }) => {
     if (!store) return;
     await store.update();
     setItems(store.items);
+    let newThumbnails: Thumbnail[];
     try {
-      const thumbnails = await Promise.all(
-        store.items.map((item) => dataManager.getThumbnails(item.uniqueId))
-      );
-      console.log(thumbnails);
+      newThumbnails = await dataManager.getThumbnails(documentSet.uniqueId);
     } catch (e) {
-      console.error('No thumbnails for you');
+      newThumbnails = thumbnailsMock;
     }
+    setThumbnails(newThumbnails);
   };
   useEffect(() => {
     getData();
@@ -47,7 +48,7 @@ export const DocumentSet: FC<IDocumentSetProps> = ({ documentSet }) => {
     <div className={styles.root}>
       <PageHeader title={documentSet.title} description={documentSet.name} />
       <div className={styles.wrapper}>
-        <FileList items={items} />
+        <FileList items={items} thumbnails={thumbnails} />
       </div>
     </div>
   );

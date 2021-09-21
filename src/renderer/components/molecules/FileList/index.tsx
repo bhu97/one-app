@@ -1,8 +1,9 @@
 import { List } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { IDriveItem } from 'database/database';
+import { IDriveItem, Thumbnail } from 'database/database';
 import React, { FC } from 'react';
 
+import { getAssetPath } from '../../../helpers';
 import { FileItem } from '../../atoms';
 
 const useStyles = makeStyles((theme) =>
@@ -21,16 +22,33 @@ const useStyles = makeStyles((theme) =>
 
 interface IFileListProps {
   items: IDriveItem[];
+  thumbnails: Thumbnail[];
 }
 
-export const FileList: FC<IFileListProps> = ({ items }) => {
+export const FileList: FC<IFileListProps> = ({ items, thumbnails }) => {
   const classes = useStyles();
 
   return (
     <List className={classes.root}>
-      {items.map((item) => (
-        <FileItem key={item.uniqueId} item={item} />
-      ))}
+      {items.map((item) => {
+        const thumbnail = thumbnails.find((elem) => elem.id === item.uniqueId);
+        const firstImage = thumbnail?.thumbnails[0];
+        let thumbnailUrl: string | undefined;
+        if (item.fileExtension === 'zip') {
+          thumbnailUrl = getAssetPath(
+            '../../../../../assets/content-page/empty_thumbnail.png'
+          ); // TODO test if working for PROD);
+        } else if (firstImage && firstImage.large?.url) {
+          thumbnailUrl = firstImage.large.url;
+        }
+        return (
+          <FileItem
+            key={item.uniqueId}
+            item={item}
+            thumbnailUrl={thumbnailUrl}
+          />
+        );
+      })}
     </List>
   );
 };
