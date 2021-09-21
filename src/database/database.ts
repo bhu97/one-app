@@ -1,8 +1,7 @@
 import Dexie from 'dexie';
 import { findCountry, normalizeUrl, notEmpty } from './../utils/helper';
 import config from './../utils/application.config.release'
-import dayjs from 'dayjs';
-import { getExtension } from 'utils/object.mapping';
+import { getExtension } from './../utils/object.mapping';
 export class AppDatabase extends Dexie {
 
     driveItems: Dexie.Table<IDriveItem, number>;

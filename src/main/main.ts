@@ -273,6 +273,9 @@ ipcMain.handle('DELETE_FOLDER', async(_, path: string) => {
   return fileManager.removeFolder(path)
 })
 
+ipcMain.handle('DELETE_CART_FOLDER', async() => {
+  return fileManager.removeCartFolder()
+})
 
 ipcMain.handle('OPEN_HTML', (_, path: string, local?: boolean) => {
 
