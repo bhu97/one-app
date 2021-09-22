@@ -57,7 +57,8 @@ export const HomePage: FC = ({ initialRoute, onRouteChanged }) => {
         <Typography variant="h2">Please select your category</Typography>
       </div>
       <div ref={mainRef} className={styles.main}>
-        {lastItem?.type === DriveItemType.DOCUMENTSET ? (
+        {lastItem.contentType === 'Document Set' || // TODO type and isDocumentSet are not working
+        lastItem?.type === DriveItemType.DOCUMENTSET ? (
           <DocumentSet documentSet={lastItem} />
         ) : (
           <FolderList
