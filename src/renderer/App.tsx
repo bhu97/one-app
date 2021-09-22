@@ -19,12 +19,13 @@ async function checkAuth() {
 }
 
 export default function App() {
-  const currentRouteRef = useRef<IDriveItem[]>([
+  const defaultRoute = [
     {
       uniqueId: 'home',
       title: 'Home',
     },
-  ]);
+  ];
+  const currentRouteRef = useRef<IDriveItem[]>(defaultRoute);
   const onRouteChanged = (currentRoute: IDriveItem[]) => {
     currentRouteRef.current = currentRoute;
   };
@@ -32,9 +33,14 @@ export default function App() {
     <Router>
       <Layout>
         <Switch>
-          <Route exact path="/">
-            <Redirect to="/home" />
-          </Route>
+          <Route
+            exact
+            path="/"
+            render={(props) => {
+              currentRouteRef.current = defaultRoute;
+              return <Redirect {...props} to="/home" />;
+            }}
+          />
           <Route
             path="/home"
             render={(props) => (

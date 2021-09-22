@@ -18,6 +18,10 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     flexGrow: 1,
   },
+  sticky: {
+    position: 'sticky',
+    left: 0,
+  },
 }));
 
 interface IHomePageProps {
@@ -44,19 +48,26 @@ export const HomePage: FC<IHomePageProps> = ({
     currentRoute[currentRoute.length - 1].title ||
     currentRoute[currentRoute.length - 1].name;
 
+  const isDocumentSet =
+    lastItem.contentType === 'Document Set' || // TODO type and isDocumentSet are not working
+    lastItem?.type === DriveItemType.DOCUMENTSET;
   return (
     <>
       <BackButton
         isHidden={currentRoute.length < 2}
         onClick={onBackButtonClicked}
       />
-      <div className={styles.headers}>
-        <Typography variant="h1">{lastItemName}</Typography>
-        <Typography variant="h2">Please select your category</Typography>
-      </div>
-      <div ref={mainRef} className={styles.main}>
-        {lastItem.contentType === 'Document Set' || // TODO type and isDocumentSet are not working
-        lastItem?.type === DriveItemType.DOCUMENTSET ? (
+      {isDocumentSet ? null : (
+        <div className={styles.headers}>
+          <Typography variant="h1">{lastItemName}</Typography>
+          <Typography variant="h2">Please select your category</Typography>
+        </div>
+      )}
+      <div
+        ref={mainRef}
+        className={`${styles.main} ${isDocumentSet ? styles.sticky : ''}`}
+      >
+        {isDocumentSet ? (
           <DocumentSet documentSet={lastItem} />
         ) : (
           <FolderList
