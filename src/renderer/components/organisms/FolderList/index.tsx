@@ -1,4 +1,4 @@
-import { makeStyles, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import React, { FC } from 'react';
 
 import { IDriveItem } from '../../../../database/database';
@@ -6,9 +6,6 @@ import { getAssetPath } from '../../../helpers';
 import { StackedFileListController } from '../StackedFileListController';
 
 const useStyles = makeStyles((theme) => ({
-  headers: {
-    marginBottom: '38px',
-  },
   image: {
     alignSelf: 'flex-end',
     maxHeight: '50vh',
@@ -33,17 +30,9 @@ export const FolderList: FC<IFolderListProps> = ({
   onDriveItemSelected,
 }) => {
   const styles = useStyles();
-  const lastItemName =
-    currentRoute[currentRoute.length - 1].title ||
-    currentRoute[currentRoute.length - 1].name;
-
   return (
     <>
       <div>
-        <div className={styles.headers}>
-          <Typography variant="h1">{lastItemName}</Typography>
-          <Typography variant="h2">Please select your category</Typography>
-        </div>
         <StackedFileListController
           items={items}
           onDriveItemSelected={onDriveItemSelected}

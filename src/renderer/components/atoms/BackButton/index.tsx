@@ -5,6 +5,8 @@ import { BackArrowIcon } from '../../../svg';
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    position: 'sticky',
+    left: 0,
     alignSelf: 'flex-start',
     marginBottom: theme.spacing(1),
     padding: theme.spacing(1),

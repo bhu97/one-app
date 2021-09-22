@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
 import React, { FC, useRef } from 'react';
 
 import { DriveItemType, IDriveItem } from '../../../../database/database';
@@ -9,6 +9,8 @@ import { useDriveItems } from './useDriveItems';
 
 const useStyles = makeStyles((theme) => ({
   headers: {
+    position: 'sticky',
+    left: 0,
     marginBottom: '38px',
   },
   main: {
@@ -34,6 +36,9 @@ export const HomePage: FC = ({ initialRoute, onRouteChanged }) => {
     onBreadcrumbItemSelected,
   } = useDriveItems(mainRef, initialRoute, onRouteChanged);
   const lastItem = currentRoute[currentRoute.length - 1];
+  const lastItemName =
+    currentRoute[currentRoute.length - 1].title ||
+    currentRoute[currentRoute.length - 1].name;
 
   return (
     <>
@@ -47,6 +52,10 @@ export const HomePage: FC = ({ initialRoute, onRouteChanged }) => {
           )
         }
       />
+      <div className={styles.headers}>
+        <Typography variant="h1">{lastItemName}</Typography>
+        <Typography variant="h2">Please select your category</Typography>
+      </div>
       <div ref={mainRef} className={styles.main}>
         {lastItem?.type === DriveItemType.DOCUMENTSET ? (
           <DocumentSet documentSet={lastItem} />

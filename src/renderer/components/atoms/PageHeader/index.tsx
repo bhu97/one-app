@@ -3,6 +3,8 @@ import React, { FC } from 'react';
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    position: 'sticky',
+    left: 0,
     padding: theme.spacing(2, 4),
     marginBottom: theme.spacing(3),
     background: theme.palette.background.paper,
