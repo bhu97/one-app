@@ -5,6 +5,7 @@ import { isNullOrUndefined } from "util";
 import dayjs from "dayjs";
 import { cartStore } from "database/stores/CartStore";
 import { notEmpty } from "utils/helper";
+import { fileManager } from "main/filemanager/FileManager";
 
 
 /**
@@ -38,6 +39,7 @@ const downloadCartFiles = async() => {
   const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
   const token = authResult.accessToken
   if (token) {
+    window.electron.ipcRenderer.deleteCartFolder()
     const driveItemIds = cartStore.items.map(driveItem => driveItem.listItemId).filter(notEmpty)
     console.log("cart items:" +driveItemIds)
     await downloadFiles(driveItemIds, token)
@@ -253,11 +255,15 @@ const shouldShowUpdateAlert = ():boolean => {
 }
 
 const getThumbnails = async(uniqueId: string):Promise<Thumbnail[]> => {
-  const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
-  const token = authResult.accessToken
+  try {
+    const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
+    const token = authResult.accessToken
 
-  if(token) {
-    return await fetchThumbnails(uniqueId, token)
+    if(token) {
+        return await fetchThumbnails(uniqueId, token)
+    }
+  } catch(error) {
+    console.error(error);
   }
   return []
 }

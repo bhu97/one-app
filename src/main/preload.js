@@ -41,6 +41,12 @@ contextBridge.exposeInMainWorld('electron', {
     deleteFolder: (path) => {
       ipcRenderer.invoke('DELETE_FOLDER', path);
     },
+    deleteCartFolder: () => {
+      ipcRenderer.invoke('DELETE_CART_FOLDER');
+    },
+    isSubDirectory: async(parent, dir) => {
+      return await ipcRenderer.invoke('IS_SUB_DIRECTORY', parent, dir);
+    },
     on(channel, func) {
       const validChannels = ['ipc-example'];
       if (validChannels.includes(channel)) {

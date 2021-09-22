@@ -1,4 +1,5 @@
 import { db, IDriveItem } from "database/database";
+
 import { normalizeUrl } from "utils/helper";
 import { AbstractStore } from "./AbstractStore";
 
@@ -42,7 +43,7 @@ export class LightStore extends AbstractStore {
       //get whitelist for country and filter out all folders that are not in whitelist
       const whitelist = await db.whitelistArrayForCountry(currentCountry)
       if (allItems) {
-        const onlyWhitelisted = this.onlyWhitelistedItems(allItems, whitelist)
+        const onlyWhitelisted = await this.onlyWhitelistedItems(allItems, whitelist)
         allItems = onlyWhitelisted
       }
      
@@ -54,35 +55,39 @@ export class LightStore extends AbstractStore {
     }
   }
 
-  onlyWhitelistedItems = (driveItems:Array<IDriveItem>, whitelistUrls:string[] ): Array<IDriveItem> => {
+  onlyWhitelistedItems = async(driveItems:Array<IDriveItem>, whitelistUrls:string[] ): Promise<Array<IDriveItem>> => {
     let filteredItems = new Set<IDriveItem>()
     
     for (let whitelistUrl of whitelistUrls) {
       for (let driveItem of driveItems) {
+
+        if(filteredItems.has(driveItem)) {
+          continue
+        }
+
         let ndriveItemUrl = normalizeUrl(driveItem.webUrl!)
         let nwhitelistUrl = normalizeUrl(whitelistUrl)
   
-        let components1 = nwhitelistUrl.split("/").length
-        let components2 = ndriveItemUrl.split("/").length
   
-        if (components1<=components2) {
-          if (this.pathContainsSubpath(ndriveItemUrl, nwhitelistUrl)) {
-            filteredItems.add(driveItem)
-          }
+        if (await this.pathContainsSubpath(nwhitelistUrl, ndriveItemUrl)) {
+          filteredItems.add(driveItem)
         } else {
-          console.log("deep case")
-          if (this.pathContainsSubpath(nwhitelistUrl, ndriveItemUrl)) {
+          if(await this.pathContainsSubpath(ndriveItemUrl, nwhitelistUrl)) {
             filteredItems.add(driveItem)
           }
-        } 
+        }
       }
     }
     return Array.from(filteredItems)
   }
 
-  pathContainsSubpath(p1:string, p2:string): boolean {
-    return p1.indexOf(p2) !== -1
+  async pathContainsSubpath(p1:string, p2:string): Promise<boolean> {
+    let contains = await window.electron.ipcRenderer.isSubDirectory(p1, p2)
+    //console.log(`${p1} contains ${p2} => ${contains}`)
+    return contains
   }
+
+  
 
   getItems() {
     return this.items

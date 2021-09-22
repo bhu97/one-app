@@ -19,6 +19,8 @@ declare global {
         openCartFolder: (path?:string) => void;
         deleteFile: (path: string) => Promise<void>;
         deleteFolder: (path: string) => Promise<void>;
+        deleteCartFolder: () => Promise<void>;
+        isSubDirectory: (parent:string, dir:string) => Promise<boolean>;
       }
     }
   }
