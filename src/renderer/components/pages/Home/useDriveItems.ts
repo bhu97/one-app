@@ -39,7 +39,15 @@ export const useDriveItems = (
     const store = await FlexLightStoreFactory.getStoreForCurrentUser({});
     if (!store) return;
     await store.update();
-    setItems([store.items]);
+    const currentItems = [store.items];
+    if (initialRoute?.length > 1) {
+      for (const item of initialRoute) {
+        if (item.uniqueId === 'home') continue;
+        const levelItems = await getFileListData(item.uniqueId);
+        currentItems.push(levelItems);
+      }
+    }
+    setItems(currentItems);
     setIsLoading(false);
   };
 
@@ -81,12 +89,21 @@ export const useDriveItems = (
   const onBreadcrumbItemSelected = async (item: IDriveItem, index: number) => {
     await onDriveItemSelected(item, index, true);
   };
+
+  const onBackButtonClicked = async () => {
+    onDriveItemSelected(
+      currentRoute[currentRoute.length - 2],
+      currentRoute.length - 2,
+      true
+    );
+  };
   return {
     isLoading,
     items,
     currentRoute,
     onDriveItemSelected,
     onBreadcrumbItemSelected,
+    onBackButtonClicked,
   };
 };
 

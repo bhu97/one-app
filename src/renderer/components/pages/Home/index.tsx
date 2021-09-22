@@ -34,6 +34,7 @@ export const HomePage: FC = ({ initialRoute, onRouteChanged }) => {
     currentRoute,
     onDriveItemSelected,
     onBreadcrumbItemSelected,
+    onBackButtonClicked,
   } = useDriveItems(mainRef, initialRoute, onRouteChanged);
   const lastItem = currentRoute[currentRoute.length - 1];
   const lastItemName =
@@ -44,13 +45,7 @@ export const HomePage: FC = ({ initialRoute, onRouteChanged }) => {
     <>
       <BackButton
         isHidden={currentRoute.length < 2}
-        onClick={() =>
-          onDriveItemSelected(
-            currentRoute[currentRoute.length - 2],
-            currentRoute.length - 2,
-            true
-          )
-        }
+        onClick={onBackButtonClicked}
       />
       <div className={styles.headers}>
         <Typography variant="h1">{lastItemName}</Typography>
