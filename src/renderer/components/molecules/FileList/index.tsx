@@ -42,8 +42,8 @@ export const FileList: FC<IFileListProps> = ({ items, thumbnails }) => {
             thumbnailUrl = getAssetPath(
               '../../../../../assets/content-page/empty_thumbnail.png'
             ); // TODO test if working for PROD);
-          } else if (thumbnail && thumbnail.large?.url) {
-            thumbnailUrl = thumbnail.large.url;
+          } else if (thumbnail && thumbnail.largeUrl) {
+            thumbnailUrl = thumbnail.largeUrl;
           }
           return (
             <FileItem
