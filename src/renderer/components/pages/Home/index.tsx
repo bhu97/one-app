@@ -25,7 +25,10 @@ interface IHomePageProps {
   onRouteChanged: (currentRoute: IDriveItem[]) => void;
 }
 
-export const HomePage: FC = ({ initialRoute, onRouteChanged }) => {
+export const HomePage: FC<IHomePageProps> = ({
+  initialRoute,
+  onRouteChanged,
+}) => {
   const styles = useStyles();
   const mainRef = useRef<HTMLDivElement | null>(null);
   const {

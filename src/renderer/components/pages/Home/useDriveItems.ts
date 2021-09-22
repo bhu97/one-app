@@ -37,7 +37,10 @@ export const useDriveItems = (
 
   const getRootData = async () => {
     const store = await FlexLightStoreFactory.getStoreForCurrentUser({});
-    if (!store) return;
+    if (!store) {
+      setIsLoading(false);
+      return;
+    }
     await store.update();
     const currentItems = [store.items];
     if (initialRoute?.length > 1) {
