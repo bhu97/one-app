@@ -74,8 +74,9 @@ export class AppDatabase extends Dexie {
     //TODO: fix speed 
     async getItemsForWebUrls(weburls: string[]): Promise<IDriveItem[]> {
         let foundItems:IDriveItem[] = []
+        let items = await db.driveItems.where({contentType: "Document"}).toArray()
         for (let webUrl of weburls) {
-            let item = (await db.driveItems.toArray()).filter(driveItem => {
+            let item = items.filter(driveItem => {
                 if(driveItem.webUrl) {
                     return driveItem.webUrl.includes(webUrl) 
                 } 
@@ -86,6 +87,26 @@ export class AppDatabase extends Dexie {
         }
         foundItems = foundItems.filter(notEmpty)
     
+        return foundItems
+    }
+
+    async getItemsForContentPageWebUrls(webUrls:string[]):Promise<IDriveItem[]> {
+        let foundItems:IDriveItem[] = []
+        let items = await db.driveItems.where({contentType: "Document Set"}).toArray()
+
+        for (let webUrl of webUrls) {
+            let item = items.filter(driveItem => {
+                if(driveItem.webUrl) {
+                    return driveItem.webUrl.includes(normalizeUrl(webUrl)) 
+                } 
+                return false
+            })
+            foundItems.push(item[0])
+        }
+       
+        foundItems = foundItems.filter(notEmpty)
+        // foundItems = foundItems.filter(driveItem => (driveItem.isDocSet && driveItem.isDocSet == true))
+        
         return foundItems
     }
 

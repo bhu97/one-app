@@ -23,7 +23,8 @@ export class LinkedStore extends AbstractStore {
         if(driveItem.linkedFolders) {
           const folderWebUrls = this.linkedUrlListToArray(driveItem.linkedFolders)
           
-          let driveItems = await db.getItemsForWebUrls(folderWebUrls)
+          let driveItems = await db.getItemsForContentPageWebUrls(folderWebUrls)
+        
           allItems = allItems.concat(driveItems)
         }
       }

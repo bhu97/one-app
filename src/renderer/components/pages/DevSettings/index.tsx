@@ -242,7 +242,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
   };
 
   const setupDummyData = async () => {
-    if (await db.isEmpty()) {
+    //if (await db.isEmpty()) {
       setState({ ...state, isLoading: true });
 
       let deltaResponse = await fetch('./../../../assets/delta.json');
@@ -264,7 +264,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
       db.setupInitialFavoriteGroup();
 
       setState({ ...state, isLoading: false });
-    }
+   // }
   };
 
   const loadLighStore = async () => {
@@ -288,7 +288,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
       query: '01GX2IG4JQHK2LKOD6LFA3L54XT2KDUS5W',
     });
     await store.update();
-    console.log(store.items);
+    console.table(store.items.map(item => {return {"id": item.uniqueId, "name": item.name, "title": item.title, "country": item.country}}));
   };
 
   const loadThumbnails = async () => {
