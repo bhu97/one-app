@@ -41,6 +41,7 @@ export const HomePage: FC<IHomePageProps> = ({
     currentRoute,
     onDriveItemSelected,
     onBreadcrumbItemSelected,
+    onLinkedDocumentSetSelected,
     onBackButtonClicked,
   } = useDriveItems(mainRef, initialRoute, onRouteChanged);
   const lastItem = currentRoute[currentRoute.length - 1];
@@ -68,7 +69,10 @@ export const HomePage: FC<IHomePageProps> = ({
         className={`${styles.main} ${isDocumentSet ? styles.sticky : ''}`}
       >
         {isDocumentSet ? (
-          <DocumentSet documentSet={lastItem} />
+          <DocumentSet
+            documentSet={lastItem}
+            onLinkedDocumentSetSelected={onLinkedDocumentSetSelected}
+          />
         ) : (
           <FolderList
             items={items}

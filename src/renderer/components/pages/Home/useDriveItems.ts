@@ -93,6 +93,10 @@ export const useDriveItems = (
     await onDriveItemSelected(item, index, true);
   };
 
+  const onLinkedDocumentSetSelected = async (documentSet: IDriveItem) => {
+    await onDriveItemSelected(documentSet, items.length, false);
+  };
+
   const onBackButtonClicked = async () => {
     onDriveItemSelected(
       currentRoute[currentRoute.length - 2],
@@ -106,6 +110,7 @@ export const useDriveItems = (
     currentRoute,
     onDriveItemSelected,
     onBreadcrumbItemSelected,
+    onLinkedDocumentSetSelected,
     onBackButtonClicked,
   };
 };

@@ -1,7 +1,10 @@
 import { List, Typography } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { IDriveItem } from 'database/database';
-import React, { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
+
+import { LinkedStore } from '../../../../database/stores/LinkedStore';
+import { LinkedItem } from '../../atoms';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -17,15 +20,39 @@ const useStyles = makeStyles((theme) =>
 
 interface ILinkedItemsProps {
   documentSet: IDriveItem;
+  onLinkedDocumentSetSelected: (documentSet: IDriveItem) => void;
 }
 
-export const LinkedItems: FC<ILinkedItemsProps> = ({ documentSet }) => {
+export const LinkedItems: FC<ILinkedItemsProps> = ({
+  documentSet,
+  onLinkedDocumentSetSelected,
+}) => {
   const classes = useStyles();
+  const [items, setItems] = useState<IDriveItem[]>([]);
+  const getData = async () => {
+    const store = new LinkedStore({
+      query: documentSet.uniqueId,
+    });
+    if (!store) return;
+    await store.update();
+    setItems(store.items);
+  };
+  useEffect(() => {
+    getData();
+  }, [documentSet]);
 
   return (
     <div className={classes.root}>
       <Typography variant="h2">More information</Typography>
-      <List>ITEMS HERE</List>
+      <List>
+        {items.map((item) => (
+          <LinkedItem
+            key={item.uniqueId}
+            driveItem={item}
+            onLinkedDocumentSetSelected={onLinkedDocumentSetSelected}
+          />
+        ))}
+      </List>
     </div>
   );
 };

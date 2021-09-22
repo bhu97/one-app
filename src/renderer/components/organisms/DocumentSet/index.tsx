@@ -6,7 +6,6 @@ import { FlexLightStoreFactory } from '../../../../database/stores/FlexLightStor
 import { dataManager } from '../../../DataManager';
 import { PageHeader } from '../../atoms';
 import { FileList, LinkedItems } from '../../molecules';
-import { thumbnailsMock } from './thumbnailsMock';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,9 +20,13 @@ const useStyles = makeStyles((theme) => ({
 
 interface IDocumentSetProps {
   documentSet: IDriveItem;
+  onLinkedDocumentSetSelected: (documentSet: IDriveItem) => void;
 }
 
-export const DocumentSet: FC<IDocumentSetProps> = ({ documentSet }) => {
+export const DocumentSet: FC<IDocumentSetProps> = ({
+  documentSet,
+  onLinkedDocumentSetSelected,
+}) => {
   const styles = useStyles();
   const [items, setItems] = useState<IDriveItem[]>([]);
   const [thumbnails, setThumbnails] = useState<Thumbnail[]>([]);
@@ -39,7 +42,7 @@ export const DocumentSet: FC<IDocumentSetProps> = ({ documentSet }) => {
     try {
       newThumbnails = await dataManager.getThumbnails(documentSet.uniqueId);
     } catch (e) {
-      newThumbnails = thumbnailsMock;
+      newThumbnails = [];
     }
     setThumbnails(newThumbnails);
   };
@@ -51,8 +54,11 @@ export const DocumentSet: FC<IDocumentSetProps> = ({ documentSet }) => {
       <PageHeader title={documentSet.title} description={documentSet.name} />
       <div className={styles.wrapper}>
         <FileList items={items} thumbnails={thumbnails} />
-        {true || documentSet.linkedFiles || documentSet.linkedFolders ? ( // TODO remove TRUE
-          <LinkedItems documentSet={documentSet} />
+        {documentSet.linkedFiles || documentSet.linkedFolders ? (
+          <LinkedItems
+            documentSet={documentSet}
+            onLinkedDocumentSetSelected={onLinkedDocumentSetSelected}
+          />
         ) : null}
       </div>
     </div>
