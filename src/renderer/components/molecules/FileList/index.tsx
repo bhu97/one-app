@@ -35,7 +35,7 @@ export const FileList: FC<IFileListProps> = ({ items, thumbnails }) => {
       <List className={classes.wrapper}>
         {items.map((item) => {
           const thumbnail = thumbnails.find(
-            (elem) => elem.id === item.uniqueId
+            (elem) => elem.uniqueId === item.uniqueId
           );
           let thumbnailUrl: string | undefined;
           if (item.fileExtension === 'zip') {
