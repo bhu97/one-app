@@ -1,9 +1,10 @@
-import { ListItem, ListItemText, makeStyles } from '@material-ui/core';
+import { Button, ListItem, ListItemText, makeStyles } from '@material-ui/core';
 import React, { FC, useState } from 'react';
 
 import { IDriveItem } from '../../../../database/database';
 import { dataManager } from '../../../DataManager';
 import { getFileSizeLiteral, getIconByExtension } from '../../../helpers';
+import { DropdownMenu } from '../DropdownMenu';
 import { LoadingDialog } from '../Loading';
 
 const useStyles = makeStyles((theme) => ({
@@ -14,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.grey[300],
   },
   image: {
+    width: '100%',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -23,6 +25,9 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.grey[900],
     '& svg': {
       transform: 'scale(2)',
+    },
+    '&:hover': {
+      transform: 'unset',
     },
   },
   description: {
@@ -44,6 +49,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
+    alignItems: 'flex-end',
   },
   fileSize: {
     fontSize: '8px',
@@ -71,9 +77,8 @@ export const FileItem: FC<IFileItemProps> = ({ item, thumbnailUrl }) => {
       classes={{
         root: styles.root,
       }}
-      button
     >
-      <div
+      <Button
         onClick={openFile}
         className={styles.image}
         style={{
@@ -81,7 +86,7 @@ export const FileItem: FC<IFileItemProps> = ({ item, thumbnailUrl }) => {
         }}
       >
         {getIconByExtension(fileExtension)}
-      </div>
+      </Button>
       <div className={styles.description}>
         <ListItemText
           primary={text}
@@ -90,7 +95,18 @@ export const FileItem: FC<IFileItemProps> = ({ item, thumbnailUrl }) => {
           }}
         />
         <div className={styles.rightWrapper}>
-          <div />
+          <DropdownMenu
+            commands={[
+              {
+                title: 'Add to shopping cart',
+                onClick: console.log,
+              },
+              {
+                title: 'Add/remove favourite',
+                onClick: console.log,
+              },
+            ]}
+          />
           {fileSize ? (
             <div className={styles.fileSize}>
               {getFileSizeLiteral(fileSize)}

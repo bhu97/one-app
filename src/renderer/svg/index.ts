@@ -6,3 +6,4 @@ export * from './LinkIcon';
 export * from './LogoIcon';
 export * from './NextArrowIcon';
 export * from './SettingsIcon';
+export * from './TripleDot';

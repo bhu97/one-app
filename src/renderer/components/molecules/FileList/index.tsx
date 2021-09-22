@@ -37,14 +37,13 @@ export const FileList: FC<IFileListProps> = ({ items, thumbnails }) => {
           const thumbnail = thumbnails.find(
             (elem) => elem.id === item.uniqueId
           );
-          const firstImage = thumbnail?.thumbnails[0];
           let thumbnailUrl: string | undefined;
           if (item.fileExtension === 'zip') {
             thumbnailUrl = getAssetPath(
               '../../../../../assets/content-page/empty_thumbnail.png'
             ); // TODO test if working for PROD);
-          } else if (firstImage && firstImage.large?.url) {
-            thumbnailUrl = firstImage.large.url;
+          } else if (thumbnail && thumbnail.large?.url) {
+            thumbnailUrl = thumbnail.large.url;
           }
           return (
             <FileItem
