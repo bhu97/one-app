@@ -1,7 +1,7 @@
 import { List } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { IDriveItem } from 'database/database';
-import React, { FC } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 
 import { BreadcrumbItem } from '../../atoms';
 
@@ -11,8 +11,6 @@ const useStyles = makeStyles((theme) =>
       position: 'sticky',
       bottom: 0,
       left: 0,
-    },
-    list: {
       display: 'flex',
       padding: theme.spacing(0, 1, 0, 1),
       background: theme.palette.background.paper,
@@ -34,23 +32,40 @@ export const Breadcrumbs: FC<IBreadcrumbsProps> = ({
   onDriveItemSelected,
 }) => {
   const classes = useStyles();
+  const [minWidth, setMinWidth] = useState('0px');
+  const rootRef = useRef<HTMLUListElement | null>(null);
+  useEffect(() => {
+    if (!rootRef.current) return;
+    let width = 0;
+    rootRef.current.children.forEach((child: HTMLUListElement) => {
+      width += child.offsetWidth;
+    });
+    const newWidth = `${width}px`;
+    if (minWidth !== newWidth) {
+      setMinWidth(newWidth);
+    }
+  });
 
   return (
-    <div className={classes.root}>
-      <List className={classes.list}>
-        {items.map((item, index) => (
-          <BreadcrumbItem
-            key={item.uniqueId}
-            item={item}
-            isFirst={index === 0}
-            zIndex={items.length - index}
-            onDriveItemSelected={(driveItem) =>
-              onDriveItemSelected(driveItem, index)
-            }
-          />
-        ))}
-      </List>
-    </div>
+    <List
+      ref={rootRef}
+      className={classes.root}
+      style={{
+        minWidth,
+      }}
+    >
+      {items.map((item, index) => (
+        <BreadcrumbItem
+          key={item.uniqueId}
+          item={item}
+          isFirst={index === 0}
+          zIndex={items.length - index}
+          onDriveItemSelected={(driveItem) =>
+            onDriveItemSelected(driveItem, index)
+          }
+        />
+      ))}
+    </List>
   );
 };
 
