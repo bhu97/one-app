@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
-import { findCountry, normalizeUrl, notEmpty } from './../utils/helper';
-import config from './../utils/application.config.release'
+import { findCountry, normalizeUrl, notEmpty } from '../utils/helper';
+import config from '../utils/application.config.release'
 import { getExtension } from '../utils/object.mapping';
 export class AppDatabase extends Dexie {
 

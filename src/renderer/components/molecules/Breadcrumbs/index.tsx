@@ -1,6 +1,6 @@
 import { List } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { IDriveItem } from 'database/database';
+import { IDriveItem } from 'renderer/database/database';
 import React, { FC, useEffect, useRef, useState } from 'react';
 
 import { BreadcrumbItem } from '../../atoms';

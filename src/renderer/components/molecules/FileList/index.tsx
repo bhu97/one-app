@@ -1,6 +1,6 @@
 import { List } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { IDriveItem, Thumbnail } from 'database/database';
+import { IDriveItem, Thumbnail } from 'renderer/database/database';
 import React, { FC } from 'react';
 
 import { getAssetPath } from '../../../helpers';

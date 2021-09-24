@@ -1,4 +1,4 @@
-import { DriveItem, IDriveItem } from "database/database";
+import { DriveItem, IDriveItem } from "renderer/database/database";
 
 export interface IStoreParams {
   query?: string

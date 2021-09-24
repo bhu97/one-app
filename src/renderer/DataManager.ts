@@ -1,10 +1,10 @@
-import { localStorgeHelper } from "./../database/storage";
-import { fetchAdditionalMetadata, fetchDelta, fetchDriveItem, fetchThumbnails, fetchWhitelists } from "./../authentication/fetch";
-import { db, DriveItem, DriveItemType, IDriveItem, IUnzippedModuleItem, Thumbnail } from "./../database/database";
+import { localStorgeHelper } from "./database/storage";
+import { fetchAdditionalMetadata, fetchDelta, fetchDriveItem, fetchThumbnails, fetchWhitelists } from "./components/fetch";
+import { db, DriveItem, DriveItemType, IDriveItem, IUnzippedModuleItem, Thumbnail } from "./database/database";
 import { isNullOrUndefined } from "util";
 import dayjs from "dayjs";
-import { cartStore } from "database/stores/CartStore";
-import { notEmpty } from "utils/helper";
+import { cartStore } from "renderer/database/stores/CartStore";
+import { notEmpty } from "renderer/utils/helper";
 import { fileManager } from "main/filemanager/FileManager";
 
 

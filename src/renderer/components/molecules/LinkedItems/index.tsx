@@ -1,9 +1,9 @@
 import { List, Typography } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { IDriveItem } from 'database/database';
+import { IDriveItem } from 'renderer/database/database';
 import React, { FC, useEffect, useState } from 'react';
 
-import { LinkedStore } from '../../../../database/stores/LinkedStore';
+import { LinkedStore } from '../../../database/stores/LinkedStore';
 import { LinkedItem } from '../../atoms';
 
 const useStyles = makeStyles((theme) =>

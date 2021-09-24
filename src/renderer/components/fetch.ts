@@ -4,9 +4,9 @@
  */
 
 import axios from 'axios';
-import config from './../utils/application.config.release'
-import { responseToDriveItem, responseToListItem, responseToThumbnail } from './../utils/object.mapping'
-import { IDriveItem, IListItem, IWhitelist, Thumbnail, Whitelist } from './../database/database';
+import config from '../utils/application.config.release'
+import { responseToDriveItem, responseToListItem, responseToThumbnail } from '../utils/object.mapping'
+import { IDriveItem, IListItem, IWhitelist, Thumbnail, Whitelist } from '../database/database';
 
 /**
  * Makes an Authorization 'Bearer' request with the given accessToken to the given endpoint.

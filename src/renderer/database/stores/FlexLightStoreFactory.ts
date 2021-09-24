@@ -1,4 +1,4 @@
-import { CountryVersion, db } from "database/database"
+import { CountryVersion, db } from "renderer/database/database"
 import { IStore, IStoreParams } from "./AbstractStore"
 import { FlexStore } from "./FlexStore"
 import { LightStore } from "./LightStore"

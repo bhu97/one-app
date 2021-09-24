@@ -1,6 +1,6 @@
 import { AuthenticationResult } from "@azure/msal-common";
 import { AxiosRequestConfig } from "axios";
-import { IDriveItem } from "database/database";
+import { IDriveItem } from "renderer/database/database";
 
 //expose the ipc renderer
 declare global {

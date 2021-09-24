@@ -5,7 +5,7 @@
 const fs = require('fs');
 
 import { TokenCacheContext } from "@azure/msal-node";
-import { fileManager } from "./../main/filemanager/FileManager";
+import { fileManager } from "../filemanager/FileManager";
 const CACHE_LOCATION = fileManager.cacheFolder
 
 const beforeCacheAccess = async (cacheContext:TokenCacheContext) => {

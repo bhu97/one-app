@@ -1,7 +1,7 @@
 import { Button, ListItem, ListItemText, makeStyles } from '@material-ui/core';
 import React, { FC, useState } from 'react';
 
-import { IDriveItem } from '../../../../database/database';
+import { IDriveItem } from '../../../database/database';
 import { dataManager } from '../../../DataManager';
 import { getFileSizeLiteral, getIconByExtension } from '../../../helpers';
 import { DropdownMenu } from '../DropdownMenu';

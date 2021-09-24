@@ -1,7 +1,7 @@
 import { ListItem, ListItemIcon, ListItemText, makeStyles } from '@material-ui/core';
 import React, { FC } from 'react';
 
-import { IDriveItem } from '../../../../database/database';
+import { IDriveItem } from '../../../database/database';
 import { NextArrowIcon } from '../../../svg';
 
 const useStyles = makeStyles((theme) => ({

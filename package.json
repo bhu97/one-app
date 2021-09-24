@@ -252,7 +252,9 @@
   "collective": {
     "url": "https://opencollective.com/electron-react-boilerplate-594"
   },
-  "browserslist": [],
+  "browserslist": [
+    "last 1 Chrome version"
+  ],
   "prettier": {
     "overrides": [
       {

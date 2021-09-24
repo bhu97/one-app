@@ -7,7 +7,7 @@ import { PublicClientApplication, LogLevel, CryptoProvider, AuthenticationResult
 import { protocol } from 'electron';
 import path from 'path';
 import url from 'url';
-import config from '../utils/application.config.release'
+import config from '../../renderer/utils/application.config.release'
 import dayjs from 'dayjs';
 import { cachePlugin } from "./CachePlugin";
 

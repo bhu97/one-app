@@ -1,6 +1,6 @@
-import { db, IDriveItem } from "database/database";
-import { fileSizeMax } from "utils/constants";
-import { notEmpty } from "utils/helper";
+import { db, IDriveItem } from "renderer/database/database";
+import { fileSizeMax } from "renderer/utils/constants";
+import { notEmpty } from "renderer/utils/helper";
 import { AbstractStore } from "./AbstractStore";
 
 

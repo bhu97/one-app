@@ -28,17 +28,17 @@ import {
   fetchDriveItem,
   fetchLastModifiedDate,
   fetchWhitelists,
-} from '../../../../authentication/fetch';
-import { CountryVersion, db, DriveItem } from 'database/database';
-import { LightStore } from 'database/stores/LightStore';
-import { responseToDriveItem, responseToListItem } from '../../../../utils/object.mapping';
-import { FlexStore } from 'database/stores/FlexStore';
-import { LinkedStore } from 'database/stores/LinkedStore';
-import { localStorgeHelper } from 'database/storage';
+} from '../../fetch';
+import { CountryVersion, db, DriveItem } from 'renderer/database/database';
+import { LightStore } from 'renderer/database/stores/LightStore';
+import { responseToDriveItem, responseToListItem } from '../../../utils/object.mapping';
+import { FlexStore } from 'renderer/database/stores/FlexStore';
+import { LinkedStore } from 'renderer/database/stores/LinkedStore';
+import { localStorgeHelper } from 'renderer/database/storage';
 import dayjs from 'dayjs';
 import { AppError, dataManager } from '../../../DataManager';
-import { cartStore } from 'database/stores/CartStore';
-import { FlexLightStoreFactory } from 'database/stores/FlexLightStoreFactory';
+import { cartStore } from 'renderer/database/stores/CartStore';
+import { FlexLightStoreFactory } from 'renderer/database/stores/FlexLightStoreFactory';
 
 const useStyles = makeStyles((theme) => ({
   root: {

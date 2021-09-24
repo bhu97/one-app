@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core';
 import React, { FC } from 'react';
 
-import { IDriveItem } from '../../../../database/database';
+import { IDriveItem } from '../../../database/database';
 import { getAssetPath } from '../../../helpers';
 import { StackedFileListController } from '../StackedFileListController';
 

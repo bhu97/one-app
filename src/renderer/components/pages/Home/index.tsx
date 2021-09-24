@@ -1,7 +1,7 @@
 import { makeStyles, Typography } from '@material-ui/core';
 import React, { FC, useRef } from 'react';
 
-import { DriveItemType, IDriveItem } from '../../../../database/database';
+import { DriveItemType, IDriveItem } from '../../../database/database';
 import { BackButton, LoadingDialog } from '../../atoms';
 import { Breadcrumbs } from '../../molecules';
 import { DocumentSet, FolderList } from '../../organisms';

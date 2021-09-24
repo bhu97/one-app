@@ -16,15 +16,15 @@ import { autoUpdater } from 'electron-updater';
 import log, { create } from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import AuthProvider from './../authentication/AuthProvider';
-import {ipcEvent} from './../utils/constants'
+import AuthProvider from './authentication/AuthProvider';
+import {ipcEvent} from '../renderer/utils/constants'
 import { AuthenticationResult } from '@azure/msal-common';
 import axios from 'axios';
 import { fileManager } from './filemanager/FileManager';
 import { download } from 'electron-dl';
-import { responseToDriveItem } from './../utils/object.mapping';
-import config from "./../utils/application.config.release"
-import { IDriveItem } from './../database/database';
+import { responseToDriveItem } from '../renderer/utils/object.mapping';
+import config from "../renderer/utils/application.config.release"
+import { IDriveItem } from '../renderer/database/database';
 import { zipManager } from './zipmanager/ZipManager';
 
 export default class AppUpdater {

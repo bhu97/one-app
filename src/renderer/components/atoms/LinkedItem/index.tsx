@@ -1,7 +1,7 @@
 import { ListItem, ListItemText, makeStyles } from '@material-ui/core';
 import React, { FC, useState } from 'react';
 
-import { DriveItemType, IDriveItem } from '../../../../database/database';
+import { DriveItemType, IDriveItem } from '../../../database/database';
 import { dataManager } from '../../../DataManager';
 import { LinkIcon } from '../../../svg';
 import { LoadingDialog } from '../Loading';

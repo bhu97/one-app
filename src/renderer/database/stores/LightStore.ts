@@ -1,6 +1,6 @@
-import { db, IDriveItem } from "database/database";
+import { db, IDriveItem } from "renderer/database/database";
 
-import { normalizeUrl } from "utils/helper";
+import { normalizeUrl } from "renderer/utils/helper";
 import { AbstractStore } from "./AbstractStore";
 
 export class LightStore extends AbstractStore {

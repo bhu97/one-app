@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import { db, IDriveItem } from '../../../../database/database';
-import { FlexLightStoreFactory } from '../../../../database/stores/FlexLightStoreFactory';
+import { db, IDriveItem } from '../../../database/database';
+import { FlexLightStoreFactory } from '../../../database/stores/FlexLightStoreFactory';
 
 export const useDriveItems = (
   mainRef: React.MutableRefObject<HTMLDivElement | null>,

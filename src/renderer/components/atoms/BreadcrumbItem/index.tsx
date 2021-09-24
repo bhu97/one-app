@@ -1,7 +1,7 @@
 import { ListItem, ListItemText, makeStyles } from '@material-ui/core';
 import React, { FC } from 'react';
 
-import { IDriveItem } from '../../../../database/database';
+import { IDriveItem } from '../../../database/database';
 
 const useStyles = makeStyles((theme) => ({
   root: {

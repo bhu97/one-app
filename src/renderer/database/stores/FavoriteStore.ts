@@ -1,4 +1,4 @@
-import { db, IDriveItem } from "database/database";
+import { db, IDriveItem } from "renderer/database/database";
 import { AbstractStore } from "./AbstractStore";
 
 

@@ -4,7 +4,7 @@ import { getAssetPath } from '../../../helpers';
 import AddIcon from '@material-ui/icons/AddCircle';
 import { PageHeader } from 'renderer/components/atoms';
 import { FileList } from 'renderer/components/molecules';
-import { FavoriteStore } from 'database/stores/FavoriteStore';
+import { FavoriteStore } from 'renderer/database/stores/FavoriteStore';
 
 
 

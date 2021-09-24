@@ -1,10 +1,10 @@
-import '../utils/global';
+import './utils/global';
 import './App.global.css';
 
 import React, { useRef } from 'react';
 import { MemoryRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
-import { IDriveItem } from '../database/database';
+import { IDriveItem } from './database/database';
 import { CartPage, DevSettings, FavoritesPage, HomePage, SettingsPage } from './components/pages';
 import { Layout } from './components/templates';
 

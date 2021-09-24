@@ -1,8 +1,8 @@
 import { makeStyles } from '@material-ui/core';
 import React, { FC, useEffect, useState } from 'react';
 
-import { IDriveItem, Thumbnail } from '../../../../database/database';
-import { FlexLightStoreFactory } from '../../../../database/stores/FlexLightStoreFactory';
+import { IDriveItem, Thumbnail } from '../../../database/database';
+import { FlexLightStoreFactory } from '../../../database/stores/FlexLightStoreFactory';
 import { dataManager } from '../../../DataManager';
 import { PageHeader } from '../../atoms';
 import { FileList, LinkedItems } from '../../molecules';

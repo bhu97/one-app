@@ -1,7 +1,7 @@
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import React, { FC } from 'react';
 
-import { IDriveItem } from '../../../../database/database';
+import { IDriveItem } from '../../../database/database';
 import { FolderList } from '../../molecules';
 
 const useStyles = makeStyles((theme) =>
