@@ -23,11 +23,6 @@ export class LightStore extends AbstractStore {
         allItems = this.filterVersionFiles(allItems)
         allItems = this.filterWhitelistFiles(allItems)
         //console.log(allItems);
-        const regionalFolder = await db.getRegionalFolderForCountry(currentCountry)
-        
-        if(regionalFolder) {
-          allItems.push(regionalFolder)
-        }
         
       } else {
         if(this.params.query) {
@@ -49,7 +44,19 @@ export class LightStore extends AbstractStore {
      
 
       allItems = allItems.sort(this.sortByName)
+
+      if(this.isRoot) {
+        const regionalFolder = await db.getRegionalFolderForCountry(currentCountry)
+        
+        if(regionalFolder) {
+          allItems.push(regionalFolder)
+        }
+        
+      }
+
       this.items = allItems
+
+      
 
       console.log(allItems)
     }

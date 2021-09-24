@@ -125,7 +125,7 @@ export class AppDatabase extends Dexie {
     }
 
     async getRegionalFolderForCountry(country: string): Promise<IDriveItem | null> {
-        const items = await db.driveItems.where({"country":country, "name": kRegionalFolderName}).toArray()
+        const items = await db.driveItems.where({"country":country, "name": kRegionalFolderName, "contentType": "Document Set"}).toArray()
         return items[0] ? items[0] : null
     }
 
@@ -253,6 +253,14 @@ export class AppDatabase extends Dexie {
             return await db.favoriteGroups.put({id:0, name: kDefaultFavoriteGroupName})
         }
     }
+
+    async addFavoriteGroup(name:string): Promise<number> {
+        return await db.favoriteGroups.put({id: this.getRandomInt(9999), name: name})
+    }
+
+    private getRandomInt(max: number): number {
+        return Math.floor(Math.random() * max);
+      }
 
     async favoritesForFavoriteGroup(favoriteGroupName: string) : Promise<Array<IDriveItem>> {
         const favoriteItems = await db.favorites.where({favoriteGroupName: favoriteGroupName}).toArray()

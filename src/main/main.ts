@@ -314,6 +314,7 @@ ipcMain.handle('OPEN_HTML', (_, path: string, local?: boolean) => {
 ipcMain.handle('OPEN_CART_FOLDER', async(_, path: string) => {
   let response = await openFolder(fileManager.cartFolder)
   console.log(`open folder response : ${response} for folder path: ${fileManager.cartFolder}`);
+  shell.openExternal("mailto:xyz@abc.com?subject=MySubject&body=");
 })
 
 const openFolder = async (path:string):Promise<string>  => {

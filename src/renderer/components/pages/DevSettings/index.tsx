@@ -315,6 +315,27 @@ export const DevSettings: FC<DevSettingsProps> = () => {
     }
   };
 
+  const addSomeFavorites = async() => {
+    const groupNames = await db.getAllFavoriteGroupNames()
+    let driveItemIds = [
+      '01GX2IG4P6QO77G3ADXZH3SMDM54ETHNPG',
+      '01GX2IG4JYEJQTQI6Y65B2CVEUSFXILTVD',
+      '01GX2IG4JWHVRXD6MAKNEJ6XLO5XFHQFCQ',
+      '01GX2IG4O7AE7DKXCO4RAKXKHWI3RLDQUH',
+    ];
+
+    for (let groupName of groupNames) {
+      const rnd = Math.floor(Math.random() * (driveItemIds.length-1));
+      for(let i = 0; i<rnd; i++) {
+        await db.addFavorite(driveItemIds[i], groupName)
+      }
+    }
+  }
+
+  const removeFavorites = async() => {
+
+  }
+
   const downloadTestFile = async () => {
     const token = localStorage.getItem('token');
 
@@ -653,6 +674,17 @@ export const DevSettings: FC<DevSettingsProps> = () => {
                   primary="Get thumbnails"
                   onClick={() => {
                     loadThumbnails();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Add random favorites"
+                  secondary="Adds random favorites to all existing groups"
+                  onClick={() => {
+                    addSomeFavorites()
                   }}
                 />
               </ListItem>
