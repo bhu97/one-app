@@ -16,8 +16,11 @@ const useStyles = makeStyles((theme) =>
     },
     wrapper: {
       display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
       gridGap: theme.spacing(2),
+      gridTemplateColumns: '1fr 1fr',
+      [theme.breakpoints.up('lg')]: {
+        gridTemplateColumns: '1fr 1fr 1fr',
+      },
     },
   })
 );

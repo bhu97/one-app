@@ -105,7 +105,7 @@ export const FileItem: FC<IFileItemProps> = ({
         onClick={openFile}
         className={styles.image}
         style={{
-          backgroundImage: `url(${thumbnailUrl})`,
+          backgroundImage: thumbnailUrl ? `url(${thumbnailUrl})` : undefined,
         }}
       >
         {hasOverlay ? <div className={styles.overlay} /> : undefined}
