@@ -1,10 +1,13 @@
-import { Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, Input, List, ListItem, ListItemText, makeStyles, TextField, Typography } from '@material-ui/core';
+import { Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, Input, List, ListItem, ListItemSecondaryAction, ListItemText, makeStyles, TextField, Typography } from '@material-ui/core';
 import React, { FC, Fragment, useEffect, useState } from 'react';
 import { getAssetPath } from '../../../helpers';
 import AddIcon from '@material-ui/icons/AddCircle';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
 import { PageHeader } from 'renderer/components/atoms';
 import { FileList } from 'renderer/components/molecules';
 import { FavoriteStore } from 'renderer/database/stores/FavoriteStore';
+import { db } from 'renderer/database/database';
 
 
 
@@ -60,9 +63,11 @@ const Header:FC = () => {
 }
 
 type FavoriteGrouListProps = {
-  items: {name: string}[]
+  items: {name: string, id: number}[]
   onAdd: () => void
   selectedItem?: (name:string) => void
+  editItem?: (id:number, name:string) => void
+  deleteItem?: (id:number, name:string) => void
 }
 const FavoriteGroupList: FC<FavoriteGrouListProps> = (props:FavoriteGrouListProps) => {
   const classes = useStyles()
@@ -79,10 +84,18 @@ const FavoriteGroupList: FC<FavoriteGrouListProps> = (props:FavoriteGrouListProp
       <List>
         {
           props.items.map((item) => {
-            return <ListItem button key={item.name} onClick={()=>{props.selectedItem?.(item.name)}}>
+            return <ListItem button key={item.id} onClick={()=>{props.selectedItem?.(item.name)}}>
               <ListItemText>
                 {item.name}
               </ListItemText>
+              <ListItemSecondaryAction>
+                <IconButton aria-label="edit" onClick={()=>{props.editItem?.(item.id, item.name)}}>
+                  <EditIcon />
+                </IconButton>
+                <IconButton edge="end" aria-label="delete" onClick={()=>{props.deleteItem?.(item.id, item.name)}}>
+                  <DeleteIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
             </ListItem>
           })
         }
@@ -93,14 +106,15 @@ const FavoriteGroupList: FC<FavoriteGrouListProps> = (props:FavoriteGrouListProp
 }
 type InputDialogProps = { 
   handleClose: () => void,
-  handleOk: (name:string) => void,
+  handleOk: (params: {id?: number, name:string}) => void,
   title: string,
   description: string,
-  open:boolean
+  open:boolean,
+  params?: any
 }
 
-const InputDialog:FC<InputDialogProps> = ({handleClose, handleOk, title, description, open}) => {
-  const [text, setText] = useState("")
+const InputDialog:FC<InputDialogProps> = ({handleClose, handleOk, title, description, open, params}) => {
+  const [text, setText] = useState(params?.name ?? "")
   return (
     <Dialog
         open={open}
@@ -123,7 +137,7 @@ const InputDialog:FC<InputDialogProps> = ({handleClose, handleOk, title, descrip
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={() => {handleOk(text)}} autoFocus>
+          <Button onClick={() => {handleOk({id:params?.id, name:text})}} autoFocus>
             Save
           </Button>
         </DialogActions>
@@ -135,14 +149,16 @@ type FavoritesPageProps = {
 };
 export const FavoritesPage: FC<FavoritesPageProps> = () => {
 
-  const [favoriteGroups, setFavoriteGroups] = useState(Array<{name: string}>())
-  const [showDialog, setShowDialog] = useState(false)
+  const [favoriteGroups, setFavoriteGroups] = useState(Array<{name: string, id: number}>())
+  const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState("")
+  const [selectedGroupToEdit, setSelectedGroupToEdit] = useState({})
   const [favoriteStore, setFavoriteStore] = useState(new FavoriteStore({}))
 
   const getData = async() => {
-    let names = await favoriteStore.getAllFavoriteGroupNames()
-    setFavoriteGroups(names.map((name) => {return {name: name}}))
+    let names = await favoriteStore.getAllFavoriteGroups()
+    setFavoriteGroups(names)
   }
 
   const updateStore = async() => {
@@ -152,7 +168,7 @@ export const FavoritesPage: FC<FavoritesPageProps> = () => {
   }
 
   const onAdd = () => {
-    setShowDialog(true)
+    setShowCreateDialog(true)
   }
 
   const selectedItem = async(name: string) => {
@@ -163,12 +179,27 @@ export const FavoritesPage: FC<FavoritesPageProps> = () => {
     }
   }
 
+  const editItem = async(id:number, name: string) => {
+    setSelectedGroupToEdit({id: id, name: name})
+    setShowEditDialog(true)
+  }
+
+  const deleteItem = async(id:number, name: string) => {
+    await favoriteStore.removeFavoriteGroup(name)
+  }
+
   const addNewGroup = async(name: string) => {
     if(name.length > 0) {
       await favoriteStore.addFavoriteGroup(name)
       await getData()
     }
+  }
 
+  const renameGroup = async(id: number, name: string) => {
+    if(name.length > 0) {
+      await favoriteStore.renameFavoriteGroup(id, name)
+      await getData()
+    }
   }
 
   useEffect(() => {
@@ -182,11 +213,12 @@ export const FavoritesPage: FC<FavoritesPageProps> = () => {
     <PageHeader title="Favourites" description="Create your own favourite lists and save documents in them" />
     <div className={styles.wrapper}>
       
-      <FavoriteGroupList items={favoriteGroups} onAdd={onAdd} selectedItem={selectedItem}/>
+      <FavoriteGroupList items={favoriteGroups} onAdd={onAdd} selectedItem={selectedItem} editItem={editItem} deleteItem={deleteItem}/>
         <FileList items={favoriteStore.items} thumbnails={[]}></FileList>
       </div>
     </div>
-    <InputDialog open={showDialog} handleClose={()=>{setShowDialog(false)}} handleOk={(name)=>{setShowDialog(false); addNewGroup(name)}} title={"Create new group"} description={"Enter a name"}></InputDialog>
+    <InputDialog open={showCreateDialog} handleClose={()=>{setShowCreateDialog(false)}} handleOk={(params)=>{setShowCreateDialog(false); addNewGroup(params.name)}} title={"Create new group"} description={"Enter a name"}></InputDialog>
+    <InputDialog open={showEditDialog} handleClose={()=>{setShowEditDialog(false)}} handleOk={(params)=>{setShowEditDialog(false); if(params.id){renameGroup(params.id, params.name)}}} title={"Rename Group"} description={"Enter a name"} params={selectedGroupToEdit}></InputDialog>
   </Fragment>)
 };
 

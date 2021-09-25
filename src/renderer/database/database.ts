@@ -284,7 +284,18 @@ export class AppDatabase extends Dexie {
         return (await db.favoriteGroups.toArray()).map(favoriteGroup => favoriteGroup.name)
     }
 
+    async getAllFavoriteGroups(): Promise<IFavoriteGroup[]> {
+        return (await db.favoriteGroups.toArray())
+    }
+
     async renameFavoriteGroup(id:number, newName: string): Promise<number> {
+        const favoriteGroup = (await db.favoriteGroups.where("id").equals(id).toArray())[0] 
+        if(favoriteGroup) {
+            let favorites = await db.favorites.where("favoriteGroupName").equals(favoriteGroup.name).toArray()
+            favorites.forEach(favorite => {favorite.favoriteGroupName = newName} )
+            await db.favorites.bulkPut(favorites)
+
+        }
         return await db.favoriteGroups.update(id, {name: newName})
     }
 
