@@ -20,6 +20,7 @@ interface IPageStructureProps {
   headerImage?: string;
   main: JSX.Element;
   column?: JSX.Element;
+  isColumnOnLeft?: boolean;
 }
 
 export const PageStructure: FC<IPageStructureProps> = ({
@@ -28,6 +29,7 @@ export const PageStructure: FC<IPageStructureProps> = ({
   headerImage,
   main,
   column,
+  isColumnOnLeft,
 }) => {
   const styles = useStyles();
   return (
@@ -38,8 +40,9 @@ export const PageStructure: FC<IPageStructureProps> = ({
         image={headerImage}
       />
       <div className={styles.wrapper}>
+        {isColumnOnLeft ? column : undefined}
         {main}
-        {column}
+        {isColumnOnLeft ? undefined : column}
       </div>
     </div>
   );
