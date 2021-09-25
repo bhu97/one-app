@@ -26,6 +26,9 @@ export const themeConfig: ThemeOptions = {
     secondary: {
       main: '#f48fb1',
     },
+    info: {
+      main: '#992b48',
+    },
     error: {
       main: '#E3467D',
     },

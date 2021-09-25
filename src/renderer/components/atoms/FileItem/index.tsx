@@ -4,6 +4,7 @@ import React, { FC, useState } from 'react';
 import { IDriveItem } from '../../../database/database';
 import { dataManager } from '../../../DataManager';
 import { getFileSizeLiteral, getIconByExtension } from '../../../helpers';
+import { NewArrowIcon } from '../../../svg';
 import { DropdownMenu } from '../DropdownMenu';
 import { LoadingDialog } from '../Loading';
 
@@ -15,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.grey[300],
   },
   image: {
+    position: 'relative',
     width: '100%',
     display: 'flex',
     justifyContent: 'center',
@@ -29,6 +31,14 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       transform: 'unset',
     },
+  },
+  overlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    left: 0,
+    top: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
   description: {
     display: 'flex',
@@ -54,14 +64,27 @@ const useStyles = makeStyles((theme) => ({
   fileSize: {
     fontSize: '8px',
   },
+  arrow: {
+    fill: theme.palette.info.main,
+    flexBasis: '24px',
+    display: 'flex',
+    marginRight: '10px',
+  },
 }));
 
 export interface IFileItemProps {
   item: IDriveItem;
   thumbnailUrl: string | undefined;
+  hasOverlay: boolean;
+  isNew: boolean;
 }
 
-export const FileItem: FC<IFileItemProps> = ({ item, thumbnailUrl }) => {
+export const FileItem: FC<IFileItemProps> = ({
+  item,
+  thumbnailUrl,
+  hasOverlay,
+  isNew,
+}) => {
   const styles = useStyles();
   const { uniqueId, name, title, fileExtension, fileSize } = item;
   const [isLoading, setIsLoading] = useState(false);
@@ -85,9 +108,11 @@ export const FileItem: FC<IFileItemProps> = ({ item, thumbnailUrl }) => {
           backgroundImage: `url(${thumbnailUrl})`,
         }}
       >
+        {hasOverlay ? <div className={styles.overlay} /> : undefined}
         {getIconByExtension(fileExtension)}
       </Button>
       <div className={styles.description}>
+        {isNew ? <div className={styles.arrow}>{NewArrowIcon}</div> : undefined}
         <ListItemText
           primary={text}
           classes={{

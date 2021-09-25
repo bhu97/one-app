@@ -1,7 +1,7 @@
 import { List } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { IDriveItem, Thumbnail } from 'renderer/database/database';
 import React, { FC } from 'react';
+import { IDriveItem, Thumbnail } from 'renderer/database/database';
 
 import { getAssetPath } from '../../../helpers';
 import { FileItem } from '../../atoms';
@@ -34,22 +34,34 @@ export const FileList: FC<IFileListProps> = ({ items, thumbnails }) => {
     <div className={classes.root}>
       <List className={classes.wrapper}>
         {items.map((item) => {
+          const isArchive = item.fileExtension === 'zip';
+          const isNew = item.timeLastModified
+            ? (new Date().valueOf() -
+                new Date(item.timeLastModified).valueOf()) /
+                1000 /
+                60 /
+                60 /
+                24 <
+              28
+            : false;
           const thumbnail = thumbnails.find(
             (elem) => elem.uniqueId === item.uniqueId
           );
           let thumbnailUrl: string | undefined;
-          if (item.fileExtension === 'zip') {
+          if (isArchive) {
             thumbnailUrl = getAssetPath(
               '../../../../../assets/content-page/empty_thumbnail.png'
-            ); // TODO test if working for PROD);
+            ); // TODO test if working for PROD
           } else if (thumbnail && thumbnail.largeUrl) {
             thumbnailUrl = thumbnail.largeUrl;
           }
           return (
             <FileItem
               key={item.uniqueId}
+              hasOverlay
               item={item}
               thumbnailUrl={thumbnailUrl}
+              isNew={isNew}
             />
           );
         })}
