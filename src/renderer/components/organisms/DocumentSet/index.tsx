@@ -1,17 +1,10 @@
-import { makeStyles } from '@material-ui/core';
 import React, { FC, useEffect, useState } from 'react';
 
-import { IDriveItem, Thumbnail } from '../../../database/database';
+import { IDriveItem } from '../../../database/database';
 import { FlexLightStoreFactory } from '../../../database/stores/FlexLightStoreFactory';
-import { dataManager } from '../../../DataManager';
+import { useGetFilesData } from '../../../helpers';
 import { FileList, LinkedItems } from '../../molecules';
 import { PageStructure } from '../../templates';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-}));
 
 interface IDocumentSetProps {
   documentSet: IDriveItem;
@@ -22,28 +15,12 @@ export const DocumentSet: FC<IDocumentSetProps> = ({
   documentSet,
   onLinkedDocumentSetSelected,
 }) => {
-  const styles = useStyles();
-  const [items, setItems] = useState<IDriveItem[]>([]);
-  const [thumbnails, setThumbnails] = useState<Thumbnail[]>([]);
-
-  const getData = async () => {
-    const store = await FlexLightStoreFactory.getStoreForCurrentUser({
+  const { items, thumbnails } = useGetFilesData(
+    FlexLightStoreFactory.getStoreForCurrentUser({
       query: documentSet.uniqueId,
-    });
-    if (!store) return;
-    await store.update();
-    setItems(store.items);
-    let newThumbnails: Thumbnail[];
-    try {
-      newThumbnails = await dataManager.getThumbnails(documentSet.uniqueId);
-    } catch (e) {
-      newThumbnails = [];
-    }
-    setThumbnails(newThumbnails);
-  };
-  useEffect(() => {
-    getData();
-  }, [documentSet]);
+    }),
+    documentSet.uniqueId
+  );
   return (
     <PageStructure
       headerTitle={documentSet.title}

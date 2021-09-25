@@ -40,7 +40,10 @@ export const DropdownMenu: FC<IDropdownMenuProps> = ({ commands }) => {
         {commands.map((command) => (
           <MenuItem
             key={command.key || command.title}
-            onClick={command.onClick}
+            onClick={() => {
+              command.onClick();
+              setIsOpen(false);
+            }}
           >
             {command.title}
           </MenuItem>

@@ -8,3 +8,5 @@ export * from './Loading';
 export * from './Logo';
 export * from './MenuItem';
 export * from './PageHeader';
+export * from './RightMenuBox';
+export * from './RightMenuItem';

@@ -15,8 +15,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface IPageStructureProps {
-  headerTitle: string;
-  headerDescription: string;
+  headerTitle?: string;
+  headerDescription?: string;
   headerImage?: string;
   main: JSX.Element;
   column?: JSX.Element;

@@ -1,10 +1,10 @@
-import { List, Typography } from '@material-ui/core';
+import { List } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { IDriveItem } from 'renderer/database/database';
 import React, { FC, useEffect, useState } from 'react';
+import { IDriveItem } from 'renderer/database/database';
 
 import { LinkedStore } from '../../../database/stores/LinkedStore';
-import { LinkedItem } from '../../atoms';
+import { LinkedItem, RightMenuBox } from '../../atoms';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -42,8 +42,7 @@ export const LinkedItems: FC<ILinkedItemsProps> = ({
   }, [documentSet]);
 
   return (
-    <div className={classes.root}>
-      <Typography variant="h2">More information</Typography>
+    <RightMenuBox title="More information">
       <List>
         {items.map((item) => (
           <LinkedItem
@@ -53,7 +52,7 @@ export const LinkedItems: FC<ILinkedItemsProps> = ({
           />
         ))}
       </List>
-    </div>
+    </RightMenuBox>
   );
 };
 

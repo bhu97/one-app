@@ -2,6 +2,7 @@ import { Button, ListItem, ListItemText, makeStyles } from '@material-ui/core';
 import React, { FC, useState } from 'react';
 
 import { IDriveItem } from '../../../database/database';
+import { cartStore } from '../../../database/stores/CartStore';
 import { dataManager } from '../../../DataManager';
 import { getFileSizeLiteral, getIconByExtension } from '../../../helpers';
 import { NewArrowIcon } from '../../../svg';
@@ -124,7 +125,12 @@ export const FileItem: FC<IFileItemProps> = ({
             commands={[
               {
                 title: 'Add to shopping cart',
-                onClick: console.log, // TODO
+                onClick: async () => {
+                  setIsLoading(true);
+                  await cartStore.addDriveItem(item.uniqueId);
+                  await cartStore.update();
+                  setIsLoading(false);
+                },
               },
               {
                 title: 'Add/remove favourite',

@@ -1,4 +1,4 @@
-import { List } from '@material-ui/core';
+import { List, Typography } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import React, { FC } from 'react';
 import { IDriveItem, Thumbnail } from 'renderer/database/database';
@@ -22,20 +22,29 @@ const useStyles = makeStyles((theme) =>
         gridTemplateColumns: '1fr 1fr 1fr',
       },
     },
+    title: {
+      marginBottom: theme.spacing(2),
+    },
   })
 );
 
 interface IFileListProps {
+  title?: string;
   items: IDriveItem[];
   thumbnails: Thumbnail[];
 }
 
-export const FileList: FC<IFileListProps> = ({ items, thumbnails }) => {
-  const classes = useStyles();
+export const FileList: FC<IFileListProps> = ({ items, thumbnails, title }) => {
+  const styles = useStyles();
 
   return (
-    <div className={classes.root}>
-      <List className={classes.wrapper}>
+    <div className={styles.root}>
+      {title ? (
+        <Typography variant="h2" classes={{ h2: styles.title }}>
+          {title}
+        </Typography>
+      ) : undefined}
+      <List className={styles.wrapper}>
         {items.map((item) => {
           const isArchive = item.fileExtension === 'zip';
           const isNew = item.timeLastModified
