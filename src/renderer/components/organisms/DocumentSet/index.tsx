@@ -54,12 +54,10 @@ export const DocumentSet: FC<IDocumentSetProps> = ({
       <PageHeader title={documentSet.title} description={documentSet.name} />
       <div className={styles.wrapper}>
         <FileList items={items} thumbnails={thumbnails} />
-        {documentSet.linkedFiles || documentSet.linkedFolders ? (
-          <LinkedItems
-            documentSet={documentSet}
-            onLinkedDocumentSetSelected={onLinkedDocumentSetSelected}
-          />
-        ) : null}
+        <LinkedItems
+          documentSet={documentSet}
+          onLinkedDocumentSetSelected={onLinkedDocumentSetSelected}
+        />
       </div>
     </div>
   );
