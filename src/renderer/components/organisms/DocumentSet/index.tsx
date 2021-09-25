@@ -4,17 +4,12 @@ import React, { FC, useEffect, useState } from 'react';
 import { IDriveItem, Thumbnail } from '../../../database/database';
 import { FlexLightStoreFactory } from '../../../database/stores/FlexLightStoreFactory';
 import { dataManager } from '../../../DataManager';
-import { PageHeader } from '../../atoms';
 import { FileList, LinkedItems } from '../../molecules';
+import { PageStructure } from '../../templates';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-  },
-  wrapper: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing(3),
   },
 }));
 
@@ -50,16 +45,17 @@ export const DocumentSet: FC<IDocumentSetProps> = ({
     getData();
   }, [documentSet]);
   return (
-    <div className={styles.root}>
-      <PageHeader title={documentSet.title} description={documentSet.name} />
-      <div className={styles.wrapper}>
-        <FileList items={items} thumbnails={thumbnails} />
+    <PageStructure
+      headerTitle={documentSet.title}
+      headerDescription={documentSet.name /* TODO missing prop */}
+      main={<FileList items={items} thumbnails={thumbnails} />}
+      column={
         <LinkedItems
           documentSet={documentSet}
           onLinkedDocumentSetSelected={onLinkedDocumentSetSelected}
         />
-      </div>
-    </div>
+      }
+    />
   );
 };
 
