@@ -3,7 +3,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 import React, { FC } from 'react';
 import { IDriveItem, Thumbnail } from 'renderer/database/database';
 
-import { getAssetPath } from '../../../helpers';
+import emptyThumbnail from '../../../../../assets/content-page/empty_thumbnail.png';
 import { FileItem } from '../../atoms';
 
 const useStyles = makeStyles((theme) =>
@@ -52,9 +52,7 @@ export const FileList: FC<IFileListProps> = ({ items, thumbnails }) => {
           );
           let thumbnailUrl: string | undefined;
           if (isArchive) {
-            thumbnailUrl = getAssetPath(
-              '../../../../../assets/content-page/empty_thumbnail.png'
-            ); // TODO test if working for PROD
+            thumbnailUrl = emptyThumbnail;
           } else if (thumbnail && thumbnail.largeUrl) {
             thumbnailUrl = thumbnail.largeUrl;
           }

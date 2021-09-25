@@ -124,11 +124,11 @@ export const FileItem: FC<IFileItemProps> = ({
             commands={[
               {
                 title: 'Add to shopping cart',
-                onClick: console.log,
+                onClick: console.log, // TODO
               },
               {
                 title: 'Add/remove favourite',
-                onClick: console.log,
+                onClick: console.log, // TODO
               },
             ]}
           />
