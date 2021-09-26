@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
 export const CartPage: FC = () => {
   const styles = useStyles();
-  const { items, thumbnails } = useGetFilesData(cartStore);
+  const { items, thumbnails, updateItems } = useGetFilesData(cartStore);
 
   return (
     <PageStructure
@@ -36,6 +36,7 @@ export const CartPage: FC = () => {
             FileCommands.RemoveFromShoppingCart,
             FileCommands.AddRemoveFavourite,
           ]}
+          onCartChange={updateItems}
           thumbnails={thumbnails}
           title="All added documents"
         />

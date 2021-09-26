@@ -34,6 +34,8 @@ interface IFileListProps {
   items: IDriveItem[];
   thumbnails: Thumbnail[];
   availableCommands: FileCommands[];
+  onCartChange?: () => void;
+  onFavouriteChange?: () => void;
 }
 
 export const FileList: FC<IFileListProps> = ({
@@ -41,6 +43,8 @@ export const FileList: FC<IFileListProps> = ({
   availableCommands,
   thumbnails,
   title,
+  onCartChange,
+  onFavouriteChange,
 }) => {
   const styles = useStyles();
 
@@ -78,6 +82,8 @@ export const FileList: FC<IFileListProps> = ({
               hasOverlay
               item={item}
               availableCommands={availableCommands}
+              onCartChange={onCartChange}
+              onFavouriteChange={onFavouriteChange}
               thumbnailUrl={thumbnailUrl}
               isNew={isNew}
             />

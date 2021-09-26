@@ -81,6 +81,8 @@ export interface IFileItemProps {
   hasOverlay: boolean;
   isNew: boolean;
   availableCommands: FileCommands[];
+  onCartChange: () => void;
+  onFavouriteChange: () => void;
 }
 
 export const FileItem: FC<IFileItemProps> = ({
@@ -89,6 +91,8 @@ export const FileItem: FC<IFileItemProps> = ({
   thumbnailUrl,
   hasOverlay,
   isNew,
+  onCartChange,
+  onFavouriteChange,
 }) => {
   const styles = useStyles();
   const { uniqueId, name, title, fileExtension, fileSize } = item;
@@ -134,6 +138,7 @@ export const FileItem: FC<IFileItemProps> = ({
                   try {
                     await cartStore.addDriveItem(item.uniqueId);
                     await cartStore.update();
+                    if (onCartChange) onCartChange();
                     toast.success(`${text} has been added to cart`);
                   } catch (e) {
                     toast.error(`${text} couldn't be added to cart`);
@@ -148,6 +153,7 @@ export const FileItem: FC<IFileItemProps> = ({
                   try {
                     await cartStore.removeDriveItem(item.uniqueId);
                     await cartStore.update();
+                    if (onCartChange) onCartChange();
                     toast.success(`${text} has been removed from cart`);
                   } catch (e) {
                     toast.error(`${text} couldn't be removed from cart`);

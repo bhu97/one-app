@@ -12,7 +12,7 @@ export const useGetFilesData = (
   const [items, setItems] = useState<IDriveItem[]>([]);
   const [thumbnails, setThumbnails] = useState<Thumbnail[]>([]);
 
-  const getData = async () => {
+  const updateItems = async () => {
     const store = await makePromise(currentStore);
     if (!store) return;
     await store.update();
@@ -34,10 +34,10 @@ export const useGetFilesData = (
     setThumbnails(newThumbnails.filter((item) => item) as Thumbnail[]);
   };
   useEffect(() => {
-    getData();
+    updateItems();
   }, [thumbnailsUniqueId]);
 
-  return { items, thumbnails };
+  return { items, thumbnails, updateItems };
 };
 
 export default useGetFilesData;
