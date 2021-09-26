@@ -1,4 +1,5 @@
 import { Button, ListItem, ListItemText, makeStyles } from '@material-ui/core';
+import { toast } from 'material-react-toastify';
 import React, { FC, useState } from 'react';
 
 import { IDriveItem } from '../../../database/database';
@@ -130,8 +131,13 @@ export const FileItem: FC<IFileItemProps> = ({
                 title: FileCommands.AddToShoppingCart,
                 onClick: async () => {
                   setIsLoading(true);
-                  await cartStore.addDriveItem(item.uniqueId);
-                  await cartStore.update();
+                  try {
+                    await cartStore.addDriveItem(item.uniqueId);
+                    await cartStore.update();
+                    toast.success(`${text} has been added to cart`);
+                  } catch (e) {
+                    toast.error(`${text} couldn't be added to cart`);
+                  }
                   setIsLoading(false);
                 },
               },
@@ -139,8 +145,13 @@ export const FileItem: FC<IFileItemProps> = ({
                 title: FileCommands.RemoveFromShoppingCart,
                 onClick: async () => {
                   setIsLoading(true);
-                  await cartStore.removeDriveItem(item.uniqueId);
-                  await cartStore.update();
+                  try {
+                    await cartStore.removeDriveItem(item.uniqueId);
+                    await cartStore.update();
+                    toast.success(`${text} has been removed from cart`);
+                  } catch (e) {
+                    toast.error(`${text} couldn't be removed from cart`);
+                  }
                   setIsLoading(false);
                 },
               },

@@ -1,3 +1,4 @@
+import { toast } from 'material-react-toastify';
 import { useEffect, useState } from 'react';
 
 import { db } from '../../../database/database';
@@ -38,18 +39,27 @@ export const useAppSettings = () => {
       };
       loadLastModifiedDate();
     } catch (e) {
+      toast.error("Couldn't load settings");
       console.error(e);
     }
   };
   const onUpdateNow = async () => {
     setIsLoading(true);
-    await dataManager.getMetaData();
+    const result = await dataManager.getMetaData();
+    if (result !== true) {
+      toast.error("Couldn't update content");
+    }
     setIsLoading(false);
   };
   const onCountrySelected = async (countryName: string) => {
     setIsLoading(true);
-    await db.selectCurrentCountry(countryName);
-    await getCurrentSettings();
+    try {
+      await db.selectCurrentCountry(countryName);
+      await getCurrentSettings();
+    } catch (e) {
+      toast.error("Couldn't select country");
+      console.error(e);
+    }
     setIsLoading(false);
   };
   useEffect(() => {

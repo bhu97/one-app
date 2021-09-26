@@ -1,4 +1,5 @@
 import { CssBaseline, makeStyles, ThemeProvider } from '@material-ui/core';
+import { ToastContainer } from 'material-react-toastify';
 import React, { FunctionComponent } from 'react';
 
 import themeOverrides from '../../../theme';
@@ -31,6 +32,17 @@ export const Layout: FunctionComponent = ({ children }) => {
         <Sidebar navigationEnabled />
         <main className={styles.main}>{children || ''}</main>
       </div>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </ThemeProvider>
   );
 };

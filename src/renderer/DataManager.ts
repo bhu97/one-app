@@ -1,3 +1,4 @@
+import { toast } from 'material-react-toastify';
 import dayjs from 'dayjs';
 import { cartStore } from 'renderer/database/stores/CartStore';
 import { notEmpty } from 'renderer/utils/helper';
@@ -270,6 +271,7 @@ const getThumbnails = async(uniqueId: string):Promise<Thumbnail[]> => {
     }
   } catch(error) {
     console.error(error);
+    toast.error("Couldn't get thumbnails");
   }
   return []
 }
@@ -284,6 +286,7 @@ const getItemThumbnail = async(uniqueId: string):Promise<Thumbnail | null> => {
     }
   } catch(error) {
     console.error(error);
+    toast.error("Couldn't get thumbnails");
   }
   return null;
 }
