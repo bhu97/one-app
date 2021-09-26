@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
 
 export const CartPage: FC = () => {
   const styles = useStyles();
-  const { items, thumbnails } = useGetFilesData(cartStore, ''); // TODO id for thumbnails?
+  const { items, thumbnails } = useGetFilesData(cartStore);
 
   return (
     <PageStructure

@@ -2,16 +2,17 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-
 import axios from 'axios';
-import config from '../utils/application.config.release'
-import { responseToDriveItem, responseToListItem, responseToThumbnail } from '../utils/object.mapping'
+
 import { IDriveItem, IListItem, IWhitelist, Thumbnail, Whitelist } from '../database/database';
+import config from '../utils/application.config.release';
+import { responseToDriveItem, responseToListItem, responseToThumbnail } from '../utils/object.mapping';
+
 
 /**
  * Makes an Authorization 'Bearer' request with the given accessToken to the given endpoint.
- * @param endpoint 
- * @param accessToken 
+ * @param endpoint
+ * @param accessToken
  */
 const callEndpointWithToken = async(endpoint: any, accessToken:any ):Promise<any> => {
     const options = {
@@ -29,13 +30,13 @@ const fetchNext = async(endpoint: string, accessToken:string, data:Array<any> ):
     const response = await callEndpointWithToken(endpoint, accessToken)
     //console.log("response nextLink: "+ response["@odata.nextLink"])
     //console.log("response value: "+ response["value"])
-   
+
     if(response["@odata.nextLink"]) {
         const nextData = await fetchNext(response["@odata.nextLink"], accessToken, data.concat(response["value"])) as Array<any>
-        return nextData 
+        return nextData
     } else {
         console.log(response.value)
-        return data.concat(response["value"]) 
+        return data.concat(response["value"])
     }
 }
 
@@ -54,7 +55,7 @@ const fetchData = async(url: string, accessToken: string): Promise<any[]> => {
     console.log("performing request: "+ url);
     const responses = await fetchNext(url, accessToken, allResponses);
     //console.log("all respones length: " + allResponses.length);
-    return responses 
+    return responses
 }
 
 export async function fetchAdditionalMetadata(accessToken: string): Promise<IListItem[]> {
@@ -128,7 +129,16 @@ async function downloadDriveItem(driveItemId: string, accessToken: string): Prom
 
 export async function fetchLastModifiedDate(accessToken: string): Promise<string> {
     const response = await callEndpointWithToken(config.GRAPH_LASTMODIFIED_DATE, accessToken)
-    return response.value[0].lastModifiedDateTime    
+    return response.value[0].lastModifiedDateTime
+}
+
+export async function fetchItemThumbnail(uniqueId: string, accessToken: string): Promise<Thumbnail | null> {
+    const response = await callEndpointWithToken(config.GRAPH_ITEM_THUMBNAIL_ENDPOINT(uniqueId), accessToken)
+    if(response && response.value) {
+        const thumbnails: Thumbnail[] = response.value.map((item: any) => responseToThumbnail(item));
+        return thumbnails.find(thumbnail => thumbnail.uniqueId === uniqueId);
+    }
+    return null;
 }
 
 export async function fetchThumbnails(uniqueId: string, accessToken: string): Promise<Thumbnail[]> {
@@ -144,7 +154,7 @@ export async function fetchThumbnails(uniqueId: string, accessToken: string): Pr
 export async function fakeFetchWhitelists(): Promise<Array<IWhitelist>> {
     const whitelists = Array<IWhitelist>()
     const files = ["whitelist-SAU.txt", "whitelist-DNK.txt", "whitelist-DEV.txt", "whitelist-DNK.txt", "whitelist-ROU.txt", "whitelist-ZAF.txt", "whitelist-MASTER_ENG.txt"]
-    
+
     for (const file of files) {
         const response = await fetch(`./../../../assets/${file}`)
         const content = await response.text()

@@ -7,7 +7,7 @@ import { makePromise } from './promises';
 
 export const useGetFilesData = (
   currentStore: Promise<IStore | undefined> | IStore | undefined,
-  thumbnailsUniqueId: string
+  thumbnailsUniqueId?: string
 ) => {
   const [items, setItems] = useState<IDriveItem[]>([]);
   const [thumbnails, setThumbnails] = useState<Thumbnail[]>([]);
@@ -17,13 +17,21 @@ export const useGetFilesData = (
     if (!store) return;
     await store.update();
     setItems(store.items);
-    let newThumbnails: Thumbnail[];
+    let newThumbnails: (Thumbnail | null)[];
     try {
-      newThumbnails = await dataManager.getThumbnails(thumbnailsUniqueId);
+      if (thumbnailsUniqueId) {
+        newThumbnails = await dataManager.getThumbnails(thumbnailsUniqueId);
+      } else {
+        newThumbnails = await Promise.all(
+          store.items.map((item) =>
+            item ? dataManager.getItemThumbnail(item.uniqueId) : null
+          )
+        );
+      }
     } catch (e) {
       newThumbnails = [];
     }
-    setThumbnails(newThumbnails);
+    setThumbnails(newThumbnails.filter((item) => item) as Thumbnail[]);
   };
   useEffect(() => {
     getData();

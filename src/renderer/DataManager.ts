@@ -1,11 +1,17 @@
-import { localStorgeHelper } from "./database/storage";
-import { fetchAdditionalMetadata, fetchDelta, fetchDriveItem, fetchThumbnails, fetchWhitelists } from "./components/fetch";
-import { db, DriveItem, DriveItemType, IDriveItem, IUnzippedModuleItem, Thumbnail } from "./database/database";
-import { isNullOrUndefined } from "util";
-import dayjs from "dayjs";
-import { cartStore } from "renderer/database/stores/CartStore";
-import { notEmpty } from "renderer/utils/helper";
-import { fileManager } from "main/filemanager/FileManager";
+import dayjs from 'dayjs';
+import { cartStore } from 'renderer/database/stores/CartStore';
+import { notEmpty } from 'renderer/utils/helper';
+
+import {
+  fetchAdditionalMetadata,
+  fetchDelta,
+  fetchDriveItem,
+  fetchItemThumbnail,
+  fetchThumbnails,
+  fetchWhitelists,
+} from './components/fetch';
+import { db, IUnzippedModuleItem, Thumbnail } from './database/database';
+import { localStorgeHelper } from './database/storage';
 
 
 /**
@@ -75,7 +81,7 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         resolve(AppError.METADATA_ERROR)
         //throw(error)
       }
-      
+
         //CREATE USER
         //SET COUNTRY/VERSION
         await db.createUserIfEmpty()
@@ -98,7 +104,7 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
 
   })
 
-  
+
 }
 
 
@@ -118,21 +124,21 @@ const downloadModule = async(uniqueId: string, token?:string, progressState?:(st
 
   return new Promise<IUnzippedModuleItem|undefined>(async(resolve, reject) => {
 
-    
+
     //token = token ? token : (await window.electron.ipcRenderer.refreshTokenSilently()).accessToken
     if(token) {
       try {
-        
+
         const driveItem = await db.getItemForId(uniqueId)
         const driveItemId = driveItem.listItemId
         if(driveItemId) {
       console.log("download module")
-      
+
       //console.log(driveItem);
       if (driveItem ) {
         console.log(driveItem.graphDownloadUrl);
         console.log("download module item");
-        
+
         progressState?.("download")
         let downloadItem = await window.electron.ipcRenderer.downloadFile({
           url: driveItem.graphDownloadUrl ?? "",
@@ -148,7 +154,7 @@ const downloadModule = async(uniqueId: string, token?:string, progressState?:(st
           );
 
           console.log("unzipping module");
-          
+
           progressState?.("unzip")
           let zipResponse = await window.electron.ipcRenderer.unzipFile({
             filePath: `${downloadItem.savePath}/${downloadItem.fileName}`,
@@ -164,7 +170,7 @@ const downloadModule = async(uniqueId: string, token?:string, progressState?:(st
               indexHtmlPath: zipResponse.indexHtmlPath,
             }
             await db.saveUnzippedItem(unzippedModuleItem);
-   
+
             resolve(unzippedModuleItem)
           }
         }
@@ -172,12 +178,12 @@ const downloadModule = async(uniqueId: string, token?:string, progressState?:(st
       }
     }
 
-    } 
+    }
     catch(error) {
       console.error(error);
       reject(error)
     }
-    
+
   }
   })
 }
@@ -196,14 +202,14 @@ const openModule = async(uniqueId:string, progressState?:(state: string) => void
       //find out if module exists already
       const unzippedItem = await db.getUnzippedItem(localDriveItem.uniqueId)
       console.log("get unzipped item: "+ unzippedItem);
-      
+
       if(driveItem && unzippedItem) {
         //is existing module older than online one?
         const driveItemModifiedDate = dayjs(driveItem.timeLastModified)
         const unzippedItemModifiedDate = dayjs(unzippedItem.modifiedDate)
         if(unzippedItemModifiedDate.isBefore(driveItemModifiedDate)) {
           console.log("found an outdated zip module, downloading new one");
-          
+
           //remove existing zip
           await window.electron.ipcRenderer.deleteFile(unzippedItem.zipPath)
           await window.electron.ipcRenderer.deleteFolder(unzippedItem.targetPath)
@@ -217,37 +223,37 @@ const openModule = async(uniqueId:string, progressState?:(state: string) => void
           console.log("found an up to date local module");
           window.electron.ipcRenderer.openHTML(unzippedItem.indexHtmlPath, true)
         }
-        
+
       } else {
       console.log("found no module, therefore download new one");
-      
+
        let newUnzippedItem = await downloadModule(localDriveItem.uniqueId, token)
           if(newUnzippedItem) {
             //open zip
             window.electron.ipcRenderer.openHTML(newUnzippedItem.indexHtmlPath, true)
           }
       }
-    } 
+    }
   }
 
 
 }
 
 const openDriveItem = async(uniqueId:string, progressState?:(state: string) => void) => {
-  
+
   const driveItem = await db.getItemForId(uniqueId)
-  
-  const shouldOpenLocal = (!(driveItem.fileExtension  === null || driveItem.fileExtension === undefined) && driveItem.fileExtension === "zip") 
+
+  const shouldOpenLocal = (!(driveItem.fileExtension  === null || driveItem.fileExtension === undefined) && driveItem.fileExtension === "zip")
   console.log("should open local"+shouldOpenLocal);
-  
+
   if(shouldOpenLocal) {
     openModule(driveItem.uniqueId, progressState)
-  } else {  
+  } else {
     if(driveItem.webUrl) {
       window.electron.ipcRenderer.openHTML(driveItem.webUrl, shouldOpenLocal)
     }
   }
-    
+
 }
 //const openOrDownloadModule = async() => {}
 const shouldShowUpdateAlert = ():boolean => {
@@ -266,6 +272,20 @@ const getThumbnails = async(uniqueId: string):Promise<Thumbnail[]> => {
     console.error(error);
   }
   return []
+}
+
+const getItemThumbnail = async(uniqueId: string):Promise<Thumbnail | null> => {
+  try {
+    const authResult = await window.electron.ipcRenderer.refreshTokenSilently();
+    const token = authResult.accessToken;
+
+    if(token) {
+        return await fetchItemThumbnail(uniqueId, token);
+    }
+  } catch(error) {
+    console.error(error);
+  }
+  return null;
 }
 
 export enum AppError {
@@ -289,5 +309,6 @@ export const dataManager = {
   openModule: openModule,
   downloadCartFiles: downloadCartFiles,
   shouldShowUpdateAlert: shouldShowUpdateAlert,
-  getThumbnails: getThumbnails 
+  getThumbnails: getThumbnails,
+  getItemThumbnail: getItemThumbnail,
 }
