@@ -1,10 +1,9 @@
 import { makeStyles } from '@material-ui/core';
-import React, { FC, useRef } from 'react';
+import React, { FC } from 'react';
 
 import headerImage from '../../../../../assets/favorites/200921_FMC_OneApp_Illustrationen_Final_Favourites.png';
-import { FavoriteStore } from '../../../database/stores/FavoriteStore';
 import { FileCommands } from '../../../enums';
-import { useGetFilesData } from '../../../helpers';
+import { useFavourites } from '../../../helpers';
 import { DocsIcon } from '../../../svg';
 import { RightMenuBox, RightMenuItem } from '../../atoms';
 import { FileList } from '../../molecules';
@@ -14,8 +13,14 @@ const useStyles = makeStyles((theme) => ({}));
 
 export const FavoritesPage: FC = () => {
   const styles = useStyles();
-  const favoriteStoreRef = useRef(new FavoriteStore({}));
-  const { items, thumbnails } = useGetFilesData(favoriteStoreRef.current, ''); // TODO id for thumbnails?
+  const {
+    currentFavoriteGroup,
+    items,
+    thumbnails,
+    favoriteGroups,
+    updateItems,
+    selectFavouriteGroup,
+  } = useFavourites();
 
   return (
     <PageStructure
@@ -29,19 +34,22 @@ export const FavoritesPage: FC = () => {
             FileCommands.AddToShoppingCart,
             FileCommands.AddRemoveFavourite,
           ]}
+          onFavouriteChange={updateItems}
           thumbnails={thumbnails}
-          title="All added documents"
+          title={currentFavoriteGroup}
         />
       }
       isColumnOnLeft
       column={
         <RightMenuBox title="Your favourite lists" isColumnOnLeft>
-          <RightMenuItem
-            key="send"
-            text="Send via e-mail"
-            icon={DocsIcon}
-            onClick={console.log}
-          />
+          {favoriteGroups.map((favoriteGroup) => (
+            <RightMenuItem
+              key={favoriteGroup.id}
+              text={favoriteGroup.name}
+              icon={DocsIcon}
+              onClick={() => selectFavouriteGroup(favoriteGroup.name)}
+            />
+          ))}
         </RightMenuBox>
       }
     />

@@ -9,6 +9,7 @@ import { FileCommands } from '../../../enums';
 import { getFileSizeLiteral, getIconByExtension } from '../../../helpers';
 import { NewArrowIcon } from '../../../svg';
 import { DropdownMenu } from '../DropdownMenu';
+import { FavsModal } from '../FavsModal';
 import { LoadingDialog } from '../Loading';
 
 const useStyles = makeStyles((theme) => ({
@@ -97,6 +98,7 @@ export const FileItem: FC<IFileItemProps> = ({
   const styles = useStyles();
   const { uniqueId, name, title, fileExtension, fileSize } = item;
   const [isLoading, setIsLoading] = useState(false);
+  const [isFavVisible, setIsFavVisible] = useState(false);
   const openFile = async () => {
     setIsLoading(true);
     await dataManager.openDriveItem(uniqueId);
@@ -163,7 +165,7 @@ export const FileItem: FC<IFileItemProps> = ({
               },
               {
                 title: FileCommands.AddRemoveFavourite,
-                onClick: console.log, // TODO
+                onClick: () => setIsFavVisible(true),
               },
             ].filter((command) =>
               availableCommands.some(
@@ -179,6 +181,16 @@ export const FileItem: FC<IFileItemProps> = ({
         </div>
       </div>
       <LoadingDialog open={isLoading} />
+      {isFavVisible ? (
+        <FavsModal
+          uniqueId={uniqueId}
+          isOpen={isFavVisible}
+          onClose={() => {
+            if (onFavouriteChange) onFavouriteChange();
+            setIsFavVisible(false);
+          }}
+        />
+      ) : undefined}
     </ListItem>
   );
 };
