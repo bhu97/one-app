@@ -1,6 +1,7 @@
 import { Button, makeStyles, Menu, MenuItem } from '@material-ui/core';
 import React, { FC, useRef, useState } from 'react';
 
+import { FileCommands } from '../../../enums';
 import { TripleDot } from '../../../svg';
 
 const useStyles = makeStyles((theme) => ({
@@ -14,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface IDropdownMenuProps {
-  commands: { key?: string; title: string; onClick: () => void }[];
+  commands: { title: FileCommands; onClick: () => void }[];
 }
 
 export const DropdownMenu: FC<IDropdownMenuProps> = ({ commands }) => {
@@ -39,7 +40,7 @@ export const DropdownMenu: FC<IDropdownMenuProps> = ({ commands }) => {
       >
         {commands.map((command) => (
           <MenuItem
-            key={command.key || command.title}
+            key={command.title}
             onClick={() => {
               command.onClick();
               setIsOpen(false);

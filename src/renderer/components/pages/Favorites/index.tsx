@@ -1,9 +1,9 @@
 import { makeStyles } from '@material-ui/core';
-import React, { FC } from 'react';
-import { useRef } from 'react';
+import React, { FC, useRef } from 'react';
 
 import headerImage from '../../../../../assets/favorites/200921_FMC_OneApp_Illustrationen_Final_Favourites.png';
 import { FavoriteStore } from '../../../database/stores/FavoriteStore';
+import { FileCommands } from '../../../enums';
 import { useGetFilesData } from '../../../helpers';
 import { DocsIcon } from '../../../svg';
 import { RightMenuBox, RightMenuItem } from '../../atoms';
@@ -25,6 +25,10 @@ export const FavoritesPage: FC = () => {
       main={
         <FileList
           items={items}
+          availableCommands={[
+            FileCommands.AddToShoppingCart,
+            FileCommands.AddRemoveFavourite,
+          ]}
           thumbnails={thumbnails}
           title="All added documents"
         />

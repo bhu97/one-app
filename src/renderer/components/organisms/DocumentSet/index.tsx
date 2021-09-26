@@ -2,6 +2,7 @@ import React, { FC, useEffect, useState } from 'react';
 
 import { IDriveItem } from '../../../database/database';
 import { FlexLightStoreFactory } from '../../../database/stores/FlexLightStoreFactory';
+import { FileCommands } from '../../../enums';
 import { useGetFilesData } from '../../../helpers';
 import { FileList, LinkedItems } from '../../molecules';
 import { PageStructure } from '../../templates';
@@ -25,7 +26,16 @@ export const DocumentSet: FC<IDocumentSetProps> = ({
     <PageStructure
       headerTitle={documentSet.title}
       headerDescription={documentSet.name /* TODO missing prop */}
-      main={<FileList items={items} thumbnails={thumbnails} />}
+      main={
+        <FileList
+          items={items}
+          thumbnails={thumbnails}
+          availableCommands={[
+            FileCommands.AddToShoppingCart,
+            FileCommands.AddRemoveFavourite,
+          ]}
+        />
+      }
       column={
         <LinkedItems
           documentSet={documentSet}

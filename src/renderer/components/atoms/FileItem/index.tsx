@@ -4,6 +4,7 @@ import React, { FC, useState } from 'react';
 import { IDriveItem } from '../../../database/database';
 import { cartStore } from '../../../database/stores/CartStore';
 import { dataManager } from '../../../DataManager';
+import { FileCommands } from '../../../enums';
 import { getFileSizeLiteral, getIconByExtension } from '../../../helpers';
 import { NewArrowIcon } from '../../../svg';
 import { DropdownMenu } from '../DropdownMenu';
@@ -78,10 +79,12 @@ export interface IFileItemProps {
   thumbnailUrl: string | undefined;
   hasOverlay: boolean;
   isNew: boolean;
+  availableCommands: FileCommands[];
 }
 
 export const FileItem: FC<IFileItemProps> = ({
   item,
+  availableCommands,
   thumbnailUrl,
   hasOverlay,
   isNew,
@@ -124,7 +127,7 @@ export const FileItem: FC<IFileItemProps> = ({
           <DropdownMenu
             commands={[
               {
-                title: 'Add to shopping cart',
+                title: FileCommands.AddToShoppingCart,
                 onClick: async () => {
                   setIsLoading(true);
                   await cartStore.addDriveItem(item.uniqueId);
@@ -133,10 +136,23 @@ export const FileItem: FC<IFileItemProps> = ({
                 },
               },
               {
-                title: 'Add/remove favourite',
+                title: FileCommands.RemoveFromShoppingCart,
+                onClick: async () => {
+                  setIsLoading(true);
+                  await cartStore.removeDriveItem(item.uniqueId);
+                  await cartStore.update();
+                  setIsLoading(false);
+                },
+              },
+              {
+                title: FileCommands.AddRemoveFavourite,
                 onClick: console.log, // TODO
               },
-            ]}
+            ].filter((command) =>
+              availableCommands.some(
+                (availableCommand) => availableCommand === command.title
+              )
+            )}
           />
           {fileSize ? (
             <div className={styles.fileSize}>

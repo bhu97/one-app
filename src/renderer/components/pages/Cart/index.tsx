@@ -3,6 +3,7 @@ import React, { FC } from 'react';
 
 import headerImage from '../../../../../assets/cart/200921_FMC_OneApp_Illustrationen_Final_Documents.png';
 import { cartStore } from '../../../database/stores/CartStore';
+import { FileCommands } from '../../../enums';
 import { getFileSizeLiteral, useGetFilesData } from '../../../helpers';
 import { DatabaseIcon, DocsIcon, EmailIcon, TrashIcon } from '../../../svg';
 import { RightMenuBox, RightMenuItem } from '../../atoms';
@@ -31,6 +32,10 @@ export const CartPage: FC = () => {
       main={
         <FileList
           items={items}
+          availableCommands={[
+            FileCommands.RemoveFromShoppingCart,
+            FileCommands.AddRemoveFavourite,
+          ]}
           thumbnails={thumbnails}
           title="All added documents"
         />

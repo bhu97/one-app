@@ -4,6 +4,7 @@ import React, { FC } from 'react';
 import { IDriveItem, Thumbnail } from 'renderer/database/database';
 
 import emptyThumbnail from '../../../../../assets/content-page/empty_thumbnail.png';
+import { FileCommands } from '../../../enums';
 import { FileItem } from '../../atoms';
 
 const useStyles = makeStyles((theme) =>
@@ -32,9 +33,15 @@ interface IFileListProps {
   title?: string;
   items: IDriveItem[];
   thumbnails: Thumbnail[];
+  availableCommands: FileCommands[];
 }
 
-export const FileList: FC<IFileListProps> = ({ items, thumbnails, title }) => {
+export const FileList: FC<IFileListProps> = ({
+  items,
+  availableCommands,
+  thumbnails,
+  title,
+}) => {
   const styles = useStyles();
 
   return (
@@ -70,6 +77,7 @@ export const FileList: FC<IFileListProps> = ({ items, thumbnails, title }) => {
               key={item.uniqueId}
               hasOverlay
               item={item}
+              availableCommands={availableCommands}
               thumbnailUrl={thumbnailUrl}
               isNew={isNew}
             />
