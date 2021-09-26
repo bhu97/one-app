@@ -9,6 +9,7 @@ export * from './LinkIcon';
 export * from './LogoIcon';
 export * from './NewArrowIcon';
 export * from './NextArrowIcon';
+export * from './PlusIcon';
 export * from './SettingsIcon';
 export * from './TrashIcon';
 export * from './TripleDot';

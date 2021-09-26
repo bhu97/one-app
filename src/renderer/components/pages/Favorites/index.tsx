@@ -41,7 +41,11 @@ export const FavoritesPage: FC = () => {
       }
       isColumnOnLeft
       column={
-        <RightMenuBox title="Your favourite lists" isColumnOnLeft>
+        <RightMenuBox
+          title="Your favourite lists"
+          isColumnOnLeft
+          onPlusClick={() => console.log}
+        >
           {favoriteGroups.map((favoriteGroup) => (
             <RightMenuItem
               key={favoriteGroup.id}
