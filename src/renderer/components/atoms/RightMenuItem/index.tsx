@@ -31,26 +31,30 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface IRightMenuItemProps {
-  key: string;
   onClick?: () => void;
   text?: string;
   icon: JSX.Element;
   isLoading?: boolean;
+  slim?: boolean;
 }
 
 export const RightMenuItem: FC<IRightMenuItemProps> = ({
-  key,
   onClick,
   text,
   icon,
   isLoading,
+  slim,
 }) => {
   const styles = useStyles();
   return (
     <ListItem
-      key={key}
       classes={{
         root: styles.root,
+      }}
+      style={{
+        paddingTop: slim ? '4px' : undefined,
+        paddingBottom: slim ? '4px' : undefined,
+        minHeight: slim ? 'unset' : undefined,
       }}
       onClick={onClick}
       button={onClick ? true : undefined}
