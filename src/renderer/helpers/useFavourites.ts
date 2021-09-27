@@ -58,8 +58,24 @@ export const useFavourites = () => {
   };
   const selectFavouriteGroup = async (groupName: string) => {
     setCurrentFavoriteGroup(groupName);
-    favoriteStoreRef.current = new FavoriteStore({ query: groupName });
-    updateItems();
+    const newStore = new FavoriteStore({ query: groupName });
+    favoriteStoreRef.current = newStore;
+    updateItems(newStore);
+  };
+  const addGroup = async (groupName: string) => {
+    await favoriteStoreRef.current.addFavoriteGroup(groupName);
+    await favoriteStoreRef.current.update();
+    await getData();
+  };
+  const removeGroup = async (groupName: string) => {
+    await favoriteStoreRef.current.removeFavoriteGroup(groupName);
+    await favoriteStoreRef.current.update();
+    await getData();
+  };
+  const renameGroup = async (id: number, groupName: string) => {
+    await favoriteStoreRef.current.renameFavoriteGroup(id, groupName);
+    await favoriteStoreRef.current.update();
+    await getData();
   };
   useEffect(() => {
     getData();
@@ -74,6 +90,9 @@ export const useFavourites = () => {
     selectFavouriteGroupForItem,
     updateItems,
     selectFavouriteGroup,
+    addGroup,
+    removeGroup,
+    renameGroup,
   };
 };
 

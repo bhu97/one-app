@@ -12,8 +12,8 @@ export const useGetFilesData = (
   const [items, setItems] = useState<IDriveItem[]>([]);
   const [thumbnails, setThumbnails] = useState<Thumbnail[]>([]);
 
-  const updateItems = async () => {
-    const store = await makePromise(currentStore);
+  const updateItems = async (newStore?: IStore) => {
+    const store = await makePromise(newStore || currentStore);
     if (!store) return;
     await store.update();
     setItems(store.items);

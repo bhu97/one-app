@@ -52,6 +52,9 @@ export const FavsModal: FC<IFavsModalProps> = ({
         {favoriteGroups.map((fav) => (
           <FormControlLabel
             key={fav.id}
+            style={{
+              display: 'block',
+            }}
             control={
               <Checkbox
                 classes={{
