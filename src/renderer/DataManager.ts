@@ -83,10 +83,7 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         //throw(error)
       }
 
-        //CREATE USER
-        //SET COUNTRY/VERSION
-        await db.createUserIfEmpty()
-
+       
         progressState?.("whitelists")
         //FETCH WHITELISTS
         try {
@@ -97,6 +94,11 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
           console.error(error);
           resolve(AppError.WHITELIST_ERROR)
         }
+
+         //CREATE USER
+        //SET COUNTRY/VERSION
+        await db.createUserIfEmpty()
+
 
         localStorgeHelper.setLastMetdataUpdate()
         resolve(true)

@@ -156,16 +156,21 @@ export class AppDatabase extends Dexie {
 
     async createUserIfEmpty():Promise<void> {
         const user = await this.getUser()
+        console.log(user);
+        
         if(!user) {
             const countries = await this.getAllAvailableCountries()
+            console.log(countries);
+            
             if (countries && countries.length > 0) {
-                return await this.selectCurrentCountry(countries[0])
+                return await this.selectCurrentCountry(countries[1])
             }
         }
     }
 
     async selectCurrentCountry(country: string): Promise<void> {
         const version = await this.versionForCountry(country)
+        console.log(version)
         if (version != CountryVersion.none) {
             return await this.updateCountryVersion(country, version.toString())
         }

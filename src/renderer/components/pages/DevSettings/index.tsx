@@ -261,6 +261,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
       const whitelists = await fakeFetchWhitelists();
       console.log(whitelists);
       db.saveWhitelists(whitelists);
+      db.createUserIfEmpty()
 
       db.setupInitialFavoriteGroup();
 
@@ -691,6 +692,18 @@ export const DevSettings: FC<DevSettingsProps> = () => {
                   secondary="Adds random favorites to all existing groups"
                   onClick={() => {
                     addSomeFavorites()
+                  }}
+                />
+              </ListItem>
+            </Grid>
+
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Create user"
+
+                  onClick={() => {
+                    db.createUserIfEmpty()
                   }}
                 />
               </ListItem>
