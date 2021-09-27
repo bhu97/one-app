@@ -1,6 +1,7 @@
 import { ListItem, ListItemText, makeStyles } from '@material-ui/core';
 import React, { FC } from 'react';
 
+import { DropdownMenu } from '../DropdownMenu';
 import { LoadingDialog } from '../Loading';
 
 const useStyles = makeStyles((theme) => ({
@@ -36,6 +37,7 @@ interface IRightMenuItemProps {
   icon: JSX.Element;
   isLoading?: boolean;
   slim?: boolean;
+  commands?: { title: string; onClick: () => void }[];
 }
 
 export const RightMenuItem: FC<IRightMenuItemProps> = ({
@@ -44,6 +46,7 @@ export const RightMenuItem: FC<IRightMenuItemProps> = ({
   icon,
   isLoading,
   slim,
+  commands,
 }) => {
   const styles = useStyles();
   return (
@@ -66,6 +69,7 @@ export const RightMenuItem: FC<IRightMenuItemProps> = ({
           primary: styles.text,
         }}
       />
+      {commands ? <DropdownMenu commands={commands} /> : undefined}
       <LoadingDialog open={!!isLoading} />
     </ListItem>
   );

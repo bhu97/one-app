@@ -71,11 +71,13 @@ export const useFavourites = () => {
     await favoriteStoreRef.current.removeFavoriteGroup(groupName);
     await favoriteStoreRef.current.update();
     await getData();
+    selectFavouriteGroup('Default');
   };
   const renameGroup = async (id: number, groupName: string) => {
     await favoriteStoreRef.current.renameFavoriteGroup(id, groupName);
     await favoriteStoreRef.current.update();
     await getData();
+    selectFavouriteGroup(groupName);
   };
   useEffect(() => {
     getData();

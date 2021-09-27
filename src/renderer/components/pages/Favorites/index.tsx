@@ -1,7 +1,5 @@
 import { makeStyles } from '@material-ui/core';
-import { toast } from 'material-react-toastify';
-import React, { FC } from 'react';
-import { useState } from 'react';
+import React, { FC, useState } from 'react';
 
 import headerImage from '../../../../../assets/favorites/200921_FMC_OneApp_Illustrationen_Final_Favourites.png';
 import { FileCommands } from '../../../enums';
@@ -10,6 +8,7 @@ import { DocsIcon } from '../../../svg';
 import { FavsCategoryDialog, RightMenuBox, RightMenuItem } from '../../atoms';
 import { FileList } from '../../molecules';
 import { PageStructure } from '../../templates';
+import { useFavouritesDialog } from './useFavouritesDialog';
 
 const useStyles = makeStyles((theme) => ({}));
 
@@ -23,25 +22,18 @@ export const FavoritesPage: FC = () => {
     updateItems,
     selectFavouriteGroup,
     addGroup,
+    renameGroup,
+    removeGroup,
   } = useFavourites();
-  const [isDialog, setIsDialog] = useState(false);
-  const [isDialogLoading, setIsDialogLoading] = useState(false);
-  const [editedCategory, setEditedCategory] = useState('');
-  const onClose = () => {
-    setIsDialog(false);
-    setEditedCategory('');
-    setIsDialogLoading(false);
-  };
-  const onSave = async (groupName: string) => {
-    try {
-      setIsDialogLoading(true);
-      await addGroup(groupName);
-      onClose();
-    } catch (e) {
-      console.error(e);
-      toast.error(`Couldn't save ${groupName} list`);
-    }
-  };
+  const {
+    isDialog,
+    isDialogLoading,
+    editedCategory,
+    onSave,
+    onClose,
+    setIsDialog,
+    setEditedCategory,
+  } = useFavouritesDialog({ addGroup, renameGroup });
   return (
     <>
       <PageStructure
@@ -73,6 +65,23 @@ export const FavoritesPage: FC = () => {
                 text={favoriteGroup.name}
                 icon={DocsIcon}
                 onClick={() => selectFavouriteGroup(favoriteGroup.name)}
+                commands={
+                  favoriteGroup.name === 'Default'
+                    ? undefined
+                    : [
+                        {
+                          title: 'Rename',
+                          onClick: () => {
+                            setIsDialog(true);
+                            setEditedCategory(favoriteGroup);
+                          },
+                        },
+                        {
+                          title: 'Remove',
+                          onClick: () => removeGroup(favoriteGroup.name),
+                        },
+                      ]
+                }
               />
             ))}
           </RightMenuBox>
@@ -81,10 +90,12 @@ export const FavoritesPage: FC = () => {
       {isDialog ? (
         <FavsCategoryDialog
           isDialogLoading={isDialogLoading}
-          initialText={editedCategory || ''}
+          initialText={editedCategory ? editedCategory.name : ''}
           isOpen={isDialog}
           onClose={onClose}
-          title={editedCategory ? `Edit: ${editedCategory}` : 'New category'}
+          title={
+            editedCategory ? `Edit: ${editedCategory.name}` : 'New category'
+          }
           onSave={onSave}
         />
       ) : undefined}
