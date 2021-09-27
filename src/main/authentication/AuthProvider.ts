@@ -49,6 +49,7 @@ class AuthProvider {
     cryptoProvider:any;
     authCodeUrlParams:any;
     authCodeRequest:any;
+    authRedirectURL:URL;
     pkceCodes:any;
     account:any;
 
@@ -64,6 +65,7 @@ class AuthProvider {
         this.cryptoProvider = new CryptoProvider();
 
         this.setRequestObjects();
+        this.authRedirectURL = new URL(config.REDIRECT_URI)
     }
 
     /**
@@ -188,11 +190,14 @@ class AuthProvider {
         return new Promise((resolve, reject) => {
             authWindow.webContents.on('will-redirect', (event:any, responseUrl:any) => {
                 try {
-                    const parsedUrl = new URL(responseUrl);
-                    const authCode = parsedUrl.searchParams.get('code');
+                    const parsedUrl = new URL(responseUrl); //TODO Check for REDIRECT protocol
+                    if (parsedUrl.protocol == this.authRedirectURL.protocol) {
+                      const authCode = parsedUrl.searchParams.get('code');
 
-                    if (authCode) {
-                        resolve(authCode);
+                      if (authCode) {
+                          resolve(authCode);
+                          event.preventDefault()
+                      }
                     }
                 } catch (err) {
                     reject(err);
