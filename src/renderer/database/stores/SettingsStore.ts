@@ -1,6 +1,7 @@
 import { db } from "../database";
 import { localStorgeHelper } from "../storage";
 import { AbstractStore } from "./AbstractStore";
+import config from './../../utils/application.config.release'
 
 class SettingsStore extends AbstractStore {
 
@@ -8,6 +9,7 @@ class SettingsStore extends AbstractStore {
   currentCountry?: string
   currentVersion?: string
   allAvailableCountries = Array<string>() 
+  appVersion: string = config.APP_VERSION
 
   async update() {
     this.lastUpdate = localStorgeHelper.getLastModifiedDate() ?? ""
@@ -20,4 +22,11 @@ class SettingsStore extends AbstractStore {
 
     this.allAvailableCountries = await db.getAllAvailableCountries() ?? []
   }
+
+  async selectCountry(country: string) {
+    await db.selectCurrentCountry(country)
+    await this.update()
+  }
 }
+
+export default SettingsStore

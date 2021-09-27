@@ -23,7 +23,7 @@ class CartStore extends AbstractStore {
     let allItems = await db.getItemsForIds(Array.from(this.uniqueIds))
     
     this.fileSizes = allItems.map(this.driveItemToFileSize).filter(notEmpty).reduce(this.addFileSizes, 0)
-    this.items = allItems
+    this.items = allItems   
   }
 
   addDriveItem(uniqueId: string) {
@@ -37,10 +37,11 @@ class CartStore extends AbstractStore {
   removeAll() {
     this.uniqueIds.clear()
     this.items = []
+    this.fileSizes = 0
   }
 
   driveItemToFileSize = (driveItem: IDriveItem) => driveItem.fileSize
-  addFileSizes = (a: number, b: number) => a + b
+  addFileSizes = (fileSize1: number, fileSize2: number) => fileSize1 + fileSize2
 }
 
 export const cartStore = new CartStore({})

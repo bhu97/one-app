@@ -422,7 +422,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
 
     await cartStore.update();
 
-    console.log(cartStore.isFileSizeUnderMaximum())
+    console.log(cartStore.fileSizes)
 
     //await dataManager.downloadCartFiles();
 
@@ -703,7 +703,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
                   primary="Create user"
 
                   onClick={() => {
-                    db.createUserIfEmpty()
+                    db.createUserIfEmpty()                   
                   }}
                 />
               </ListItem>
