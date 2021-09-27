@@ -9,7 +9,8 @@ class CartStore extends AbstractStore {
   fileSizeLimit = fileSizeMax
   fileSizes = 0
 
-  isFileSizeUnderMaximum = ():boolean => {
+  isFileSizeUnderMaximum = (): boolean => {
+    console.log(`sizes: ${this.fileSizes}, limit ${this.fileSizeLimit}`)
     return this.fileSizes <= this.fileSizeLimit
   }
 
@@ -20,7 +21,8 @@ class CartStore extends AbstractStore {
     }
 
     let allItems = await db.getItemsForIds(Array.from(this.uniqueIds))
-    allItems.map(this.driveItemToFileSize).filter(notEmpty).reduce(this.addFileSizes, 0)
+    
+    this.fileSizes = allItems.map(this.driveItemToFileSize).filter(notEmpty).reduce(this.addFileSizes, 0)
     this.items = allItems
   }
 

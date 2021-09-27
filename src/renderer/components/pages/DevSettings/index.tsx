@@ -420,7 +420,9 @@ export const DevSettings: FC<DevSettingsProps> = () => {
 
     await cartStore.update();
 
-    await dataManager.downloadCartFiles();
+    console.log(cartStore.isFileSizeUnderMaximum())
+
+    //await dataManager.downloadCartFiles();
 
     // try {
     //   for (let driveItemId of driveItemIds) {

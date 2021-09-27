@@ -378,7 +378,7 @@ const kCountryRoot = (country: string) => {
 }
 
 // Schemas for the table creation
-const driveItemsSchema = "uniqueId, name, title, webUrl, serverRelativeUrl, timeLastModified, timeCreated, listItemId, listId, siteId, isDocSet, linkedFiles, linkedFolders, type, fileSize, fileExtension, timeDownloaded, downloadLocation, parentReferenceId, country, contentType"
+const driveItemsSchema = "uniqueId, name, title, webUrl, serverRelativeUrl, timeLastModified, timeCreated, listItemId, listId, siteId, isDocSet, linkedFiles, linkedFolders, type, fileSize, fileExtension, timeDownloaded, downloadLocation, parentReferenceId, country, contentType, documentSetDescription"
 const usersSchema = "++id, version, country"
 const favoriteGroupSchema = "++id, name"
 const favoriteSchema = "++id, favoriteGroupName, uniqueId"
@@ -412,6 +412,7 @@ export interface IDriveItem {
     country?: string;
     contentType?: string;
     graphDownloadUrl?: string;
+    documentSetDescription?: string;
 }
 
 export enum DriveItemType {
@@ -494,6 +495,7 @@ export class DriveItem implements IDriveItem {
     country?: string;
     contentType?:string;
     graphDownloadUrl?: string;
+    documentSetDescription?: string;
 
   constructor(item:any) {
     console.log("drive item id:"+ item.id)
@@ -516,7 +518,8 @@ export class DriveItem implements IDriveItem {
     this.country = normalizeUrl(this.webUrl);
     this.country = findCountry(this.country) ?? ""
     //file specific
-    this.fileSize = item?.size ?? 0
+    this.fileSize = item?.size 
+
     if(item.driveItem) {
         this.graphDownloadUrl = item.driveItem["@microsoft.graph.downloadUrl"] ?? "" 
     }
@@ -531,7 +534,7 @@ export interface IListItem {
     uniqueId: string;
     contentType: string;
     title:string;
-    documentDescription: string;
+    documentSetDescription: string;
     linkedFolders: string;
     linkedFiles: string;
     listItemId: string;
@@ -543,7 +546,7 @@ export class ListItem implements IListItem {
     uniqueId: string;
     contentType: string;
     title:string;
-    documentDescription: string;
+    documentSetDescription: string;
     listItemId: string;
     linkedFolders: string;
     linkedFiles: string;
@@ -555,7 +558,7 @@ export class ListItem implements IListItem {
         this.uniqueId = item.driveItem.id
         this.contentType = item.contentType.name
         this.title = item.fields.Title ?? ""
-        this.documentDescription = item.fields.DocumentSetDescription ?? ""
+        this.documentSetDescription = item.fields.DocumentSetDescription ?? ""
         this.linkedFiles = item.fields.Linked_x0020_files ?? ""
         this.linkedFolders = item.fields.Linked_x0020_folders ?? ""
         this.type = item.contentType.name === "Folder" ? DriveItemType.FOLDER : DriveItemType.FILE
