@@ -293,6 +293,14 @@ const getItemThumbnail = async(uniqueId: string):Promise<Thumbnail | null> => {
   return null;
 }
 
+const getAppState = () => {
+  //check valid login
+  //check login/token old
+  //check valid metadata
+  //check new updates online
+  //check error
+}
+
 export enum AppError {
   NO_LOGIN,
   NO_DATA,
