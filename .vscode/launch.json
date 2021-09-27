@@ -17,6 +17,12 @@
       "port": 9223,
       "webRoot": "${workspaceFolder}",
       "timeout": 15000
+    },
+    {
+      "name": "Attach Electron Main",
+      "type": "pwa-node",
+      "request": "attach",
+      "port": 5858,
     }
   ],
   "compounds": [
