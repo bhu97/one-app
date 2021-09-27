@@ -12,6 +12,7 @@ export default {
   ROOT_WEB_URL: "https://fresenius.sharepoint.com/teams/FMETS0269990/Shared%20Documents/",
 
   //Configuration
+  REDIRECT_PROTOCOL:"preisfindungstool",
   REDIRECT_URI:"preisfindungstool://auth",
 
   //Endpoints

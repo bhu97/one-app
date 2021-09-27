@@ -11,7 +11,7 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, session, Session } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, session, Session, protocol } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log, { create } from 'electron-log';
 import MenuBuilder from './menu';
@@ -87,6 +87,11 @@ const createWindow = async () => {
   const getAssetPath = (...paths: string[]): string => {
     return path.join(RESOURCES_PATH, ...paths);
   };
+
+  protocol.registerHttpProtocol(config.REDIRECT_PROTOCOL, (request, callback) => {
+    //TODO: HANDLE auth redirect here
+    const authRedirectUrl = request.url
+  })
 
 
   ses = session.fromPartition('persist:oneappdesktop')
