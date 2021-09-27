@@ -6,7 +6,7 @@ export interface IStoreParams {
 
 export interface IStore {
   items: IDriveItem[]
-  update: () => void
+  update: () => Promise<void>
   getItems: () => Array<IDriveItem>
 }
 
@@ -17,7 +17,7 @@ export abstract class AbstractStore implements IStore{
   isRoot: boolean = false
 
   constructor(public params: IStoreParams) {}
-  update() {}
+  async update() {}
   getItems(): Array<IDriveItem> { return [] }
 
   filterVersionFiles(driveItems: IDriveItem[]):IDriveItem[] {

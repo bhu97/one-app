@@ -39,6 +39,7 @@ import dayjs from 'dayjs';
 import { AppError, dataManager } from '../../../DataManager';
 import { cartStore } from 'renderer/database/stores/CartStore';
 import { FlexLightStoreFactory } from 'renderer/database/stores/FlexLightStoreFactory';
+import config from 'renderer/utils/application.config.release'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -260,6 +261,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
       const whitelists = await fakeFetchWhitelists();
       console.log(whitelists);
       db.saveWhitelists(whitelists);
+      db.createUserIfEmpty()
 
       db.setupInitialFavoriteGroup();
 
@@ -420,7 +422,9 @@ export const DevSettings: FC<DevSettingsProps> = () => {
 
     await cartStore.update();
 
-    await dataManager.downloadCartFiles();
+    console.log(cartStore.fileSizes)
+
+    //await dataManager.downloadCartFiles();
 
     // try {
     //   for (let driveItemId of driveItemIds) {
@@ -452,6 +456,9 @@ export const DevSettings: FC<DevSettingsProps> = () => {
             <CardContent>
               <Typography variant="h3" component="p">
                 Developer Settings for testing
+              </Typography>
+              <Typography>
+                App Version {config.APP_VERSION}
               </Typography>
             </CardContent>
           </Card>
@@ -685,6 +692,18 @@ export const DevSettings: FC<DevSettingsProps> = () => {
                   secondary="Adds random favorites to all existing groups"
                   onClick={() => {
                     addSomeFavorites()
+                  }}
+                />
+              </ListItem>
+            </Grid>
+
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Create user"
+
+                  onClick={() => {
+                    db.createUserIfEmpty()                   
                   }}
                 />
               </ListItem>

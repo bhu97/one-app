@@ -1,4 +1,6 @@
 export default {
+
+  APP_VERSION: "3.0.2",
   //Azure IDs
   // Find all details here https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/054ed5dd-8447-4c78-856b-5a0462bf0e68/isMSAApp/
   CLIENT_ID:"054ed5dd-8447-4c78-856b-5a0462bf0e68",
@@ -21,7 +23,7 @@ export default {
   // RESOURCES
   GRAPH_ME_ENDPOINT:"v1.0/me",
   GRAPH_MAIL_ENDPOINT:"v1.0/me/messages",
-  GRAPH_DELTA_ENDPOINT:"https://graph.microsoft.com/v1.0/drives/b!EKRo7XQXvUyRuOIkA9DjxunkygQdu11AmW6wdTRwuw91Ixe2mdV7RoMnMBsg3DoG/root/delta?$select=id, sharepointIds, title, name, webUrl, fields, parentReference, file, lastModifiedDateTime",
+  GRAPH_DELTA_ENDPOINT:"https://graph.microsoft.com/v1.0/drives/b!EKRo7XQXvUyRuOIkA9DjxunkygQdu11AmW6wdTRwuw91Ixe2mdV7RoMnMBsg3DoG/root/delta?$select=id, sharepointIds, title, name, webUrl, fields, parentReference, file, lastModifiedDateTime, size",
   GRAPH_DRIVEITEMS_ENDPOINT:"https://graph.microsoft.com/v1.0/sites/ed68a410-1774-4cbd-91b8-e22403d0e3c6/lists/b6172375-d599-467b-8327-301b20dc3a06/items?$expand=fields, driveitem&$select=fields, id, contentType",
   GRAPH_DRIVEITEM_ENDPOINT: (itemId: string) => `https://graph.microsoft.com/v1.0/sites/ed68a410-1774-4cbd-91b8-e22403d0e3c6/lists/b6172375-d599-467b-8327-301b20dc3a06/items/${itemId}?$expand=driveItem`,
   GRAPH_LASTMODIFIED_DATE: "https://graph.microsoft.com/v1.0/drives/b!EKRo7XQXvUyRuOIkA9DjxunkygQdu11AmW6wdTRwuw91Ixe2mdV7RoMnMBsg3DoG/root/delta?$top=1&$orderBy=lastModifiedDateTime+DESC",

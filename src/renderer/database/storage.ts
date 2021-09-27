@@ -9,6 +9,15 @@ class LocalStorgeHelper {
   setLastMetdataUpdate(date?: string) {
     window.localStorage.setItem(klastMetadataUpdateDate, date ?? dayjs().toISOString())
   }
+
+  getLastMetdataUpdate() {
+    let metadataDate = window.localStorage.getItem(klastMetadataUpdateDate)
+    if(metadataDate) {
+      return dayjs(metadataDate).format("DD-MM-YYYY").toString()
+    }
+    return undefined
+  }
+
   setLastModifiedDate(date: string) {
     window.localStorage.setItem(klastModifiedDate, date)
   }
