@@ -39,6 +39,7 @@ import dayjs from 'dayjs';
 import { AppError, dataManager } from '../../../DataManager';
 import { cartStore } from 'renderer/database/stores/CartStore';
 import { FlexLightStoreFactory } from 'renderer/database/stores/FlexLightStoreFactory';
+import config from 'renderer/utils/application.config.release'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -454,6 +455,9 @@ export const DevSettings: FC<DevSettingsProps> = () => {
             <CardContent>
               <Typography variant="h3" component="p">
                 Developer Settings for testing
+              </Typography>
+              <Typography>
+                App Version {config.APP_VERSION}
               </Typography>
             </CardContent>
           </Card>
