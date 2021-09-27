@@ -36,6 +36,7 @@ class CartStore extends AbstractStore {
 
   removeAll() {
     this.uniqueIds.clear()
+    this.items = []
   }
 
   driveItemToFileSize = (driveItem: IDriveItem) => driveItem.fileSize
