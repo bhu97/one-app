@@ -15,14 +15,16 @@ const useStyles = makeStyles((theme) => ({
   },
   textWrapper: {
     padding: theme.spacing(2, 4),
-    flexShrink: 0,
   },
   title: {
     paddingBottom: theme.spacing(2),
   },
   imageWrapper: {
     display: 'flex',
-    flexBasis: '500px',
+    flexBasis: '527px',
+    flexShrink: 0,
+    maxWidth: '70%',
+    alignItems: 'flex-end',
   },
   image: {
     display: 'block',

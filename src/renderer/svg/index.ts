@@ -1,5 +1,6 @@
 export * from './BackArrowIcon';
 export * from './CartIcon';
+export * from './CloudIcon';
 export * from './DatabaseIcon';
 export * from './DocsIcon';
 export * from './EmailIcon';
@@ -9,6 +10,7 @@ export * from './LinkIcon';
 export * from './LogoIcon';
 export * from './NewArrowIcon';
 export * from './NextArrowIcon';
+export * from './PencilIcon';
 export * from './PlusIcon';
 export * from './SettingsIcon';
 export * from './TrashIcon';
