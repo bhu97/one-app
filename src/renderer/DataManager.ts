@@ -253,6 +253,8 @@ const openDriveItem = async(uniqueId:string, progressState?:(state: string) => v
     openModule(driveItem.uniqueId, progressState)
   } else {
     if(driveItem.webUrl) {
+      console.log("open url: "+driveItem.webUrl);
+      
       window.electron.ipcRenderer.openHTML(driveItem.webUrl, shouldOpenLocal)
     }
   }
@@ -299,6 +301,11 @@ const getAppState = () => {
   //check valid metadata
   //check new updates online
   //check error
+}
+
+enum AppState {
+  VALID_LOGIN = 1,
+  HAS_METADATA = 3,
 }
 
 export enum AppError {

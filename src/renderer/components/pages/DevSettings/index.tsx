@@ -129,7 +129,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
 
   const login = async () => {
     let token = await window.electron.ipcRenderer.login('');
-    console.log('finished my login: ' + token);
+    console.log('finished my login: ' + JSON.stringify(token));
   };
 
   const refresh = async () => {
