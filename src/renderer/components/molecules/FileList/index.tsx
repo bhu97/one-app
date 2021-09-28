@@ -44,17 +44,17 @@ export const FileList: FC<IFileListProps> = ({
   thumbnails,
   title,
   onCartChange,
-  onFavouriteChange,
+  onFavouriteChange
 }) => {
   const styles = useStyles();
 
   return (
     <div className={styles.root}>
-      {title ? (
-        <Typography variant="h2" classes={{ h2: styles.title }}>
-          {title}
-        </Typography>
-      ) : undefined}
+        {title ? (
+          <Typography variant="h2" classes={{ h2: styles.title }}>
+            {title}
+          </Typography>
+        ) : undefined}
       <List className={styles.wrapper}>
         {items.map((item) => {
           const isArchive = item.fileExtension === 'zip';

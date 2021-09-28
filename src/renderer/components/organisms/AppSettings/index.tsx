@@ -1,7 +1,7 @@
 import { makeStyles, MenuItem, Select, Typography } from '@material-ui/core';
 import React, { FC } from 'react';
 
-import { EmailIcon } from '../../../svg';
+import { CloudIcon, PencilIcon } from '../../../svg';
 import { LoadingDialog, RightMenuItem } from '../../atoms';
 import { useAppSettings } from './useAppSettings';
 
@@ -84,8 +84,7 @@ export const AppSettings: FC = () => {
               onCountrySelected((e.target.value as string) ?? '');
             }}
             renderValue={(value) => (
-              <RightMenuItem text={value as string} icon={EmailIcon} slim />
-              // TODO wrong icon */}
+              <RightMenuItem text={value as string} icon={PencilIcon} slim />
             )}
           >
             {countries.map((country) => (
@@ -114,11 +113,10 @@ export const AppSettings: FC = () => {
           <div>
             <RightMenuItem
               text="Update now"
-              icon={EmailIcon}
+              icon={CloudIcon}
               slim
               onClick={onUpdateNow}
-            />{' '}
-            {/* TODO wrong icon */}
+            />
           </div>
         </div>
         <div className={[styles.column, styles.columnLast].join(' ')}>

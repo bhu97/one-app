@@ -25,7 +25,7 @@ export const DocumentSet: FC<IDocumentSetProps> = ({
   return (
     <PageStructure
       headerTitle={documentSet.title}
-      headerDescription={documentSet.name /* TODO missing prop */}
+      headerDescription={documentSet.documentSetDescription}
       main={
         <FileList
           items={items}

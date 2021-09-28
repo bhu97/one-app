@@ -1,43 +1,27 @@
 import { toast } from 'material-react-toastify';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { db } from '../../../database/database';
-import { localStorgeHelper } from '../../../database/storage';
+import SettingsStore from '../../../database/stores/SettingsStore';
 import { dataManager } from '../../../DataManager';
-import { fetchLastModifiedDate } from '../../fetch';
 
 export const useAppSettings = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [countries, setCountries] = useState<string[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState<string>('');
-  const [countryVersion, setCountryVersion] = useState<string>('');
+  const [selectedCountry, setSelectedCountry] = useState<string | undefined>(
+    ''
+  );
+  const [countryVersion, setCountryVersion] = useState<string | undefined>('');
   const [appVersion, setAppVersion] = useState<string>('');
   const [modifiedDate, setModifiedDate] = useState<string>('Unknown');
+  const settingsStoreRef = useRef(new SettingsStore({}));
   const getCurrentSettings = async () => {
     try {
-      const preselectedCountry = await db.getCurrentCountry();
-      if (preselectedCountry) {
-        setSelectedCountry(preselectedCountry);
-      }
-      const preselectedCountryVersion = await db.getCurrentVersion();
-      if (preselectedCountryVersion) {
-        setCountryVersion(preselectedCountryVersion === '0' ? 'flex' : 'light');
-      }
-      const preselectedAppVersion = 'v1.0.0.0'; // TODO db.version();
-      if (preselectedAppVersion) {
-        setAppVersion(preselectedAppVersion);
-      }
-      const loadLastModifiedDate = async () => {
-        const authResult =
-          await window.electron.ipcRenderer.refreshTokenSilently();
-        const token = authResult.accessToken;
-        if (token) {
-          const date = await fetchLastModifiedDate(token);
-          localStorgeHelper.setLastModifiedDate(date);
-          setModifiedDate(localStorgeHelper.getLastModifiedDate() ?? 'Unknown');
-        }
-      };
-      loadLastModifiedDate();
+      setSelectedCountry(settingsStoreRef.current.currentCountry);
+      setCountryVersion(
+        settingsStoreRef.current.currentVersion === '0' ? 'flex' : 'light'
+      );
+      setAppVersion(`v${settingsStoreRef.current.appVersion}`);
+      setModifiedDate(settingsStoreRef.current.lastUpdate ?? 'Unknown');
     } catch (e) {
       toast.error("Couldn't load settings");
       console.error(e);
@@ -54,7 +38,8 @@ export const useAppSettings = () => {
   const onCountrySelected = async (countryName: string) => {
     setIsLoading(true);
     try {
-      await db.selectCurrentCountry(countryName);
+      await settingsStoreRef.current.selectCountry(countryName);
+      await settingsStoreRef.current.update();
       await getCurrentSettings();
     } catch (e) {
       toast.error("Couldn't select country");
@@ -65,10 +50,8 @@ export const useAppSettings = () => {
   useEffect(() => {
     const loadCountries = async () => {
       setIsLoading(true);
-      const allCountries = await db.getAllAvailableCountries();
-      if (allCountries) {
-        setCountries(allCountries);
-      }
+      await settingsStoreRef.current.update();
+      setCountries(settingsStoreRef.current.allAvailableCountries);
       await getCurrentSettings();
       setIsLoading(false);
     };

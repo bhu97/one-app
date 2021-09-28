@@ -8,12 +8,15 @@ import {
   FormControlLabel,
   makeStyles,
 } from '@material-ui/core';
-import React, { FC } from 'react';
-import { useEffect } from 'react';
+import React, { FC, useEffect } from 'react';
 
 import { useFavourites } from '../../../helpers';
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+  checkbox: {
+    color: `${theme.palette.primary.main} !important`,
+  },
+}));
 
 export interface IFavsModalProps {
   uniqueId: string;
@@ -49,8 +52,14 @@ export const FavsModal: FC<IFavsModalProps> = ({
         {favoriteGroups.map((fav) => (
           <FormControlLabel
             key={fav.id}
+            style={{
+              display: 'block',
+            }}
             control={
               <Checkbox
+                classes={{
+                  colorSecondary: styles.checkbox,
+                }}
                 onChange={(event) =>
                   selectFavouriteGroupForItem(
                     uniqueId,

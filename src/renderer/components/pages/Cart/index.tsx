@@ -3,6 +3,7 @@ import React, { FC } from 'react';
 
 import headerImage from '../../../../../assets/cart/200921_FMC_OneApp_Illustrationen_Final_Documents.png';
 import { cartStore } from '../../../database/stores/CartStore';
+import { dataManager } from '../../../DataManager';
 import { FileCommands } from '../../../enums';
 import { getFileSizeLiteral, useGetFilesData } from '../../../helpers';
 import { DatabaseIcon, DocsIcon, EmailIcon, TrashIcon } from '../../../svg';
@@ -23,6 +24,11 @@ const useStyles = makeStyles((theme) => ({
 export const CartPage: FC = () => {
   const styles = useStyles();
   const { items, thumbnails, updateItems } = useGetFilesData(cartStore);
+  console.log(
+    'Please send me these JSONs:',
+    JSON.stringify(thumbnails),
+    JSON.stringify(items)
+  );
 
   return (
     <PageStructure
@@ -46,9 +52,9 @@ export const CartPage: FC = () => {
           <RightMenuBox title="Options">
             <RightMenuItem
               key="send"
-              text="Send via e-mail"
+              text="Download and send via e-mail"
               icon={EmailIcon}
-              onClick={console.log}
+              onClick={dataManager.downloadCartFiles}
             />
             <RightMenuItem
               key="remove"
