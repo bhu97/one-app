@@ -105,7 +105,14 @@ export const DevSettings: FC<DevSettingsProps> = () => {
   };
 
   useEffect(() => {
-    //setupDummyData()
+    setupDummyData()
+    // window.addEventListener('login-close-test', () => {
+    //   console.log("login-close-test");
+    // })
+
+    window.electron.ipcRenderer.on("login-close-test", () => {
+      console.log("login-close-test");
+    })
 
     const setup = async() => {
       
@@ -200,15 +207,19 @@ export const DevSettings: FC<DevSettingsProps> = () => {
   // };
 
   const getDelta = async () => {
+
     setState({ ...state, isLoading: true });
-    let result = await dataManager.getMetaData((state) =>
-      console.log('loading ' + state)
-    );
-    setState({ ...state, isLoading: false });
-    if (result as boolean) {
+    try {
+      
+      let result = await dataManager.getMetaData((state) =>
+        console.log('loading ' + state)
+      );
       console.log('result: ' + result);
+    } catch (error) {
+      
     }
-    console.log('result: ' + result);
+    setState({ ...state, isLoading: false });
+    
   };
 
   const loadCountries = async () => {

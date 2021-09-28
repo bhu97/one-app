@@ -51,7 +51,7 @@ contextBridge.exposeInMainWorld('electron', {
       return await ipcRenderer.invoke('GET_LOGIN_STATE');
     },
     on(channel, func) {
-      const validChannels = ['ipc-example'];
+      const validChannels = ['ipc-example', 'login-close-test'];
       if (validChannels.includes(channel)) {
         // Deliberately strip event as it includes `sender`
         ipcRenderer.on(channel, (event, ...args) => func(...args));

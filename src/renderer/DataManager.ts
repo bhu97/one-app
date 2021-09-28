@@ -55,10 +55,7 @@ const downloadCartFiles = async() => {
   }
 }
 
-const getMetaData = async(progressState?:(state: string) => void):Promise<boolean | AppError> => {
-
-  return new Promise(async (resolve, reject) => {
-
+const getMetaData = async(progressState?:(state: string) => void) => {
 
 const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
   const token = authResult.accessToken
@@ -70,8 +67,8 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         console.log(deltaData);
         await db.save(deltaData);
       } catch (error) {
-        resolve(AppError.DELTA_ERROR)
-        //throw(error)
+        console.error(error);
+        throw(error)
       }
 
       //FETCH METADATA
@@ -80,8 +77,8 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         let metaData = await fetchAdditionalMetadata(token);
         await db.saveMetaData(metaData)
       } catch (error) {
-        resolve(AppError.METADATA_ERROR)
-        //throw(error)
+        console.error(error);
+        throw(error)
       }
 
        
@@ -92,8 +89,8 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         let whitelists = await fetchWhitelists(whitelistDriveItems, token);
         await db.saveWhitelists(whitelists)
         } catch (error) {
+          throw(error)
           console.error(error);
-          resolve(AppError.WHITELIST_ERROR)
         }
 
          //CREATE USER
@@ -102,21 +99,22 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
 
 
         localStorgeHelper.setLastMetdataUpdate()
-        resolve(true)
+
     }
 
-
-  })
 
 
 }
 
 
-const login = async():Promise<boolean> => {
+const login = async(onLoginClosed?:() => void):Promise<boolean> => {
 
+  // window.electron.ipcRenderer.on("login-close-test", () => {
+  //   console.log("closed login");
+  // })
   return new Promise<boolean>(async(resolve, reject) => {
-
     //check if a login is needed
+    
     let token = await window.electron.ipcRenderer.login('');
     if(token) {
       resolve(true)

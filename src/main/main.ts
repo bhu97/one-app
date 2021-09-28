@@ -173,7 +173,12 @@ app.on('activate', () => {
 ipcMain.handle(ipcEvent.login, async() => {
   console.log("login event");
 
-  const loginWindow = createModalWindow(mainWindow!);
+
+  const onClose = () => {
+    mainWindow?.webContents.send("login-close-test")
+    console.log("closing login window")
+  }
+  const loginWindow = createModalWindow(mainWindow!, onClose);
   const account = await authProvider.login(loginWindow);
   const token = await authProvider.getTokenSilent(account);
 
@@ -430,7 +435,7 @@ async function getLoginState() {
   return loginState
 }
 
-export function createModalWindow(mainWindow: BrowserWindow) {
+export function createModalWindow(mainWindow: BrowserWindow, closeCallback?:() => void) {
   console.log("create modal");
 
   const modalWindow = new BrowserWindow({
@@ -449,7 +454,7 @@ export function createModalWindow(mainWindow: BrowserWindow) {
 
   modalWindow.on('close', event => {
     event.preventDefault();
-
+    closeCallback?.()
     modalWindow.hide();
   });
 

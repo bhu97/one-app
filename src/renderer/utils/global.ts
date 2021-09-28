@@ -23,6 +23,7 @@ declare global {
         deleteCartFolder: () => Promise<void>;
         isSubDirectory: (parent:string, dir:string) => Promise<boolean>;
         getLoginState: () => Promise<ILoginState>;
+        on: (channel:string, func: (...args: any[]) => void) => void
       }
     }
   }
