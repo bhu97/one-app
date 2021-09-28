@@ -13,6 +13,7 @@ import {
 } from './components/fetch';
 import { db, IUnzippedModuleItem, Thumbnail } from './database/database';
 import { localStorgeHelper } from './database/storage';
+import { IAppState, MetaDataState } from './utils/constants';
 
 
 /**
@@ -295,7 +296,26 @@ const getItemThumbnail = async(uniqueId: string):Promise<Thumbnail | null> => {
   return null;
 }
 
-const getAppState = () => {
+const getAppState = async(): Promise<IAppState> => {
+  let loginState = await window.electron.ipcRenderer.getLoginState()
+  let metadataState = MetaDataState.VALID
+
+  const isDBEmpty = await db.isEmpty()
+  if(isDBEmpty) {
+    metadataState = MetaDataState.NO_METADATA
+  } else {
+    if(localStorgeHelper.shouldShowUpdateAlert()) {
+      metadataState = MetaDataState.HAS_UPDATES
+    }
+  }  
+
+  console.log("login state: "+JSON.stringify(loginState));
+  let appState:IAppState = {
+    ...loginState,
+    metadata: metadataState
+  }
+
+  return appState
   //check valid login
   //check login/token old
   //check valid metadata
@@ -303,10 +323,7 @@ const getAppState = () => {
   //check error
 }
 
-enum AppState {
-  VALID_LOGIN = 1,
-  HAS_METADATA = 3,
-}
+
 
 export enum AppError {
   NO_LOGIN,
@@ -331,4 +348,5 @@ export const dataManager = {
   shouldShowUpdateAlert: shouldShowUpdateAlert,
   getThumbnails: getThumbnails,
   getItemThumbnail: getItemThumbnail,
+  getAppState: getAppState
 }

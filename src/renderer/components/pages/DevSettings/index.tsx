@@ -107,7 +107,11 @@ export const DevSettings: FC<DevSettingsProps> = () => {
   useEffect(() => {
     //setupDummyData()
 
-    async () => {
+    const setup = async() => {
+      
+      const appstate = await dataManager.getAppState()
+      console.log("App State: "+ JSON.stringify(appstate));
+      
       await loadCurrentUser();
       await loadCountries();
       setState({
@@ -115,6 +119,8 @@ export const DevSettings: FC<DevSettingsProps> = () => {
         showUpdateAlert: localStorgeHelper.shouldShowUpdateAlert(),
       });
     };
+
+    setup()
   }, []);
   const classes = useStyles();
   const [state, setState] = useState<DevSettingsState>({

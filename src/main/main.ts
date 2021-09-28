@@ -17,7 +17,7 @@ import log, { create } from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import AuthProvider from './authentication/AuthProvider';
-import {ipcEvent} from '../renderer/utils/constants'
+import {ILoginState, ipcEvent, LoginState, TokenState} from '../renderer/utils/constants'
 import { AuthenticationResult } from '@azure/msal-common';
 import axios from 'axios';
 import { fileManager } from './filemanager/FileManager';
@@ -26,6 +26,7 @@ import { responseToDriveItem } from '../renderer/utils/object.mapping';
 import config from "../renderer/utils/application.config.release"
 import { IDriveItem } from '../renderer/database/database';
 import { zipManager } from './zipmanager/ZipManager';
+import { isTokenValid } from './../renderer/utils/helper';
 
 export default class AppUpdater {
   constructor() {
@@ -71,6 +72,7 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 let ses:Session | undefined;
+
 
 const createWindow = async () => {
   if (
@@ -137,14 +139,15 @@ const createWindow = async () => {
     shell.openExternal(url);
   });
 
+  ses?.allowNTLMCredentialsForDomains("fresenius.sharepoint.com")
+
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
 
-  fileManager.setupRootFolder()
+  await fileManager.setupRootFolder()
 
-
-
+  await getLoginState()
 };
 
 /**
@@ -322,6 +325,10 @@ ipcMain.handle('OPEN_CART_FOLDER', async(_, path: string) => {
   shell.openExternal("mailto:xyz@abc.com?subject=MySubject&body=");
 })
 
+ipcMain.handle('GET_LOGIN_STATE', async() => {
+  return await getLoginState()
+})
+
 const openFolder = async (path:string):Promise<string>  => {
   return shell.openPath(path)
 }
@@ -381,6 +388,47 @@ const getAuthFromStorage = async (): Promise<AuthenticationResult | null> => {
 //         console.log(response);
 //     } 
 // })
+
+async function getLoginState() {
+  var loginState:ILoginState = {
+    login: LoginState.LOGGED_OUT,
+    token: TokenState.INVALID_TOKEN
+  }
+  var state = ""
+
+  const account = await authProvider.getAccount()
+  
+  if(account) {
+    //in case we have an account, we logged in successfully => LoginSate.LOGGED_IN
+    console.log("logged in once")
+    state = state + "logged in | "
+    loginState.login = LoginState.LOGGED_IN
+
+    const authResult = await authProvider.getTokenSilent(account)
+    if(authResult) {
+      //we obtained a successful authentication for a fresh token 
+      const isAccessTokenValid = isTokenValid(authResult)
+      //check if current token is valid => TokenState.VALID_TOKEN
+      if(isAccessTokenValid) {
+        state = state + "has valid token | "
+        loginState.token = TokenState.VALID_TOKEN
+      } else {
+        state = state + "invalid token | "
+        loginState.token = TokenState.EXPIRED_TOKEN
+      }
+    } else {
+      loginState.login = LoginState.ERROR
+      loginState.token = TokenState.ERROR
+      state = state + "unsuccessful authentication | "
+    }
+  } else {
+    loginState.login = LoginState.LOGGED_OUT
+    state = state + "not logged in | "
+  }
+  console.log("LOGIN STATE");
+  console.log(state);
+  return loginState
+}
 
 export function createModalWindow(mainWindow: BrowserWindow) {
   console.log("create modal");

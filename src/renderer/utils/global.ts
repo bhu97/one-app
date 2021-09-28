@@ -1,6 +1,7 @@
 import { AuthenticationResult } from "@azure/msal-common";
 import { AxiosRequestConfig } from "axios";
 import { IDriveItem } from "renderer/database/database";
+import { ILoginState } from "./constants";
 
 //expose the ipc renderer
 declare global {
@@ -21,6 +22,7 @@ declare global {
         deleteFolder: (path: string) => Promise<void>;
         deleteCartFolder: () => Promise<void>;
         isSubDirectory: (parent:string, dir:string) => Promise<boolean>;
+        getLoginState: () => Promise<ILoginState>;
       }
     }
   }
