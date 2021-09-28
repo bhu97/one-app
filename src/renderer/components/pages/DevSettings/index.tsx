@@ -400,45 +400,12 @@ export const DevSettings: FC<DevSettingsProps> = () => {
   };
 
   const downloadFilesForSending = async () => {
-    // let driveItemIds: string[] = [
-    //   '36066',
-    //   '36015',
-    //   '735',
-    //   '36014',
-    //   '36013',
-    //   '712',
-    //   '713',
-    // ];
 
-    let driveItemIds = [
-      '01GX2IG4P6QO77G3ADXZH3SMDM54ETHNPG',
-      '01GX2IG4JYEJQTQI6Y65B2CVEUSFXILTVD',
-      '01GX2IG4JWHVRXD6MAKNEJ6XLO5XFHQFCQ',
-      '01GX2IG4O7AE7DKXCO4RAKXKHWI3RLDQUH',
-    ];
     setState({ ...state, isLoading: true });
-    cartStore.removeAll();
-    driveItemIds.forEach((uniqueId) => cartStore.addDriveItem(uniqueId));
 
+    addFilesToCart()
     await cartStore.update();
-
     console.log(cartStore.fileSizes)
-
-    //await dataManager.downloadCartFiles();
-
-    // try {
-    //   for (let driveItemId of driveItemIds) {
-    //     let downloadItem = await window.electron.ipcRenderer.downloadFile({
-    //       url: '',
-    //       itemId: driveItemId,
-    //       directory: 'CART',
-    //     });
-    //   }
-
-    //   window.electron.ipcRenderer.openCartFolder();
-    // } catch (error) {
-    //   console.log(error);
-    // }
     setState({ ...state, isLoading: false });
   };
 
@@ -446,6 +413,27 @@ export const DevSettings: FC<DevSettingsProps> = () => {
     const uniqueId = '01GX2IG4MP7ZMYQEVALFBLAL2N4OXU7WQS';
     await dataManager.openDriveItem(uniqueId);
   };
+
+  const addFilesToCart = async() => {
+    let driveItemIds = [
+      '01GX2IG4P6QO77G3ADXZH3SMDM54ETHNPG',
+      '01GX2IG4JYEJQTQI6Y65B2CVEUSFXILTVD',
+      '01GX2IG4JWHVRXD6MAKNEJ6XLO5XFHQFCQ',
+      '01GX2IG4O7AE7DKXCO4RAKXKHWI3RLDQUH',
+    ];
+    
+    cartStore.removeAll();
+    driveItemIds.forEach((uniqueId) => cartStore.addDriveItem(uniqueId));
+    await cartStore.update()
+    console.log("cartstore items: "+cartStore.items.length);
+    
+  } 
+
+  const removeFilesFromCart = () => {
+    cartStore.removeAll()
+    console.log("cartstore items: "+cartStore.items.length);
+    
+  }
 
   return (
     <Fragment>
@@ -672,6 +660,28 @@ export const DevSettings: FC<DevSettingsProps> = () => {
                 />
               </ListItem>
             </Grid>
+
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Add files to cart"
+                  onClick={() => {
+                    addFilesToCart()
+                  }}
+                />
+              </ListItem>
+            </Grid>
+
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Remove files from cart folder"
+                  onClick={() => {
+                    removeFilesFromCart()
+                  }}
+                />
+              </ListItem>
+            </Grid>
           </Grid>
 
           <Grid container>
@@ -708,6 +718,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
                 />
               </ListItem>
             </Grid>
+            
           </Grid>
         </div>
       </main>
