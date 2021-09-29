@@ -105,7 +105,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
   };
 
   useEffect(() => {
-    setupDummyData()
+    //setupDummyData()
     // window.addEventListener('login-close-test', () => {
     //   console.log("login-close-test");
     // })
