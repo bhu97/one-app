@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface IDropdownMenuProps {
-  commands: { key?: string; title: string; onClick: () => void }[];
+  commands: { title: string; onClick: () => void }[];
 }
 
 export const DropdownMenu: FC<IDropdownMenuProps> = ({ commands }) => {
@@ -28,7 +28,9 @@ export const DropdownMenu: FC<IDropdownMenuProps> = ({ commands }) => {
         classes={{
           root: styles.button,
         }}
-        onClick={() => setIsOpen(true)}
+        onClick={(e) => {
+          setIsOpen(true);
+        }}
       >
         {TripleDot}
       </Button>
@@ -39,8 +41,11 @@ export const DropdownMenu: FC<IDropdownMenuProps> = ({ commands }) => {
       >
         {commands.map((command) => (
           <MenuItem
-            key={command.key || command.title}
-            onClick={command.onClick}
+            key={command.title}
+            onClick={() => {
+              command.onClick();
+              setIsOpen(false);
+            }}
           >
             {command.title}
           </MenuItem>

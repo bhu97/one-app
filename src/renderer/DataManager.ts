@@ -1,11 +1,19 @@
-import { localStorgeHelper } from "./database/storage";
-import { fetchAdditionalMetadata, fetchDelta, fetchDriveItem, fetchThumbnails, fetchWhitelists } from "./components/fetch";
-import { db, DriveItem, DriveItemType, IDriveItem, IUnzippedModuleItem, Thumbnail } from "./database/database";
-import { isNullOrUndefined } from "util";
-import dayjs from "dayjs";
-import { cartStore } from "renderer/database/stores/CartStore";
-import { notEmpty } from "renderer/utils/helper";
-import { fileManager } from "main/filemanager/FileManager";
+import { toast } from 'material-react-toastify';
+import dayjs from 'dayjs';
+import { cartStore } from 'renderer/database/stores/CartStore';
+import { notEmpty } from 'renderer/utils/helper';
+
+import {
+  fetchAdditionalMetadata,
+  fetchDelta,
+  fetchDriveItem,
+  fetchItemThumbnail,
+  fetchThumbnails,
+  fetchWhitelists,
+} from './components/fetch';
+import { db, IUnzippedModuleItem, Thumbnail } from './database/database';
+import { localStorgeHelper } from './database/storage';
+import { IAppState, MetaDataState } from './utils/constants';
 
 
 /**
@@ -47,10 +55,7 @@ const downloadCartFiles = async() => {
   }
 }
 
-const getMetaData = async(progressState?:(state: string) => void):Promise<boolean | AppError> => {
-
-  return new Promise(async (resolve, reject) => {
-
+const getMetaData = async(progressState?:(state: string) => void) => {
 
 const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
   const token = authResult.accessToken
@@ -62,8 +67,8 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         console.log(deltaData);
         await db.save(deltaData);
       } catch (error) {
-        resolve(AppError.DELTA_ERROR)
-        //throw(error)
+        console.error(error);
+        throw(error)
       }
 
       //FETCH METADATA
@@ -72,14 +77,11 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         let metaData = await fetchAdditionalMetadata(token);
         await db.saveMetaData(metaData)
       } catch (error) {
-        resolve(AppError.METADATA_ERROR)
-        //throw(error)
+        console.error(error);
+        throw(error)
       }
-      
-        //CREATE USER
-        //SET COUNTRY/VERSION
-        await db.createUserIfEmpty()
 
+       
         progressState?.("whitelists")
         //FETCH WHITELISTS
         try {
@@ -87,26 +89,32 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         let whitelists = await fetchWhitelists(whitelistDriveItems, token);
         await db.saveWhitelists(whitelists)
         } catch (error) {
+          throw(error)
           console.error(error);
-          resolve(AppError.WHITELIST_ERROR)
         }
 
+         //CREATE USER
+        //SET COUNTRY/VERSION
+        await db.createUserIfEmpty()
+
+
         localStorgeHelper.setLastMetdataUpdate()
-        resolve(true)
+
     }
 
 
-  })
 
-  
 }
 
 
-const login = async():Promise<boolean> => {
+const login = async(onLoginClosed?:() => void):Promise<boolean> => {
 
+  // window.electron.ipcRenderer.on("login-close-test", () => {
+  //   console.log("closed login");
+  // })
   return new Promise<boolean>(async(resolve, reject) => {
-
     //check if a login is needed
+    
     let token = await window.electron.ipcRenderer.login('');
     if(token) {
       resolve(true)
@@ -118,21 +126,21 @@ const downloadModule = async(uniqueId: string, token?:string, progressState?:(st
 
   return new Promise<IUnzippedModuleItem|undefined>(async(resolve, reject) => {
 
-    
+
     //token = token ? token : (await window.electron.ipcRenderer.refreshTokenSilently()).accessToken
     if(token) {
       try {
-        
+
         const driveItem = await db.getItemForId(uniqueId)
         const driveItemId = driveItem.listItemId
         if(driveItemId) {
       console.log("download module")
-      
+
       //console.log(driveItem);
       if (driveItem ) {
         console.log(driveItem.graphDownloadUrl);
         console.log("download module item");
-        
+
         progressState?.("download")
         let downloadItem = await window.electron.ipcRenderer.downloadFile({
           url: driveItem.graphDownloadUrl ?? "",
@@ -148,7 +156,7 @@ const downloadModule = async(uniqueId: string, token?:string, progressState?:(st
           );
 
           console.log("unzipping module");
-          
+
           progressState?.("unzip")
           let zipResponse = await window.electron.ipcRenderer.unzipFile({
             filePath: `${downloadItem.savePath}/${downloadItem.fileName}`,
@@ -164,7 +172,7 @@ const downloadModule = async(uniqueId: string, token?:string, progressState?:(st
               indexHtmlPath: zipResponse.indexHtmlPath,
             }
             await db.saveUnzippedItem(unzippedModuleItem);
-   
+
             resolve(unzippedModuleItem)
           }
         }
@@ -172,12 +180,12 @@ const downloadModule = async(uniqueId: string, token?:string, progressState?:(st
       }
     }
 
-    } 
+    }
     catch(error) {
       console.error(error);
       reject(error)
     }
-    
+
   }
   })
 }
@@ -196,14 +204,14 @@ const openModule = async(uniqueId:string, progressState?:(state: string) => void
       //find out if module exists already
       const unzippedItem = await db.getUnzippedItem(localDriveItem.uniqueId)
       console.log("get unzipped item: "+ unzippedItem);
-      
+
       if(driveItem && unzippedItem) {
         //is existing module older than online one?
         const driveItemModifiedDate = dayjs(driveItem.timeLastModified)
         const unzippedItemModifiedDate = dayjs(unzippedItem.modifiedDate)
         if(unzippedItemModifiedDate.isBefore(driveItemModifiedDate)) {
           console.log("found an outdated zip module, downloading new one");
-          
+
           //remove existing zip
           await window.electron.ipcRenderer.deleteFile(unzippedItem.zipPath)
           await window.electron.ipcRenderer.deleteFolder(unzippedItem.targetPath)
@@ -217,37 +225,39 @@ const openModule = async(uniqueId:string, progressState?:(state: string) => void
           console.log("found an up to date local module");
           window.electron.ipcRenderer.openHTML(unzippedItem.indexHtmlPath, true)
         }
-        
+
       } else {
       console.log("found no module, therefore download new one");
-      
+
        let newUnzippedItem = await downloadModule(localDriveItem.uniqueId, token)
           if(newUnzippedItem) {
             //open zip
             window.electron.ipcRenderer.openHTML(newUnzippedItem.indexHtmlPath, true)
           }
       }
-    } 
+    }
   }
 
 
 }
 
 const openDriveItem = async(uniqueId:string, progressState?:(state: string) => void) => {
-  
+
   const driveItem = await db.getItemForId(uniqueId)
-  
-  const shouldOpenLocal = (!(driveItem.fileExtension  === null || driveItem.fileExtension === undefined) && driveItem.fileExtension === "zip") 
+
+  const shouldOpenLocal = (!(driveItem.fileExtension  === null || driveItem.fileExtension === undefined) && driveItem.fileExtension === "zip")
   console.log("should open local"+shouldOpenLocal);
-  
+
   if(shouldOpenLocal) {
     openModule(driveItem.uniqueId, progressState)
-  } else {  
+  } else {
     if(driveItem.webUrl) {
+      console.log("open url: "+driveItem.webUrl);
+      
       window.electron.ipcRenderer.openHTML(driveItem.webUrl, shouldOpenLocal)
     }
   }
-    
+
 }
 //const openOrDownloadModule = async() => {}
 const shouldShowUpdateAlert = ():boolean => {
@@ -264,9 +274,54 @@ const getThumbnails = async(uniqueId: string):Promise<Thumbnail[]> => {
     }
   } catch(error) {
     console.error(error);
+    toast.error("Couldn't get thumbnails");
   }
   return []
 }
+
+const getItemThumbnail = async(uniqueId: string):Promise<Thumbnail | null> => {
+  try {
+    const authResult = await window.electron.ipcRenderer.refreshTokenSilently();
+    const token = authResult.accessToken;
+
+    if(token) {
+        return await fetchItemThumbnail(uniqueId, token);
+    }
+  } catch(error) {
+    console.error(error);
+    toast.error("Couldn't get thumbnails");
+  }
+  return null;
+}
+
+const getAppState = async(): Promise<IAppState> => {
+  let loginState = await window.electron.ipcRenderer.getLoginState()
+  let metadataState = MetaDataState.VALID
+
+  const isDBEmpty = await db.isEmpty()
+  if(isDBEmpty) {
+    metadataState = MetaDataState.NO_METADATA
+  } else {
+    if(localStorgeHelper.shouldShowUpdateAlert()) {
+      metadataState = MetaDataState.HAS_UPDATES
+    }
+  }  
+
+  console.log("login state: "+JSON.stringify(loginState));
+  let appState:IAppState = {
+    ...loginState,
+    metadata: metadataState
+  }
+
+  return appState
+  //check valid login
+  //check login/token old
+  //check valid metadata
+  //check new updates online
+  //check error
+}
+
+
 
 export enum AppError {
   NO_LOGIN,
@@ -289,5 +344,7 @@ export const dataManager = {
   openModule: openModule,
   downloadCartFiles: downloadCartFiles,
   shouldShowUpdateAlert: shouldShowUpdateAlert,
-  getThumbnails: getThumbnails 
+  getThumbnails: getThumbnails,
+  getItemThumbnail: getItemThumbnail,
+  getAppState: getAppState
 }

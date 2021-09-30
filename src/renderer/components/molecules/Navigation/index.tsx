@@ -22,7 +22,7 @@ export const Navigation: FunctionComponent<INavigationProps> = ({
     {
       disabled,
       Icon: FavIcon,
-      text: 'Favorites',
+      text: 'Favourites',
       url: '/favorites',
     },
     {

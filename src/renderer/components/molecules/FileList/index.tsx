@@ -1,9 +1,10 @@
-import { List } from '@material-ui/core';
+import { List, Typography } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { IDriveItem, Thumbnail } from 'renderer/database/database';
 import React, { FC } from 'react';
+import { IDriveItem, Thumbnail } from 'renderer/database/database';
 
-import { getAssetPath } from '../../../helpers';
+import emptyThumbnail from '../../../../../assets/content-page/empty_thumbnail.png';
+import { FileCommands } from '../../../enums';
 import { FileItem } from '../../atoms';
 
 const useStyles = makeStyles((theme) =>
@@ -16,40 +17,75 @@ const useStyles = makeStyles((theme) =>
     },
     wrapper: {
       display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
       gridGap: theme.spacing(2),
+      gridTemplateColumns: '1fr 1fr',
+      [theme.breakpoints.up('lg')]: {
+        gridTemplateColumns: '1fr 1fr 1fr',
+      },
+    },
+    title: {
+      marginBottom: theme.spacing(2),
     },
   })
 );
 
 interface IFileListProps {
+  title?: string;
   items: IDriveItem[];
   thumbnails: Thumbnail[];
+  availableCommands: FileCommands[];
+  onCartChange?: () => void;
+  onFavouriteChange?: () => void;
 }
 
-export const FileList: FC<IFileListProps> = ({ items, thumbnails }) => {
-  const classes = useStyles();
+export const FileList: FC<IFileListProps> = ({
+  items,
+  availableCommands,
+  thumbnails,
+  title,
+  onCartChange,
+  onFavouriteChange
+}) => {
+  const styles = useStyles();
 
   return (
-    <div className={classes.root}>
-      <List className={classes.wrapper}>
+    <div className={styles.root}>
+        {title ? (
+          <Typography variant="h2" classes={{ h2: styles.title }}>
+            {title}
+          </Typography>
+        ) : undefined}
+      <List className={styles.wrapper}>
         {items.map((item) => {
+          const isArchive = item.fileExtension === 'zip';
+          const isNew = item.timeLastModified
+            ? (new Date().valueOf() -
+                new Date(item.timeLastModified).valueOf()) /
+                1000 /
+                60 /
+                60 /
+                24 <
+              28
+            : false;
           const thumbnail = thumbnails.find(
             (elem) => elem.uniqueId === item.uniqueId
           );
           let thumbnailUrl: string | undefined;
-          if (item.fileExtension === 'zip') {
-            thumbnailUrl = getAssetPath(
-              '../../../../../assets/content-page/empty_thumbnail.png'
-            ); // TODO test if working for PROD);
+          if (isArchive) {
+            thumbnailUrl = emptyThumbnail;
           } else if (thumbnail && thumbnail.largeUrl) {
             thumbnailUrl = thumbnail.largeUrl;
           }
           return (
             <FileItem
               key={item.uniqueId}
+              hasOverlay
               item={item}
+              availableCommands={availableCommands}
+              onCartChange={onCartChange}
+              onFavouriteChange={onFavouriteChange}
               thumbnailUrl={thumbnailUrl}
+              isNew={isNew}
             />
           );
         })}

@@ -39,18 +39,18 @@ export function getIconByExtension(extension?: string) {
 
 export function getFileSizeLiteral(fileSize: number) {
   if (fileSize < 1024) {
-    return `${fileSize} B`;
+    return `${fileSize}\u00A0B`;
   }
   const kilo = Math.floor(fileSize / 10.24) / 100;
   if (kilo < 1024) {
-    return `${kilo} KB`;
+    return `${kilo}\u00A0KB`;
   }
   const mega = Math.floor(kilo / 10.24) / 100;
   if (mega < 1024) {
-    return `${mega} MB`;
+    return `${mega}\u00A0MB`;
   }
   const giga = Math.floor(mega / 10.24) / 100;
-  return `${giga} GB`;
+  return `${giga}\u00A0GB`;
 }
 
 export default getIconByExtension;

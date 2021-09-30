@@ -39,6 +39,7 @@ import dayjs from 'dayjs';
 import { AppError, dataManager } from '../../../DataManager';
 import { cartStore } from 'renderer/database/stores/CartStore';
 import { FlexLightStoreFactory } from 'renderer/database/stores/FlexLightStoreFactory';
+import config from 'renderer/utils/application.config.release'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -105,8 +106,19 @@ export const DevSettings: FC<DevSettingsProps> = () => {
 
   useEffect(() => {
     //setupDummyData()
+    // window.addEventListener('login-close-test', () => {
+    //   console.log("login-close-test");
+    // })
 
-    async () => {
+    window.electron.ipcRenderer.on("login-close-test", () => {
+      console.log("login-close-test");
+    })
+
+    const setup = async() => {
+      
+      const appstate = await dataManager.getAppState()
+      console.log("App State: "+ JSON.stringify(appstate));
+      
       await loadCurrentUser();
       await loadCountries();
       setState({
@@ -114,6 +126,8 @@ export const DevSettings: FC<DevSettingsProps> = () => {
         showUpdateAlert: localStorgeHelper.shouldShowUpdateAlert(),
       });
     };
+
+    setup()
   }, []);
   const classes = useStyles();
   const [state, setState] = useState<DevSettingsState>({
@@ -128,7 +142,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
 
   const login = async () => {
     let token = await window.electron.ipcRenderer.login('');
-    console.log('finished my login: ' + token);
+    console.log('finished my login: ' + JSON.stringify(token));
   };
 
   const loginSP = async () => {
@@ -198,15 +212,19 @@ export const DevSettings: FC<DevSettingsProps> = () => {
   // };
 
   const getDelta = async () => {
+
     setState({ ...state, isLoading: true });
-    let result = await dataManager.getMetaData((state) =>
-      console.log('loading ' + state)
-    );
-    setState({ ...state, isLoading: false });
-    if (result as boolean) {
+    try {
+      
+      let result = await dataManager.getMetaData((state) =>
+        console.log('loading ' + state)
+      );
       console.log('result: ' + result);
+    } catch (error) {
+      
     }
-    console.log('result: ' + result);
+    setState({ ...state, isLoading: false });
+    
   };
 
   const loadCountries = async () => {
@@ -265,6 +283,7 @@ export const DevSettings: FC<DevSettingsProps> = () => {
       const whitelists = await fakeFetchWhitelists();
       console.log(whitelists);
       db.saveWhitelists(whitelists);
+      db.createUserIfEmpty()
 
       db.setupInitialFavoriteGroup();
 
@@ -403,43 +422,12 @@ export const DevSettings: FC<DevSettingsProps> = () => {
   };
 
   const downloadFilesForSending = async () => {
-    // let driveItemIds: string[] = [
-    //   '36066',
-    //   '36015',
-    //   '735',
-    //   '36014',
-    //   '36013',
-    //   '712',
-    //   '713',
-    // ];
 
-    let driveItemIds = [
-      '01GX2IG4P6QO77G3ADXZH3SMDM54ETHNPG',
-      '01GX2IG4JYEJQTQI6Y65B2CVEUSFXILTVD',
-      '01GX2IG4JWHVRXD6MAKNEJ6XLO5XFHQFCQ',
-      '01GX2IG4O7AE7DKXCO4RAKXKHWI3RLDQUH',
-    ];
     setState({ ...state, isLoading: true });
-    cartStore.removeAll();
-    driveItemIds.forEach((uniqueId) => cartStore.addDriveItem(uniqueId));
 
+    addFilesToCart()
     await cartStore.update();
-
-    await dataManager.downloadCartFiles();
-
-    // try {
-    //   for (let driveItemId of driveItemIds) {
-    //     let downloadItem = await window.electron.ipcRenderer.downloadFile({
-    //       url: '',
-    //       itemId: driveItemId,
-    //       directory: 'CART',
-    //     });
-    //   }
-
-    //   window.electron.ipcRenderer.openCartFolder();
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    console.log(cartStore.fileSizes)
     setState({ ...state, isLoading: false });
   };
 
@@ -447,6 +435,27 @@ export const DevSettings: FC<DevSettingsProps> = () => {
     const uniqueId = '01GX2IG4MP7ZMYQEVALFBLAL2N4OXU7WQS';
     await dataManager.openDriveItem(uniqueId);
   };
+
+  const addFilesToCart = async() => {
+    let driveItemIds = [
+      '01GX2IG4P6QO77G3ADXZH3SMDM54ETHNPG',
+      '01GX2IG4JYEJQTQI6Y65B2CVEUSFXILTVD',
+      '01GX2IG4JWHVRXD6MAKNEJ6XLO5XFHQFCQ',
+      '01GX2IG4O7AE7DKXCO4RAKXKHWI3RLDQUH',
+    ];
+    
+    cartStore.removeAll();
+    driveItemIds.forEach((uniqueId) => cartStore.addDriveItem(uniqueId));
+    await cartStore.update()
+    console.log("cartstore items: "+cartStore.items.length);
+    
+  } 
+
+  const removeFilesFromCart = () => {
+    cartStore.removeAll()
+    console.log("cartstore items: "+cartStore.items.length);
+    
+  }
 
   return (
     <Fragment>
@@ -457,6 +466,9 @@ export const DevSettings: FC<DevSettingsProps> = () => {
             <CardContent>
               <Typography variant="h3" component="p">
                 Developer Settings for testing
+              </Typography>
+              <Typography>
+                App Version {config.APP_VERSION}
               </Typography>
             </CardContent>
           </Card>
@@ -681,6 +693,28 @@ export const DevSettings: FC<DevSettingsProps> = () => {
                 />
               </ListItem>
             </Grid>
+
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Add files to cart"
+                  onClick={() => {
+                    addFilesToCart()
+                  }}
+                />
+              </ListItem>
+            </Grid>
+
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Remove files from cart folder"
+                  onClick={() => {
+                    removeFilesFromCart()
+                  }}
+                />
+              </ListItem>
+            </Grid>
           </Grid>
 
           <Grid container>
@@ -705,6 +739,19 @@ export const DevSettings: FC<DevSettingsProps> = () => {
                 />
               </ListItem>
             </Grid>
+
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Create user"
+
+                  onClick={() => {
+                    db.createUserIfEmpty()                   
+                  }}
+                />
+              </ListItem>
+            </Grid>
+            
           </Grid>
         </div>
       </main>

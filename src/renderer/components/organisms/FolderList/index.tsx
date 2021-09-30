@@ -1,8 +1,8 @@
 import { makeStyles } from '@material-ui/core';
 import React, { FC } from 'react';
 
+import illustration from '../../../../../assets/home/200921_FMC_OneApp_Illustrationen_Final_Gruppe_02.png';
 import { IDriveItem } from '../../../database/database';
-import { getAssetPath } from '../../../helpers';
 import { StackedFileListController } from '../StackedFileListController';
 
 const useStyles = makeStyles((theme) => ({
@@ -40,13 +40,7 @@ export const FolderList: FC<IFolderListProps> = ({
         />
       </div>
       {currentRoute.length === 1 ? (
-        <img
-          className={styles.image}
-          src={getAssetPath(
-            '../../../../../assets/home/200921_FMC_OneApp_Illustrationen_Final_Gruppe_02.png' // TODO test if working for PROD
-          )}
-          alt=""
-        />
+        <img className={styles.image} src={illustration} alt="" />
       ) : null}
     </>
   );

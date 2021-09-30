@@ -25,10 +25,21 @@ export class FavoriteStore extends AbstractStore {
     return await db.getAllFavoriteGroupNames()
   }
 
+  async getAllFavoriteGroups() {
+    return await db.getAllFavoriteGroups()
+  }
+
   async getFavoriteGroupsForItem (uniqueId: string) {
     return await db.getFavoriteGroupsForItem(uniqueId)
   }
+  async addFavoriteToGroup(uniqueId:string, favoriteGroupName: string) {
+    await db.addFavorite(uniqueId, favoriteGroupName) 
+  }
   async removeFavoriteFromGroup(uniqueId:string, favoriteGroupName: string) {
     await db.removeFavorite(uniqueId, favoriteGroupName) 
+  }
+
+  async renameFavoriteGroup(id: number, newName: string) {
+    await db.renameFavoriteGroup(id, newName)
   }
 }

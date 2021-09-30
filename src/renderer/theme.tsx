@@ -18,6 +18,11 @@ export const themeConfig: ThemeOptions = {
       fontWeight: 500,
       color: palette.primary.main,
     },
+    h3: {
+      fontSize: '16px',
+      fontWeight: 500,
+      color: palette.primary.main,
+    },
   }),
   palette: {
     primary: {
@@ -25,6 +30,9 @@ export const themeConfig: ThemeOptions = {
     },
     secondary: {
       main: '#f48fb1',
+    },
+    info: {
+      main: '#992b48',
     },
     error: {
       main: '#E3467D',

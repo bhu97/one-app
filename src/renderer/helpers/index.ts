@@ -1,2 +1,4 @@
 export * from './files';
-export * from './images';
+export * from './promises';
+export * from './useFavourites';
+export * from './useGetFilesData';
