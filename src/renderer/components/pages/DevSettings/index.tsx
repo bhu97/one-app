@@ -131,6 +131,11 @@ export const DevSettings: FC<DevSettingsProps> = () => {
     console.log('finished my login: ' + token);
   };
 
+  const loginSP = async () => {
+    let token = await window.electron.ipcRenderer.loginSP('');
+    console.log('finished my login: ' + token);
+  };
+
   const refresh = async () => {
     let result = await window.electron.ipcRenderer.refreshTokenSilently();
     localStorage.setItem('token', result.accessToken);
@@ -457,13 +462,24 @@ export const DevSettings: FC<DevSettingsProps> = () => {
           </Card>
 
           <Grid container spacing={3}>
-            <Grid item>
+          <Grid item>
               <ListItem button>
                 <ListItemText
                   primary="Login"
                   secondary={state.token}
                   onClick={() => {
                     login();
+                  }}
+                />
+              </ListItem>
+            </Grid>
+            <Grid item>
+              <ListItem button>
+                <ListItemText
+                  primary="Login SP"
+                  secondary={state.token}
+                  onClick={() => {
+                    loginSP();
                   }}
                 />
               </ListItem>

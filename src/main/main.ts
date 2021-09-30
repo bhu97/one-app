@@ -26,6 +26,7 @@ import { responseToDriveItem } from '../renderer/utils/object.mapping';
 import config from "../renderer/utils/application.config.release"
 import { IDriveItem } from '../renderer/database/database';
 import { zipManager } from './zipmanager/ZipManager';
+import SPAuthProvider from './authentication/SPAuthProvider';
 
 export default class AppUpdater {
   constructor() {
@@ -39,6 +40,7 @@ let mainWindow: BrowserWindow | null = null;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors'); 
 
 let authProvider = new AuthProvider()
+let spAuthProvider = new SPAuthProvider(authProvider)
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -126,6 +128,7 @@ const createWindow = async () => {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+    ses?.flushStorageData();
   });
 
   const menuBuilder = new MenuBuilder(mainWindow);
@@ -180,7 +183,25 @@ ipcMain.handle(ipcEvent.login, async() => {
     await saveTokenToStorage(token.accessToken);
     await saveAuthToStorage(token)
   }
-  loginWindow.close();  
+  loginWindow.close();
+
+  return token;
+})
+
+ipcMain.handle(ipcEvent.loginSP, async() => {
+  console.log("loginSP event");
+
+  const loginWindow = createModalWindow(mainWindow!);
+  const account = await spAuthProvider.login(loginWindow);
+  const token = await spAuthProvider.getTokenSilent(account);
+
+  console.log(mainWindow);
+  //TODO: make a storage provider
+  if (token) {
+    await saveTokenToStorage(token.accessToken);
+    await saveAuthToStorage(token)
+  }
+  loginWindow.close();
 
   return token;
 })

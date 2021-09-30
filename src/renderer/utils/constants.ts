@@ -2,7 +2,8 @@ export const ipcEvent = {
   login: "LOGIN",
   getToken: "GET_TOKEN",
   refreshToken: "REFRESH_TOKEN",
-  whitelists: "GET_WHITELISTS"
+  whitelists: "GET_WHITELISTS",
+  loginSP: "LOGIN_SP",
 }
 
 export enum AppState {
