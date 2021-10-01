@@ -9,6 +9,7 @@ export const ipcEvent = {
 export interface ILoginState {
   login: LoginState
   token: TokenState
+  session: SessionState
 }
 
 export interface IAppState {
@@ -34,6 +35,12 @@ export enum TokenState {
   VALID_TOKEN,
   EXPIRED_TOKEN,
   INVALID_TOKEN,
+  ERROR
+}
+
+export enum SessionState {
+  SESSION_VALID,
+  SESSION_INVALID,
   ERROR
 }
 
