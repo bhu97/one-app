@@ -92,7 +92,9 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
-  protocol.registerHttpProtocol(config.REDIRECT_PROTOCOL, (request, callback) => {
+  const CUSTOM_REDIRECT_PROTOCOL_NAME = config.REDIRECT_URI.split(':')[0];
+
+  protocol.registerHttpProtocol(CUSTOM_REDIRECT_PROTOCOL_NAME, (request, callback) => {
     //TODO: HANDLE auth redirect here
     const authRedirectUrl = request.url
   })
@@ -142,7 +144,7 @@ const createWindow = async () => {
     shell.openExternal(url);
   });
 
-  ses?.allowNTLMCredentialsForDomains("fresenius.sharepoint.com")
+  ses?.allowNTLMCredentialsForDomains('fresenius.sharepoint.com, *fresenius.com')
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
