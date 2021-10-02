@@ -281,7 +281,7 @@ const getThumbnails = async(uniqueId: string):Promise<Thumbnail[]> => {
   return []
 }
 
-const getItemThumbnail = async(uniqueId: string):Promise<Thumbnail | null> => {
+const getItemThumbnail = async(uniqueId: string):Promise<Thumbnail | undefined> => {
   try {
     const authResult = await window.electron.ipcRenderer.refreshTokenSilently();
     const token = authResult.accessToken;
@@ -293,7 +293,7 @@ const getItemThumbnail = async(uniqueId: string):Promise<Thumbnail | null> => {
     console.error(error);
     toast.error("Couldn't get thumbnails");
   }
-  return null;
+  return undefined;
 }
 
 const getAppState = async(): Promise<IAppState> => {

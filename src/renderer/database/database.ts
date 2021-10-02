@@ -383,7 +383,7 @@ const kCountryRoot = (country: string) => {
 }
 
 // Schemas for the table creation
-const driveItemsSchema = "uniqueId, name, title, webUrl, serverRelativeUrl, timeLastModified, timeCreated, listItemId, listId, siteId, isDocSet, linkedFiles, linkedFolders, type, fileSize, fileExtension, timeDownloaded, downloadLocation, parentReferenceId, country, contentType, documentSetDescription"
+const driveItemsSchema = "uniqueId, name, title, webUrl, serverRelativeUrl, timeLastModified, timeCreated, listItemId, listId, siteId, isDocSet, linkedFiles, linkedFolders, type, fileSize, fileExtension, timeDownloaded, downloadLocation, parentReferenceId, country, contentType, documentSetDescription, nameWithoutPrefix"
 const usersSchema = "++id, version, country"
 const favoriteGroupSchema = "++id, name"
 const favoriteSchema = "++id, favoriteGroupName, uniqueId"
@@ -526,7 +526,7 @@ export class DriveItem implements IDriveItem {
     this.country = findCountry(this.country) ?? ""
     //file specific
     this.fileSize = item?.size 
-    this.nameWithoutPrefix = this.getName()
+    this.nameWithoutPrefix = ""
 
     if(item.driveItem) {
         this.graphDownloadUrl = item.driveItem["@microsoft.graph.downloadUrl"] ?? "" 
@@ -535,9 +535,9 @@ export class DriveItem implements IDriveItem {
     this.fileExtension = getExtension(this.name)
   }
 
-  getName = ():string => {
-      return nameWithoutPrefix(this.name)
-  }
+//   getName = ():string => {
+//       return nameWithoutPrefix(this.name)
+//   }
 }
 
 
