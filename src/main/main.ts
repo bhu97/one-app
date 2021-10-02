@@ -273,7 +273,8 @@ ipcMain.handle('FETCH_DRIVE_ITEM', async(event, params) => {
   const driveItemId = params.driveItemId
   const accessToken = params.accessToken
   if(driveItemId && accessToken) {
-    return await fetchDriveItem(driveItemId, accessToken)
+    const response = await fetchDriveItem(driveItemId, accessToken)    
+    return response
   }
 })
 
