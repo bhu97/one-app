@@ -54,13 +54,15 @@ export const CartPage: FC = () => {
               key="send"
               text="Download and send via e-mail"
               icon={EmailIcon}
-              onClick={dataManager.downloadCartFiles}
+              onClick={dataManager.downloadCartFiles /* TODO spinner */}
             />
             <RightMenuItem
               key="remove"
               text="Remove all Files"
               icon={TrashIcon}
-              onClick={cartStore.removeAll}
+              onClick={
+                () => cartStore.removeAll() /* TODO update store + view */
+              }
             />
           </RightMenuBox>
           <div className={styles.divider} />
