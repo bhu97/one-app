@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import { findCountry, normalizeUrl, notEmpty } from '../utils/helper';
+import { findCountry, nameWithoutPrefix, normalizeUrl, notEmpty } from '../utils/helper';
 import config from '../utils/application.config.release'
 import { getExtension } from '../utils/object.mapping';
 export class AppDatabase extends Dexie {
@@ -418,6 +418,7 @@ export interface IDriveItem {
     contentType?: string;
     graphDownloadUrl?: string;
     documentSetDescription?: string;
+    nameWithoutPrefix?: string;
 }
 
 export enum DriveItemType {
@@ -501,6 +502,7 @@ export class DriveItem implements IDriveItem {
     contentType?:string;
     graphDownloadUrl?: string;
     documentSetDescription?: string;
+    nameWithoutPrefix?: string
 
   constructor(item:any) {
     console.log("drive item id:"+ item.id)
@@ -524,12 +526,17 @@ export class DriveItem implements IDriveItem {
     this.country = findCountry(this.country) ?? ""
     //file specific
     this.fileSize = item?.size 
+    this.nameWithoutPrefix = this.getName()
 
     if(item.driveItem) {
         this.graphDownloadUrl = item.driveItem["@microsoft.graph.downloadUrl"] ?? "" 
     }
     
     this.fileExtension = getExtension(this.name)
+  }
+
+  getName = ():string => {
+      return nameWithoutPrefix(this.name)
   }
 }
 

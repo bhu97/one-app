@@ -110,12 +110,17 @@ export const DevSettings: FC<DevSettingsProps> = () => {
     //   console.log("login-close-test");
     // })
 
+
+    
+
     window.electron.ipcRenderer.on("login-close-test", () => {
       console.log("login-close-test");
     })
 
     const setup = async() => {
-      
+      const store = await FlexLightStoreFactory.getStoreForCurrentUser({query: "01GX2IG4PIHIKTKFHDJ5DZPYWFCLJ35D4Z"})
+      await store?.update()
+      console.log("flex items "+store?.items.map(item=>item.name));
       const appstate = await dataManager.getAppState()
       console.log("App State: "+ JSON.stringify(appstate));
       

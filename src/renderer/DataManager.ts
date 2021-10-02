@@ -122,6 +122,7 @@ const login = async(onLoginClosed?:() => void):Promise<boolean> => {
     resolve(false)
   })
 }
+
 const downloadModule = async(uniqueId: string, token?:string, progressState?:(state: string) => void) => {
 
   return new Promise<IUnzippedModuleItem|undefined>(async(resolve, reject) => {
@@ -191,13 +192,14 @@ const downloadModule = async(uniqueId: string, token?:string, progressState?:(st
 }
 
 const openModule = async(uniqueId:string, progressState?:(state: string) => void) => {
+  console.log(uniqueId)
   const localDriveItem = await db.getItemForId(uniqueId)
   const driveItemId = localDriveItem.listItemId
 
   progressState?.("authentication")
   const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
   const token = authResult.accessToken
-
+console.log(token+" - "+driveItemId)
   if(token) {
     if(driveItemId) {
       const driveItem = await fetchDriveItem(driveItemId, token)
