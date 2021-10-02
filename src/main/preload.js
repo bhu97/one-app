@@ -8,6 +8,9 @@ contextBridge.exposeInMainWorld('electron', {
     login: async (arg) => {
       return await ipcRenderer.invoke('LOGIN', arg);
     },
+    loginSP: async (arg) => {
+      return await ipcRenderer.invoke('LOGIN_SP', arg);
+    },
     refreshTokenSilently: async () => {
       return await ipcRenderer.invoke('REFRESH_TOKEN');
     },

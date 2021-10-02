@@ -151,10 +151,10 @@ class AuthProvider {
 
         const authCodeUrl = await this.clientApplication.getAuthCodeUrl(authCodeUrlParams);
 
-        protocol.registerFileProtocol(CUSTOM_FILE_PROTOCOL_NAME, (req, callback) => {
-            const requestUrl = url.parse(req.url, true);
-            callback(path.normalize(`${__dirname}/${requestUrl.path}`));
-        });
+        // protocol.registerFileProtocol(CUSTOM_FILE_PROTOCOL_NAME, (req, callback) => {
+        //     const requestUrl = url.parse(req.url, true);
+        //     callback(path.normalize(`${__dirname}/${requestUrl.path}`));
+        // });
 
         const authCode = await this.listenForAuthCode(authCodeUrl, authWindow);
         
