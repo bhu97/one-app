@@ -61,7 +61,7 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
   const token = authResult.accessToken
     if (token) {
       //FETCH DETLA
-      progressState?.("delta")
+      progressState?.("Delta")
       try {
         let deltaData = await fetchDelta(token);
         console.log(deltaData);
@@ -72,7 +72,7 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
       }
 
       //FETCH METADATA
-      progressState?.("metadata")
+      progressState?.("Metadata")
       try {
         let metaData = await fetchAdditionalMetadata(token);
         await db.saveMetaData(metaData)
@@ -82,7 +82,7 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
       }
 
        
-        progressState?.("whitelists")
+        progressState?.("Whitelists")
         //FETCH WHITELISTS
         try {
           const whitelistDriveItems = await db.getAllWhitelists();
