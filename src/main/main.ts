@@ -17,7 +17,7 @@ import log, { create } from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import AuthProvider from './authentication/AuthProvider';
-import {ILoginState, ipcEvent, LoginState, TokenState} from '../renderer/utils/constants'
+import {ILoginState, ipcEvent, LoginState, SessionState, TokenState} from '../renderer/utils/constants'
 import { AuthenticationResult } from '@azure/msal-common';
 import axios from 'axios';
 import { fileManager } from './filemanager/FileManager';
@@ -26,6 +26,7 @@ import { responseToDriveItem } from '../renderer/utils/object.mapping';
 import config from "../renderer/utils/application.config.release"
 import { IDriveItem } from '../renderer/database/database';
 import { zipManager } from './zipmanager/ZipManager';
+import SPAuthProvider from './authentication/SPAuthProvider';
 import { isTokenValid } from './../renderer/utils/helper';
 
 export default class AppUpdater {
@@ -37,9 +38,10 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors'); 
+app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 
 let authProvider = new AuthProvider()
+let spAuthProvider = new SPAuthProvider(authProvider)
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -90,7 +92,9 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
-  protocol.registerHttpProtocol(config.REDIRECT_PROTOCOL, (request, callback) => {
+  const CUSTOM_REDIRECT_PROTOCOL_NAME = config.REDIRECT_URI.split(':')[0];
+
+  protocol.registerHttpProtocol(CUSTOM_REDIRECT_PROTOCOL_NAME, (request, callback) => {
     //TODO: HANDLE auth redirect here
     const authRedirectUrl = request.url
   })
@@ -128,6 +132,7 @@ const createWindow = async () => {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+    ses?.flushStorageData();
   });
 
   const menuBuilder = new MenuBuilder(mainWindow);
@@ -139,7 +144,7 @@ const createWindow = async () => {
     shell.openExternal(url);
   });
 
-  ses?.allowNTLMCredentialsForDomains("fresenius.sharepoint.com")
+  ses?.allowNTLMCredentialsForDomains('fresenius.sharepoint.com, *fresenius.com')
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
@@ -188,7 +193,25 @@ ipcMain.handle(ipcEvent.login, async() => {
     await saveTokenToStorage(token.accessToken);
     await saveAuthToStorage(token)
   }
-  loginWindow.close();  
+  loginWindow.close();
+
+  return token;
+})
+
+ipcMain.handle(ipcEvent.loginSP, async() => {
+  console.log("loginSP event");
+
+  const loginWindow = createModalWindow(mainWindow!);
+  const account = await spAuthProvider.login(loginWindow);
+  const token = await spAuthProvider.getTokenSilent(account);
+
+  console.log(mainWindow);
+  //TODO: make a storage provider
+  if (token) {
+    await saveTokenToStorage(token.accessToken);
+    await saveAuthToStorage(token)
+  }
+  loginWindow.close();
 
   return token;
 })
@@ -202,7 +225,7 @@ ipcMain.handle(ipcEvent.refreshToken, async() => {
 })
 
 ipcMain.handle('download-file', async(event, params) => {
-  
+
   if(mainWindow) {
     console.log(params);
     console.log(mainWindow);
@@ -210,7 +233,7 @@ ipcMain.handle('download-file', async(event, params) => {
       const accessToken = params.accessToken
       if (accessToken) {
         let di = await fetchDriveItem(params.itemId, accessToken)
-        
+
         let directory = fileManager.rootFolder
         if(di && di.graphDownloadUrl) {
           //console.log("download url:"+di?.graphDownloadUrl);
@@ -235,12 +258,12 @@ ipcMain.handle('download-file', async(event, params) => {
           }
         }
       }
-      
-      
+
+
     }
     catch(error) {
       console.log(error);
-      
+
     }
   }
 })
@@ -308,19 +331,19 @@ ipcMain.handle('OPEN_HTML', (_, path: string, local?: boolean) => {
 
   try {
     console.log(local);
-    
+
     let window = createModalWindow(mainWindow!)
-    if(local === true || local === undefined) {  
+    if(local === true || local === undefined) {
       window.loadFile(path)
       console.log("loading local file:"+path);
     } else {
       console.log("loading url:"+path);
-      
+
       window.loadURL(path)
     }
   }
   catch(error) {
-    console.log(error); 
+    console.log(error);
   }
 })
 
@@ -338,7 +361,7 @@ const openFolder = async (path:string):Promise<string>  => {
   return shell.openPath(path)
 }
 
-async function fetchDriveItem(driveItemId: string, accessToken: string): Promise<IDriveItem | null> { 
+async function fetchDriveItem(driveItemId: string, accessToken: string): Promise<IDriveItem | null> {
     const options = {
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -376,7 +399,7 @@ const getAuthFromStorage = async (): Promise<AuthenticationResult | null> => {
 // console.log("get whitelists main");
 
 //   const accessToken = await getAuthFromStorage()
-  
+
 //   const options = {
 //     headers: {
 //         'Authorization': `Bearer ${accessToken}`,
@@ -391,27 +414,39 @@ const getAuthFromStorage = async (): Promise<AuthenticationResult | null> => {
 //     if (dlResponse.status == 302) {
 //         const response = await axios.get(dlResponse.request!.responseURL, options)
 //         console.log(response);
-//     } 
+//     }
 // })
 
 async function getLoginState() {
   var loginState:ILoginState = {
     login: LoginState.LOGGED_OUT,
-    token: TokenState.INVALID_TOKEN
+    token: TokenState.INVALID_TOKEN,
+    session: SessionState.SESSION_INVALID
   }
   var state = ""
 
   const account = await authProvider.getAccount()
-  
+
   if(account) {
     //in case we have an account, we logged in successfully => LoginSate.LOGGED_IN
     console.log("logged in once")
     state = state + "logged in | "
     loginState.login = LoginState.LOGGED_IN
 
+    const sessionAuthenticated = await spAuthProvider.isSessionAuthenticated(ses)
+
+    if (sessionAuthenticated) {
+      state = state + "session valid | "
+      loginState.session = SessionState.SESSION_VALID
+    }
+    else {
+      state = state + "session invalid | "
+      loginState.session = SessionState.SESSION_INVALID
+    }
+
     const authResult = await authProvider.getTokenSilent(account)
     if(authResult) {
-      //we obtained a successful authentication for a fresh token 
+      //we obtained a successful authentication for a fresh token
       const isAccessTokenValid = isTokenValid(authResult)
       //check if current token is valid => TokenState.VALID_TOKEN
       if(isAccessTokenValid) {
@@ -421,7 +456,7 @@ async function getLoginState() {
         state = state + "invalid token | "
         loginState.token = TokenState.EXPIRED_TOKEN
       }
-    } else {
+    } else {  const sessionAuthenticated = await spAuthProvider.isSessionAuthenticated(ses)
       loginState.login = LoginState.ERROR
       loginState.token = TokenState.ERROR
       state = state + "unsuccessful authentication | "

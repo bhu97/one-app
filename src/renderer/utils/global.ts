@@ -9,6 +9,7 @@ declare global {
     electron: {
       ipcRenderer: {
         login: (arg:any) => Promise<string>;
+        loginSP: (arg:any) => Promise<string>;
         refreshTokenSilently: () => Promise<AuthenticationResult>;
         //getWhitelists: (urls: string[]) => Promise<string[]>;
         downloadFile: (params: {url: string, itemId: string, directory?: string, accessToken?:string}) => Promise<any>;
