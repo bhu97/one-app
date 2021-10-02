@@ -15,25 +15,35 @@ class FileManager {
   cartFolder = path.join(ROOT_DIR, CART_FOLDER)
   cacheFolder = path.join(ROOT_DIR, CACHE_FOLDER)
 
-  setupRootFolder():Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      if (this.doesRootFolderExist()) {
-        console.log('Directory exists already');
-        resolve()
-        return
+  async setupRootFolder() {
+    try {
+      console.log("Checking for mandatory folders...");
+      if (!this.doesRootFolderExist()) {
+        console.log(`Could not find root folder`);
+        console.log(`Creating ${this.rootFolder} folder...`);
+        await fsPromises.mkdir(this.rootFolder)
+      } else {
+        console.log(`Found root folder`);
       }
-      fs.mkdir(ROOT_DIR, (err) => {
-        if (err) {
-          reject(err)
-        }
-        resolve()
-        console.log('Directory created successfully!');
-      });
-    })
-    
+      if(!this.doesCartFolderExist()) {
+        console.log(`Could not find cart folder`);
+        console.log(`Creating ${this.cartFolder} folder...`);
+        await fsPromises.mkdir(this.cartFolder)
+      } else {
+        console.log(`Found cart folder`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+     
   }
+
   doesRootFolderExist = ():boolean => {
     return this.doesFolderExist(ROOT_DIR)
+  }
+
+  doesCartFolderExist = ():boolean => {
+    return this.doesFolderExist(this.cartFolder)
   }
 
   doesFolderExist = (folderName:string):boolean => {

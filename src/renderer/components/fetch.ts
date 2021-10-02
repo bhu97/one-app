@@ -132,13 +132,13 @@ export async function fetchLastModifiedDate(accessToken: string): Promise<string
     return response.value[0].lastModifiedDateTime
 }
 
-export async function fetchItemThumbnail(uniqueId: string, accessToken: string): Promise<Thumbnail | null> {
+export async function fetchItemThumbnail(uniqueId: string, accessToken: string): Promise<Thumbnail | undefined> {
     const response = await callEndpointWithToken(config.GRAPH_ITEM_THUMBNAIL_ENDPOINT(uniqueId), accessToken)
     if(response && response.value) {
         const thumbnails: Thumbnail[] = response.value.map((item: any) => responseToThumbnail(item));
         return thumbnails.find(thumbnail => thumbnail.uniqueId === uniqueId);
     }
-    return null;
+    return undefined;
 }
 
 export async function fetchThumbnails(uniqueId: string, accessToken: string): Promise<Thumbnail[]> {

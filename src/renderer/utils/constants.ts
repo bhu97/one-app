@@ -2,13 +2,52 @@ export const ipcEvent = {
   login: "LOGIN",
   getToken: "GET_TOKEN",
   refreshToken: "REFRESH_TOKEN",
-  whitelists: "GET_WHITELISTS"
+  whitelists: "GET_WHITELISTS",
+  loginSP: "LOGIN_SP",
 }
 
-export enum AppState {
+export interface ILoginState {
+  login: LoginState
+  token: TokenState
+  session: SessionState
+}
+
+export interface IAppState {
+  login: LoginState
+  token: TokenState
+  metadata: MetaDataState
+}
+
+export enum MetaDataState {
+  VALID,
+  NO_METADATA,
+  HAS_UPDATES,
+  ERROR
+}
+
+export enum LoginState {
   LOGGED_IN,
-  NO_DATA,
-  HAS_UPDATES
+  LOGGED_OUT,
+  ERROR
+}
+
+export enum TokenState {
+  VALID_TOKEN,
+  EXPIRED_TOKEN,
+  INVALID_TOKEN,
+  ERROR
+}
+
+export enum SessionState {
+  SESSION_VALID,
+  SESSION_INVALID,
+  ERROR
+}
+
+export const AppState: IAppState = {
+  login: LoginState.LOGGED_OUT,
+  token: TokenState.INVALID_TOKEN,
+  metadata: MetaDataState.NO_METADATA,
 }
 
 export const fileSizeMax = 20971520

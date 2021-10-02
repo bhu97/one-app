@@ -8,6 +8,9 @@ contextBridge.exposeInMainWorld('electron', {
     login: async (arg) => {
       return await ipcRenderer.invoke('LOGIN', arg);
     },
+    loginSP: async (arg) => {
+      return await ipcRenderer.invoke('LOGIN_SP', arg);
+    },
     refreshTokenSilently: async () => {
       return await ipcRenderer.invoke('REFRESH_TOKEN');
     },
@@ -47,8 +50,11 @@ contextBridge.exposeInMainWorld('electron', {
     isSubDirectory: async(parent, dir) => {
       return await ipcRenderer.invoke('IS_SUB_DIRECTORY', parent, dir);
     },
+    getLoginState: async() => {
+      return await ipcRenderer.invoke('GET_LOGIN_STATE');
+    },
     on(channel, func) {
-      const validChannels = ['ipc-example'];
+      const validChannels = ['ipc-example', 'login-close-test'];
       if (validChannels.includes(channel)) {
         // Deliberately strip event as it includes `sender`
         ipcRenderer.on(channel, (event, ...args) => func(...args));

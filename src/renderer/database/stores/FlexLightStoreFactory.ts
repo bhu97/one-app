@@ -1,5 +1,6 @@
 import { CountryVersion, db } from "renderer/database/database"
 import { IStore, IStoreParams } from "./AbstractStore"
+import { ContentStore } from "./ContentStore"
 import { FlexStore } from "./FlexStore"
 import { LightStore } from "./LightStore"
 
@@ -15,6 +16,13 @@ const getStoreForCurrentUser = async(params?: IStoreParams): Promise<IStore | un
     //if the version is empty, we have an error
     if(user.version == "") {
       return undefined
+    }
+
+    if(params?.query) {
+      let item = await db.getItemForId(params.query)
+      if(item.contentType && item.contentType == "Document Set") {
+        return new ContentStore(params ?? {})
+      }
     }
 
     const version = parseInt(user.version)

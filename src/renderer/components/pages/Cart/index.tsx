@@ -60,9 +60,9 @@ export const CartPage: FC = () => {
               key="remove"
               text="Remove all Files"
               icon={TrashIcon}
-              onClick={
-                () => cartStore.removeAll() /* TODO update store + view */
-              }
+              onClick={() => {
+                cartStore.removeAll(); /* TODO update store + view */
+              }}
             />
           </RightMenuBox>
           <div className={styles.divider} />

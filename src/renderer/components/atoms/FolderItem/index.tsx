@@ -50,8 +50,8 @@ export const FolderItem: FC<IFolderItemProps> = ({
   onDriveItemSelected,
 }) => {
   const styles = useStyles();
-  const { uniqueId, name, title } = item;
-  const text = title || name;
+  const { uniqueId, name, title, nameWithoutPrefix } = item;
+  const text = title || nameWithoutPrefix || name;
   return (
     <ListItem
       key={uniqueId}

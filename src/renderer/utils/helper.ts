@@ -30,3 +30,8 @@ export const isTokenValid = (authResult: AuthenticationResult):boolean => {
   
   return currentDate.isBefore(expirationDate)
 }
+
+export const nameWithoutPrefix = (name:string):string => {
+  let regex = RegExp("^\\d{3}\\s?")
+  return name.replace(regex, "")
+}
