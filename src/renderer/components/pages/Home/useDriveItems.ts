@@ -44,10 +44,6 @@ export const useDriveItems = (
     getRootData();
   }, []);
 
-  // get the first level data
-  // this happens by country code
-  // TODO: change country code to dynamic value
-
   const onDriveItemSelected = async (
     item: IDriveItem,
     index: number,
