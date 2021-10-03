@@ -50,6 +50,14 @@ export const FavoritesPage: FC = () => {
             onFavouriteChange={updateItems}
             thumbnails={thumbnails}
             title={currentFavoriteGroup}
+            emptyMessage={
+              <>
+                There are no favourite entries here yet. Please choose documents
+                to be displayed here.
+                <br />
+                Choose some files to add as a favourite
+              </>
+            }
           />
         }
         isColumnOnLeft

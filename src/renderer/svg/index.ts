@@ -4,6 +4,7 @@ export * from './CloudIcon';
 export * from './DatabaseIcon';
 export * from './DocsIcon';
 export * from './EmailIcon';
+export * from './EmptyBoxIcon';
 export * from './FavIcon';
 export * from './HomeIcon';
 export * from './LinkIcon';

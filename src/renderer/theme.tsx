@@ -40,6 +40,7 @@ export const themeConfig: ThemeOptions = {
     grey: {
       300: '#EEEDEB',
       600: '#A8A39D',
+      700: '#8b8b8b',
       900: '#333333',
     },
     background: {
