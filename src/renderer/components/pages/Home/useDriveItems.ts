@@ -24,7 +24,7 @@ export const useDriveItems = (
     if (initialRoute?.length > 1) {
       for (const item of initialRoute) {
         if (item.uniqueId === 'home') continue;
-        const levelItems = await getFileListData(store, item.uniqueId);
+        const levelItems = await getFileListData(item.uniqueId);
         currentItems.push(levelItems);
       }
     }
@@ -33,6 +33,7 @@ export const useDriveItems = (
   };
 
   const getFileListData = async (uniqueId: string) => {
+    console.log('ELO', uniqueId);
     const store = await FlexLightStoreFactory.getStoreForCurrentUser({
       query: uniqueId,
     });
