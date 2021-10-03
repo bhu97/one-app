@@ -97,7 +97,6 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         //SET COUNTRY/VERSION
         await db.createUserIfEmpty()
 
-
         localStorgeHelper.setLastMetdataUpdate()
 
     }
