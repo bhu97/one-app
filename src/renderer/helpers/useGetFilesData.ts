@@ -17,7 +17,7 @@ export const useGetFilesData = (
     if (!store) return;
     await store.update();
     setItems(store.items);
-    let newThumbnails: (Thumbnail | null)[];
+    let newThumbnails: (Thumbnail | null | undefined)[];
     try {
       if (thumbnailsUniqueId) {
         newThumbnails = await dataManager.getThumbnails(thumbnailsUniqueId);

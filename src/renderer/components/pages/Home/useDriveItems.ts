@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { db, IDriveItem } from '../../../database/database';
+import { IDriveItem } from '../../../database/database';
 import { FlexLightStoreFactory } from '../../../database/stores/FlexLightStoreFactory';
 
 export const useDriveItems = (
@@ -8,28 +8,6 @@ export const useDriveItems = (
   initialRoute: IDriveItem[],
   onRouteChanged: (currentRoute: IDriveItem[]) => void
 ) => {
-  /*
-    const setupDummyData = async () => {
-      if (await db.isEmpty()) {
-        setState({ ...state, isLoading: true });
-
-        let deltaResponse = await fetch('./../../../assets/delta.json');
-        let deltaResponseJson = await deltaResponse.json();
-        //console.log(deltaResponseJson.value[0]);
-        let driveItems = deltaResponseJson.value.map(responseToDriveItem);
-        await db.save(driveItems);
-
-        let listitemResponse = await fetch('./../../../assets/listitem.json');
-        let listitemResponseJson = await listitemResponse.json();
-        console.log(listitemResponseJson.value[0]);
-        let listItems = listitemResponseJson.value.map(responseToListItem);
-        await db.saveMetaData(listItems);
-
-        setState({ ...state, isLoading: false });
-      }
-    };
-  */
-
   const [isLoading, setIsLoading] = useState(true);
   const [currentRoute, setCurrentRoute] = useState<IDriveItem[]>(initialRoute);
 
@@ -46,7 +24,7 @@ export const useDriveItems = (
     if (initialRoute?.length > 1) {
       for (const item of initialRoute) {
         if (item.uniqueId === 'home') continue;
-        const levelItems = await getFileListData(item.uniqueId);
+        const levelItems = await getFileListData(store, item.uniqueId);
         currentItems.push(levelItems);
       }
     }
@@ -55,7 +33,11 @@ export const useDriveItems = (
   };
 
   const getFileListData = async (uniqueId: string) => {
-    return (await db.allItems(uniqueId)) ?? [];
+    const store = await FlexLightStoreFactory.getStoreForCurrentUser({
+      query: uniqueId,
+    });
+    await store?.update();
+    return store?.items ?? [];
   };
 
   useEffect(() => {
