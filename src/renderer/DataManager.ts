@@ -55,6 +55,16 @@ const downloadCartFiles = async() => {
   }
 }
 
+window.electron.ipcRenderer.on("login-close-test", () => {
+  loginCallback?.()
+  //hacky
+  //set to undefined to surpress double callback
+  loginCallback = undefined
+})
+
+var loginCallback: (() => void) | undefined
+
+
 const getMetaData = async(progressState?:(state: string) => void) => {
 
 const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
@@ -107,19 +117,10 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
 
 
 const login = async(onLoginClosed?:() => void):Promise<boolean> => {
+  loginCallback = onLoginClosed
 
-  // window.electron.ipcRenderer.on("login-close-test", () => {
-  //   console.log("closed login");
-  // })
-  return new Promise<boolean>(async(resolve, reject) => {
-    //check if a login is needed
-    
-    let token = await window.electron.ipcRenderer.login('');
-    if(token) {
-      resolve(true)
-    }
-    resolve(false)
-  })
+  let token = await window.electron.ipcRenderer.login('');
+  return (token !== null && token !== undefined)
 }
 
 const downloadModule = async(uniqueId: string, token?:string, progressState?:(state: string) => void) => {
