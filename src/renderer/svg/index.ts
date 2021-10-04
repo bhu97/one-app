@@ -16,3 +16,4 @@ export * from './PlusIcon';
 export * from './SettingsIcon';
 export * from './TrashIcon';
 export * from './TripleDot';
+export * from './UserIcon';

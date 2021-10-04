@@ -16,6 +16,7 @@ export interface IAppState {
   login: LoginState
   token: TokenState
   metadata: MetaDataState
+  session: SessionState
 }
 
 export enum MetaDataState {

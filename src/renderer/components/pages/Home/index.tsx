@@ -60,8 +60,22 @@ export const HomePage: FC<IHomePageProps> = ({
       />
       {isDocumentSet ? null : (
         <div className={styles.headers}>
-          <Typography variant="h1">{lastItemName}</Typography>
-          <Typography variant="h2">Please select your category</Typography>
+          <Typography
+            style={{
+              fontSize: '30px',
+            }}
+            variant="h1"
+          >
+            {lastItemName}
+          </Typography>
+          <Typography
+            style={{
+              fontSize: '20px',
+            }}
+            variant="h2"
+          >
+            Please select your category
+          </Typography>
         </div>
       )}
       <div
