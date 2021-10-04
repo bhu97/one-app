@@ -1,7 +1,10 @@
+import { toast } from 'material-react-toastify';
 import { useEffect, useRef, useState } from 'react';
 
 import { IDriveItem } from './database/database';
+import { localStorgeHelper } from './database/storage';
 import { dataManager } from './DataManager';
+import { LoginState, MetaDataState, SessionState } from './utils/constants';
 
 export const useAppCore = () => {
   const defaultRoute = [
@@ -10,19 +13,49 @@ export const useAppCore = () => {
       title: 'Home',
     },
   ];
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOutdated, setIsOutdated] = useState(false);
   const currentRouteRef = useRef<IDriveItem[]>(defaultRoute);
   const onRouteChanged = (currentRoute?: IDriveItem[]) => {
     currentRouteRef.current = currentRoute || defaultRoute;
   };
-  const [isLoading, setIsLoading] = useState(false);
+  const onOutdatedDismiss = () => {
+    localStorgeHelper.setSupressWarningDate();
+    setIsOutdated(false);
+  };
+  const onMetadataUpdate = async () => {
+    setIsLoading(true);
+    try {
+      await dataManager.getMetaData();
+      setIsOutdated(false);
+    } catch (e) {
+      toast.error(`Couldn't update metadata`);
+    }
+    setIsLoading(false);
+  };
   const loadUserSettings = async () => {
     setIsLoading(true);
-    const state = await dataManager.getAppState();
-    if (!state.login || !state.token) {
-      await dataManager.login();
+    try {
+      const state = await dataManager.getAppState();
+      if (
+        state.login !== LoginState.LOGGED_IN ||
+        state.session !== SessionState.SESSION_VALID
+      ) {
+        await dataManager.login();
+      }
+      if (
+        state.metadata !== MetaDataState.VALID &&
+        state.metadata !== MetaDataState.HAS_UPDATES
+      ) {
+        await dataManager.getMetaData();
+      }
+      if (state.metadata === MetaDataState.HAS_UPDATES) {
+        setIsOutdated(true);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error(`Can't load app state!`);
     }
-    const newState = await dataManager.getAppState();
-    console.log(newState);
     setIsLoading(false);
   };
   useEffect(() => {
@@ -32,6 +65,9 @@ export const useAppCore = () => {
     isLoading,
     currentRoute: currentRouteRef.current,
     onRouteChanged,
+    isOutdated,
+    onMetadataUpdate,
+    onOutdatedDismiss,
   };
 };
 

@@ -4,7 +4,7 @@ import './utils/global';
 import React from 'react';
 import { MemoryRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
-import { LoadingDialog } from './components/atoms';
+import { LoadingDialog, UpdateMetadataDialog } from './components/atoms';
 import { CartPage, DevSettings, FavoritesPage, HomePage, SettingsPage } from './components/pages';
 import { Layout } from './components/templates';
 import { useAppCore } from './useAppCore';
@@ -20,7 +20,14 @@ async function checkAuth() {
 }
 
 export default function App() {
-  const { isLoading, currentRoute, onRouteChanged } = useAppCore();
+  const {
+    isLoading,
+    currentRoute,
+    onRouteChanged,
+    isOutdated,
+    onMetadataUpdate,
+    onOutdatedDismiss,
+  } = useAppCore();
   return (
     <>
       <Router>
@@ -52,6 +59,11 @@ export default function App() {
         </Layout>
       </Router>
       <LoadingDialog open={isLoading} />
+      <UpdateMetadataDialog
+        isOpen={isOutdated}
+        onUpdate={onMetadataUpdate}
+        onClose={onOutdatedDismiss}
+      />
     </>
   );
 }

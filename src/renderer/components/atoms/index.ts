@@ -12,3 +12,4 @@ export * from './MenuItem';
 export * from './PageHeader';
 export * from './RightMenuBox';
 export * from './RightMenuItem';
+export * from './UpdateMetadataDialog';

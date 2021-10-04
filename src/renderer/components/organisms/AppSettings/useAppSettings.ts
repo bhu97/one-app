@@ -3,17 +3,27 @@ import { useEffect, useRef, useState } from 'react';
 
 import SettingsStore from '../../../database/stores/SettingsStore';
 import { dataManager } from '../../../DataManager';
+import { IAppState } from '../../../utils/constants';
 
 export const useAppSettings = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [countries, setCountries] = useState<string[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState<string | undefined>(
-    ''
-  );
+  const [selectedCountry, setSelectedCountry] =
+    useState<string | undefined>('');
   const [countryVersion, setCountryVersion] = useState<string | undefined>('');
   const [appVersion, setAppVersion] = useState<string>('');
   const [modifiedDate, setModifiedDate] = useState<string>('Unknown');
+  const [appState, setAppState] = useState<IAppState | undefined>(undefined);
   const settingsStoreRef = useRef(new SettingsStore({}));
+  const login = async () => {
+    setIsLoading(true);
+    try {
+      await dataManager.login();
+    } catch (e) {
+      toast.error(`Couldn't login`);
+    }
+    setIsLoading(false);
+  };
   const getCurrentSettings = async () => {
     try {
       setSelectedCountry(settingsStoreRef.current.currentCountry);
@@ -22,6 +32,8 @@ export const useAppSettings = () => {
       );
       setAppVersion(`v${settingsStoreRef.current.appVersion}`);
       setModifiedDate(settingsStoreRef.current.lastUpdate ?? 'Unknown');
+      const state = await dataManager.getAppState();
+      setAppState(state);
     } catch (e) {
       toast.error("Couldn't load settings");
       console.error(e);
@@ -29,9 +41,11 @@ export const useAppSettings = () => {
   };
   const onUpdateNow = async () => {
     setIsLoading(true);
-    const result = await dataManager.getMetaData();
-    if (result !== true) {
-      toast.error("Couldn't update content");
+    try {
+      await dataManager.getMetaData();
+    } catch (e) {
+      console.log(e);
+      toast.error(`Couldn't get metadata`);
     }
     setIsLoading(false);
   };
@@ -66,6 +80,8 @@ export const useAppSettings = () => {
     appVersion,
     modifiedDate,
     onUpdateNow,
+    appState,
+    login,
   };
 };
 

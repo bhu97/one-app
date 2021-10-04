@@ -1,7 +1,8 @@
 import { makeStyles, MenuItem, Select, Typography } from '@material-ui/core';
 import React, { FC } from 'react';
 
-import { CloudIcon, PencilIcon } from '../../../svg';
+import { CloudIcon, PencilIcon, UserIcon } from '../../../svg';
+import { LoginState, MetaDataState, SessionState } from '../../../utils/constants';
 import { LoadingDialog, RightMenuItem } from '../../atoms';
 import { useAppSettings } from './useAppSettings';
 
@@ -64,6 +65,8 @@ export const AppSettings: FC = () => {
     appVersion,
     modifiedDate,
     onUpdateNow,
+    appState,
+    login,
   } = useAppSettings();
 
   return (
@@ -122,6 +125,52 @@ export const AppSettings: FC = () => {
         <div className={[styles.column, styles.columnLast].join(' ')}>
           <Typography variant="h3">Modified date</Typography>
           <div className={styles.light}>{modifiedDate}</div>
+        </div>
+      </div>
+      <div className={styles.separator} />
+      <Typography variant="h2" classes={{ h2: styles.title }}>
+        App state
+      </Typography>
+      <div className={styles.wrapper}>
+        <div className={styles.column}>
+          <Typography variant="h3">User</Typography>
+          <div>
+            <RightMenuItem
+              text="Login now"
+              icon={UserIcon}
+              slim
+              onClick={login}
+            />
+          </div>
+        </div>
+        <div className={[styles.column, styles.columnMiddle].join(' ')}>
+          <Typography variant="h3">Authentication</Typography>
+          <div className={styles.light}>
+            <div>
+              <div>
+                User:{' '}
+                {appState?.login === LoginState.LOGGED_IN
+                  ? 'Logged in'
+                  : 'Not logged in'}
+              </div>
+              <div>
+                Session:{' '}
+                {appState?.session === SessionState.SESSION_VALID
+                  ? 'Valid'
+                  : 'Invalid'}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className={[styles.column, styles.columnLast].join(' ')}>
+          <Typography variant="h3">Metadata</Typography>
+          <div className={styles.light}>
+            {appState?.metadata === MetaDataState.VALID
+              ? 'Valid'
+              : appState?.metadata === MetaDataState.HAS_UPDATES
+              ? 'Outdated'
+              : 'Invalid'}
+          </div>
         </div>
       </div>
       <LoadingDialog open={isLoading} />
