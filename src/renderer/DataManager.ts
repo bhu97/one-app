@@ -286,11 +286,13 @@ const getItemThumbnail = async(uniqueId: string):Promise<Thumbnail | undefined> 
     const token = authResult.accessToken;
 
     if(token) {
-        return await fetchItemThumbnail(uniqueId, token);
+        const thumbnail = await fetchItemThumbnail(uniqueId, token);
+console.log(thumbnail);
+return thumbnail;
     }
   } catch(error) {
     console.error(error);
-    toast.error("Couldn't get thumbnails");
+    toast.error("Couldn't get thumbnail");
   }
   return undefined;
 }

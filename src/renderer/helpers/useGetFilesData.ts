@@ -29,6 +29,7 @@ export const useGetFilesData = (
         );
       }
     } catch (e) {
+      console.error('THUMBNAILS FAILED', e);
       newThumbnails = [];
     }
     setThumbnails(newThumbnails.filter((item) => item) as Thumbnail[]);
