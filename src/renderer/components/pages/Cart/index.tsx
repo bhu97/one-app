@@ -25,11 +25,6 @@ export const CartPage: FC = () => {
   const styles = useStyles();
   const [isLoading, setIsLoading] = useState(false);
   const { items, thumbnails, updateItems } = useGetFilesData(cartStore);
-  console.log(
-    'Please send me these JSONs:',
-    JSON.stringify(thumbnails), // TODO thumbnails are empty??
-    JSON.stringify(items)
-  );
 
   return (
     <>
