@@ -33,10 +33,13 @@ export const useDriveItems = (
   };
 
   const getFileListData = async (uniqueId: string) => {
-    console.log('ELO', uniqueId);
-    const store = await FlexLightStoreFactory.getStoreForCurrentUser({
-      query: uniqueId,
-    });
+    const query =
+      uniqueId === 'home'
+        ? undefined
+        : {
+            query: uniqueId,
+          };
+    const store = await FlexLightStoreFactory.getStoreForCurrentUser(query);
     await store?.update();
     return store?.items ?? [];
   };
