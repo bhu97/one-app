@@ -88,6 +88,9 @@ export async function fetchWhitelists(driveItems: IDriveItem[], accessToken: str
             if(downloadUrl) {
                 const whitelistResponse = await axios.get(downloadUrl)
                 const whitelistContent = whitelistResponse.data as string
+
+                
+                
                 if(whitelistContent && driveItem.country) {
                     whitelists.push({country: driveItem.country, content: whitelistContent})
                 }
@@ -134,9 +137,9 @@ export async function fetchLastModifiedDate(accessToken: string): Promise<string
 
 export async function fetchItemThumbnail(uniqueId: string, accessToken: string): Promise<Thumbnail | undefined> {
     const response = await callEndpointWithToken(config.GRAPH_ITEM_THUMBNAIL_ENDPOINT(uniqueId), accessToken)
-    if(response && response.value) {
-        const thumbnails: Thumbnail[] = response.value.map((item: any) => responseToThumbnail(item));
-        return thumbnails.find(thumbnail => thumbnail.uniqueId === uniqueId);
+    if(response) {
+        const thumbnail: Thumbnail = responseToThumbnail(response)
+        return thumbnail
     }
     return undefined;
 }
