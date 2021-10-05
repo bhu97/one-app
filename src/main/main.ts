@@ -202,6 +202,8 @@ ipcMain.handle(ipcEvent.loginSP, async() => {
   console.log("loginSP event");
 
   const loginWindow = createModalWindow(mainWindow!);
+  loginWindow.removeMenu()
+  loginWindow.setIcon(getAssetPath('icon.png'));
   const account = await spAuthProvider.login(loginWindow);
   const token = await spAuthProvider.getTokenSilent(account);
 
