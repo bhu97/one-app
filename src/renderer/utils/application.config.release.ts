@@ -16,6 +16,11 @@ export default {
   //Configuration
   REDIRECT_URI:"preisfindungstool://auth",
 
+  INTERACTIVE_LOGIN_HOSTS: [
+    "fresenius.com",
+    "login.microsoftonline.com"
+  ],
+
   //Endpoints
   AAD_ENDPOINT_HOST:"https://login.microsoftonline.com/",
   GRAPH_ENDPOINT_HOST:"https://graph.microsoft.com/",

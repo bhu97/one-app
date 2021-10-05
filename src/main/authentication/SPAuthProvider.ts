@@ -6,6 +6,7 @@ import AuthProvider from './AuthProvider';
 class SPAuthProvider {
 
     msalAuthProvider: AuthProvider;
+    interactiveHosts: string[] = config.INTERACTIVE_LOGIN_HOSTS
 
     constructor(authProvider: AuthProvider) {
         /**
@@ -38,21 +39,50 @@ class SPAuthProvider {
       await this.listenForSuccessfulRedirectBack(logoutUrl, authWindow)
     }
 
-    async listenForSuccessfulRedirectBack(navigateUrl:any, authWindow: BrowserWindow) {
+    isURLInteractive(urlString: string): boolean {
+      let url = new URL(urlString)
+      let host = url.host
 
-      authWindow.loadURL(navigateUrl);
+      const isInteractive = this.interactiveHosts.includes(host)
+      return isInteractive
+    }
+
+    async listenForSuccessfulRedirectBack(navigateUrl:any, authWindow: BrowserWindow) {
+      authWindow.loadURL(navigateUrl)
+      authWindow.hide()
 
       return new Promise((resolve, reject) => {
-          authWindow.webContents.on('did-redirect-navigation', (event:any, responseUrl:any) => {
-              try {
-                  if (responseUrl.startsWith(navigateUrl)) {
-                        event.preventDefault()
-                        resolve(true)
-                  }
-              } catch (err) {
-                  reject(err);
+        authWindow.webContents.on('did-start-navigation', (event: Electron.Event, url: string) => {
+          if (!authWindow.isVisible()) {
+            if (this.isURLInteractive(url)) {
+              authWindow.show()
+            }
+          }
+        })
+        authWindow.webContents.on('did-redirect-navigation', (event:any, responseUrl:any) => {
+          try {
+            if (responseUrl.startsWith(navigateUrl)) {
+              authWindow.hide()
+              event.preventDefault()
+              authWindow.removeAllListeners()
+              resolve(true)
+            } else {
+              if (!authWindow.isVisible() && this.isURLInteractive(responseUrl)) {
+                authWindow.show()
               }
-          });
+            }
+          } catch (err) {
+            authWindow.removeAllListeners()
+            reject(err)
+          }
+        });
+        authWindow.webContents.on('did-stop-loading', (event: any) => {
+          if (event.sender.getURL().startsWith(navigateUrl)) {
+            event.preventDefault()
+            authWindow.removeAllListeners()
+            resolve(true)
+          }
+        })
       });
     }
     async getTokenSilent(currentAccount: AccountInfo | null | undefined): Promise<AuthenticationResult | null> {
