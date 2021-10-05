@@ -75,6 +75,13 @@ const installExtensions = async () => {
 };
 let ses:Session | undefined;
 
+const RESOURCES_PATH = app.isPackaged
+  ? path.join(process.resourcesPath, 'assets')
+  : path.join(__dirname, '../../assets');
+
+const getAssetPath = (...paths: string[]): string => {
+  return path.join(RESOURCES_PATH, ...paths);
+};
 
 const createWindow = async () => {
   if (
@@ -84,13 +91,6 @@ const createWindow = async () => {
     await installExtensions();
   }
 
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
-
-  const getAssetPath = (...paths: string[]): string => {
-    return path.join(RESOURCES_PATH, ...paths);
-  };
 
   const CUSTOM_REDIRECT_PROTOCOL_NAME = config.REDIRECT_URI.split(':')[0];
 
