@@ -49,6 +49,7 @@ export const AppState: IAppState = {
   login: LoginState.LOGGED_OUT,
   token: TokenState.INVALID_TOKEN,
   metadata: MetaDataState.NO_METADATA,
+  session: SessionState.SESSION_INVALID
 }
 
 export const fileSizeMax = 20971520
