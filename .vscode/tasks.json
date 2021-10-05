@@ -20,6 +20,40 @@
           "endsPattern": "(Compiled successfully|Failed to compile)\\.$"
         }
       }
+    },
+    {
+      "label": "NPM: Start",
+      "type": "npm",
+      "script": "start",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": {
+          "regexp": "____________"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Compiling\\.\\.\\.$",
+          "endsPattern": "(Compiled successfully|Failed to compile)\\.$"
+        }
+      }
+    },
+    {
+      "label": "Terminate All Tasks",
+      "command": "echo ${input:terminate}",
+      "type": "shell",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "terminate",
+      "type": "command",
+      "command": "workbench.action.tasks.terminate",
+      "args": "terminateAll"
     }
   ]
 }
