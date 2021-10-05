@@ -119,7 +119,7 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
 const login = async(onLoginClosed?:() => void):Promise<boolean> => {
   loginCallback = onLoginClosed
 
-  let token = await window.electron.ipcRenderer.login('');
+  let token = await window.electron.ipcRenderer.loginSP('');
   return (token !== null && token !== undefined)
 }
 
