@@ -52,7 +52,7 @@ class SPAuthProvider {
       authWindow.hide()
 
       return new Promise((resolve, reject) => {
-        authWindow.webContents.on('did-start-navigation', (event: Electron.Event, url: string) => {
+        authWindow.webContents.on('did-start-navigation', (_event: Electron.Event, url: string) => {
           if (!authWindow.isVisible()) {
             if (this.isURLInteractive(url)) {
               authWindow.show()
@@ -102,8 +102,8 @@ class SPAuthProvider {
     }
 
     private async checkCookieExpiration(session: Session, name: string) : Promise<Boolean>{
-      return new Promise<Boolean>((resolve, reject) => {
-        const cookie = this.getCookie(session, {
+      return new Promise<Boolean>((resolve, _reject) => {
+        this.getCookie(session, {
           name: name
         }).then(cookie => {
           if (cookie.expirationDate) {
