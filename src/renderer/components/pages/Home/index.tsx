@@ -26,11 +26,13 @@ const useStyles = makeStyles((theme) => ({
 
 interface IHomePageProps {
   initialRoute: IDriveItem[];
+  isMetadataLoading: boolean;
   onRouteChanged: (currentRoute: IDriveItem[]) => void;
 }
 
 export const HomePage: FC<IHomePageProps> = ({
   initialRoute,
+  isMetadataLoading,
   onRouteChanged,
 }) => {
   const styles = useStyles();
@@ -43,7 +45,7 @@ export const HomePage: FC<IHomePageProps> = ({
     onBreadcrumbItemSelected,
     onLinkedDocumentSetSelected,
     onBackButtonClicked,
-  } = useDriveItems(mainRef, initialRoute, onRouteChanged);
+  } = useDriveItems(mainRef, isMetadataLoading, initialRoute, onRouteChanged);
   const lastItem = currentRoute[currentRoute.length - 1];
   const lastItemName =
     currentRoute[currentRoute.length - 1].title ||
@@ -99,7 +101,7 @@ export const HomePage: FC<IHomePageProps> = ({
         items={currentRoute}
         onDriveItemSelected={onBreadcrumbItemSelected}
       />
-      <LoadingDialog open={isLoading} />
+      <LoadingDialog open={isLoading} message="Getting files" />
     </>
   );
 };

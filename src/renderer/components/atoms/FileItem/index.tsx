@@ -98,9 +98,11 @@ export const FileItem: FC<IFileItemProps> = ({
   const styles = useStyles();
   const { uniqueId, name, title, fileExtension, fileSize } = item;
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [isFavVisible, setIsFavVisible] = useState(false);
   const openFile = async () => {
     setIsLoading(true);
+    setLoadingMessage('Opening file');
     await dataManager.openDriveItem(uniqueId);
     setIsLoading(false);
   };
@@ -137,6 +139,7 @@ export const FileItem: FC<IFileItemProps> = ({
                 title: FileCommands.AddToShoppingCart,
                 onClick: async () => {
                   setIsLoading(true);
+                  setLoadingMessage('Adding to cart');
                   try {
                     await cartStore.addDriveItem(item.uniqueId);
                     await cartStore.update();
@@ -152,6 +155,7 @@ export const FileItem: FC<IFileItemProps> = ({
                 title: FileCommands.RemoveFromShoppingCart,
                 onClick: async () => {
                   setIsLoading(true);
+                  setLoadingMessage('Removing from cart');
                   try {
                     await cartStore.removeDriveItem(item.uniqueId);
                     await cartStore.update();
@@ -180,7 +184,7 @@ export const FileItem: FC<IFileItemProps> = ({
           ) : null}
         </div>
       </div>
-      <LoadingDialog open={isLoading} />
+      <LoadingDialog open={isLoading} message={loadingMessage} />
       {isFavVisible ? (
         <FavsModal
           uniqueId={uniqueId}

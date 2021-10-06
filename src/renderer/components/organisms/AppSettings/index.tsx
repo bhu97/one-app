@@ -58,6 +58,7 @@ export const AppSettings: FC = () => {
   const styles = useStyles();
   const {
     isLoading,
+    loadingMessage,
     onCountrySelected,
     countries,
     selectedCountry,
@@ -173,7 +174,7 @@ export const AppSettings: FC = () => {
           </div>
         </div>
       </div>
-      <LoadingDialog open={isLoading} />
+      <LoadingDialog open={isLoading} message={loadingMessage} />
     </div>
   );
 };
