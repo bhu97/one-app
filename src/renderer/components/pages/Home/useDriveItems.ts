@@ -5,6 +5,7 @@ import { FlexLightStoreFactory } from '../../../database/stores/FlexLightStoreFa
 
 export const useDriveItems = (
   mainRef: React.MutableRefObject<HTMLDivElement | null>,
+  isMetadataLoading: boolean,
   initialRoute: IDriveItem[],
   onRouteChanged: (currentRoute: IDriveItem[]) => void
 ) => {
@@ -45,8 +46,10 @@ export const useDriveItems = (
   };
 
   useEffect(() => {
-    getRootData();
-  }, []);
+    if (!isMetadataLoading) {
+      getRootData();
+    }
+  }, [isMetadataLoading]);
 
   const onDriveItemSelected = async (
     item: IDriveItem,

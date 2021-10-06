@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
 export const CartPage: FC = () => {
   const styles = useStyles();
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
   const { items, thumbnails, updateItems } = useGetFilesData(cartStore);
 
   return (
@@ -51,9 +52,10 @@ export const CartPage: FC = () => {
                 key="send"
                 text="Download and send via e-mail"
                 icon={EmailIcon}
-                onClick={() => {
+                onClick={async () => {
                   setIsLoading(true);
-                  dataManager.downloadCartFiles();
+                  setLoadingMessage('Downloading files');
+                  await dataManager.downloadCartFiles();
                   setIsLoading(false);
                 }}
               />
@@ -63,6 +65,7 @@ export const CartPage: FC = () => {
                 icon={TrashIcon}
                 onClick={async () => {
                   setIsLoading(true);
+                  setLoadingMessage('Removing files from cart');
                   cartStore.removeAll();
                   await updateItems();
                   setIsLoading(false);
@@ -88,7 +91,7 @@ export const CartPage: FC = () => {
           </div>
         }
       />
-      <LoadingDialog open={isLoading} />
+      <LoadingDialog open={isLoading} message={loadingMessage} />
     </>
   );
 };

@@ -46,6 +46,7 @@ export default function App() {
               render={(props) => (
                 <HomePage
                   {...props}
+                  isMetadataLoading={isLoading}
                   initialRoute={currentRoute}
                   onRouteChanged={onRouteChanged}
                 />
@@ -58,7 +59,10 @@ export default function App() {
           </Switch>
         </Layout>
       </Router>
-      <LoadingDialog open={isLoading} />
+      <LoadingDialog
+        open={isLoading}
+        message="Logging in and getting metadata"
+      />
       <UpdateMetadataDialog
         isOpen={isOutdated}
         onUpdate={onMetadataUpdate}

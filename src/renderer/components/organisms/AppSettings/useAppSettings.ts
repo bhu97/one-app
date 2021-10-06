@@ -7,6 +7,7 @@ import { IAppState } from '../../../utils/constants';
 
 export const useAppSettings = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [countries, setCountries] = useState<string[]>([]);
   const [selectedCountry, setSelectedCountry] =
     useState<string | undefined>('');
@@ -17,6 +18,7 @@ export const useAppSettings = () => {
   const settingsStoreRef = useRef(new SettingsStore({}));
   const login = async () => {
     setIsLoading(true);
+    setLoadingMessage('Logging in');
     try {
       await dataManager.login();
     } catch (e) {
@@ -41,6 +43,7 @@ export const useAppSettings = () => {
   };
   const onUpdateNow = async () => {
     setIsLoading(true);
+    setLoadingMessage('Updating metadata');
     try {
       await dataManager.getMetaData();
     } catch (e) {
@@ -51,6 +54,7 @@ export const useAppSettings = () => {
   };
   const onCountrySelected = async (countryName: string) => {
     setIsLoading(true);
+    setLoadingMessage('Getting country data');
     try {
       await settingsStoreRef.current.selectCountry(countryName);
       await settingsStoreRef.current.update();
@@ -64,6 +68,7 @@ export const useAppSettings = () => {
   useEffect(() => {
     const loadCountries = async () => {
       setIsLoading(true);
+      setLoadingMessage('Getting available countries');
       await settingsStoreRef.current.update();
       setCountries(settingsStoreRef.current.allAvailableCountries);
       await getCurrentSettings();
@@ -73,6 +78,7 @@ export const useAppSettings = () => {
   }, []);
   return {
     isLoading,
+    loadingMessage,
     onCountrySelected,
     countries,
     selectedCountry,
