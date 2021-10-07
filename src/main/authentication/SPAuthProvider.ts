@@ -17,7 +17,7 @@ class SPAuthProvider {
     }
 
     async login(authWindow: BrowserWindow) {
-      let authUrl = config.ROOT_WEB_URL
+      let authUrl = config.ROOT_LOGIN_URL
       // authWindow.webContents.session.cookies.addListener("changed", (event, cookie, cause, removed) => {
       //     if (cookie.name == "FedAuth" || cookie.name == "rtFa") {
       //       console.log(`Got Cookie: ${cookie.name}`)
