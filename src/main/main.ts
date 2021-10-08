@@ -175,8 +175,15 @@ app.on('activate', () => {
   if (mainWindow === null) createWindow();
 });
 
+let loginInProgress = false;
+
 ipcMain.handle(ipcEvent.login, async() => {
   console.log("login event");
+  if (loginInProgress) {
+    console.error("Another login is already in progress! Aborting this login");
+    return;
+  }
+  loginInProgress = true;
 
 
   const onClose = () => {
@@ -194,14 +201,26 @@ ipcMain.handle(ipcEvent.login, async() => {
     await saveAuthToStorage(token)
   }
   loginWindow.close();
+  loginInProgress = false;
 
   return token;
 })
 
 ipcMain.handle(ipcEvent.loginSP, async() => {
   console.log("loginSP event");
+  if (loginInProgress) {
+    console.error("Another login is already in progress! Aborting this loginSP");
+    return;
+  }
+  loginInProgress = true;
 
-  const loginWindow = createModalWindow(mainWindow!);
+  const onClose = () => {
+    loginInProgress = false;
+    mainWindow?.webContents.send("login-close-test")
+    console.log("closing loginSP window")
+  }
+
+  const loginWindow = createModalWindow(mainWindow!, onClose);
   loginWindow.removeMenu()
   loginWindow.setIcon(getAssetPath('icon.png'));
   const account = await spAuthProvider.login(loginWindow);
@@ -214,7 +233,7 @@ ipcMain.handle(ipcEvent.loginSP, async() => {
     await saveAuthToStorage(token)
   }
   loginWindow.close();
-
+  loginInProgress = false;
   return token;
 })
 

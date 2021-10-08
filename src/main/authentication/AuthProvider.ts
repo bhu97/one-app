@@ -38,9 +38,9 @@ const MSAL_CONFIG:Configuration = {
             logLevel: LogLevel.Verbose,
         }
     },
-    cache: {
-        cachePlugin: cachePlugin
-    }
+    // cache: {
+    //     cachePlugin: cachePlugin
+    // }
 };
 
 class AuthProvider {

@@ -18,12 +18,7 @@ class SPAuthProvider {
 
     async login(authWindow: BrowserWindow) {
       let authUrl = config.ROOT_LOGIN_URL
-      // authWindow.webContents.session.cookies.addListener("changed", (event, cookie, cause, removed) => {
-      //     if (cookie.name == "FedAuth" || cookie.name == "rtFa") {
-      //       console.log(`Got Cookie: ${cookie.name}`)
-      //       console.log(`Cookie "${cookie.name}" changed: ${cause}: ${JSON.stringify(cookie)}`)
-      //     }
-      // })
+
       const success = await this.listenForSuccessfulRedirectBack(authUrl, authWindow);
 
       if (success) {
@@ -51,10 +46,29 @@ class SPAuthProvider {
       authWindow.loadURL(navigateUrl)
       authWindow.hide()
 
+      let gotFedAuth = false;
+      let gotRtfa = false;
+
       return new Promise((resolve, reject) => {
+        authWindow.webContents.session.cookies.addListener("changed", (event, cookie, cause, removed) => {
+          if (!removed && (cookie.name == "FedAuth" || cookie.name == "rtFa")) {
+            console.log(`Got Cookie: ${cookie.name}`)
+            console.log(`Cookie "${cookie.name}" changed: ${cause}: ${JSON.stringify(cookie)}`)
+          }
+          if (!removed && cookie.name == "FedAuth") {
+            gotFedAuth = true
+          } else if (!removed && cookie.name == "rtFa") {
+            gotRtfa = true
+          }
+
+          if (gotFedAuth && gotRtfa) {
+            authWindow.hide()
+            resolve(true);
+          }
+        })
         authWindow.webContents.on('did-start-navigation', (_event: Electron.Event, url: string) => {
           if (!authWindow.isVisible()) {
-            if (this.isURLInteractive(url)) {
+            if (this.isURLInteractive(url) && !(gotRtfa && gotFedAuth)) {
               authWindow.show()
             }
           }
@@ -64,25 +78,28 @@ class SPAuthProvider {
             if (responseUrl.startsWith(navigateUrl)) {
               authWindow.hide()
               event.preventDefault()
-              authWindow.removeAllListeners()
-              resolve(true)
+              // authWindow.removeAllListeners()
+              // resolve(true)
             } else {
-              if (!authWindow.isVisible() && this.isURLInteractive(responseUrl)) {
+              if (!authWindow.isVisible() && this.isURLInteractive(responseUrl) && !(gotRtfa && gotFedAuth)) {
                 authWindow.show()
               }
             }
           } catch (err) {
-            authWindow.removeAllListeners()
+            // authWindow.removeAllListeners()
             reject(err)
           }
         });
         authWindow.webContents.on('did-stop-loading', (event: any) => {
           if (event.sender.getURL().startsWith(navigateUrl)) {
             event.preventDefault()
-            authWindow.removeAllListeners()
-            resolve(true)
+            // authWindow.removeAllListeners()
+            // resolve(true)
           }
         })
+      }).finally(() => {
+        authWindow.removeAllListeners();
+        authWindow.webContents.session.cookies.removeAllListeners();
       });
     }
     async getTokenSilent(currentAccount: AccountInfo | null | undefined): Promise<AuthenticationResult | null> {
@@ -99,6 +116,10 @@ class SPAuthProvider {
       else {
         return false
       }
+    }
+
+    async getAccount() {
+      return this.msalAuthProvider.getAccount();
     }
 
     private async checkCookieExpiration(session: Session, name: string) : Promise<Boolean>{
