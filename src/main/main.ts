@@ -491,9 +491,7 @@ export function createModalWindow(mainWindow: BrowserWindow, closeCallback?:() =
   modalWindow.setMenuBarVisibility(false);
 
   modalWindow.on('close', event => {
-    event.preventDefault();
     closeCallback?.()
-    modalWindow.hide();
   });
 
   return modalWindow;
