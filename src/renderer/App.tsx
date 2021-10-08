@@ -22,7 +22,7 @@ async function checkAuth() {
 export default function App() {
   const {
     isLoading,
-    currentRoute,
+    currentRouteRef,
     onRouteChanged,
     isOutdated,
     onMetadataUpdate,
@@ -47,7 +47,7 @@ export default function App() {
                 <HomePage
                   {...props}
                   isMetadataLoading={isLoading}
-                  initialRoute={currentRoute}
+                  initialRoute={currentRouteRef.current}
                   onRouteChanged={onRouteChanged}
                 />
               )}
