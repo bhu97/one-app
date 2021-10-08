@@ -80,11 +80,8 @@
     },
     "extraResources": [
       "./assets/**"
-    ]
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/electron-react-boilerplate/electron-react-boilerplate.git"
+    ],
+    "publish": []
   },
   "author": {
     "name": "Fresenius Netcare Gmbh",
