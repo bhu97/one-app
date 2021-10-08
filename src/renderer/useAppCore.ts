@@ -63,7 +63,7 @@ export const useAppCore = () => {
   }, []);
   return {
     isLoading,
-    currentRoute: currentRouteRef.current,
+    currentRouteRef,
     onRouteChanged,
     isOutdated,
     onMetadataUpdate,
