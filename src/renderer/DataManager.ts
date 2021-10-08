@@ -199,7 +199,7 @@ const openModule = async(uniqueId:string, progressState?:(state: string) => void
   progressState?.("authentication")
   const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
   const token = authResult.accessToken
-console.log(token+" - "+driveItemId)
+  //console.log(token+" - "+driveItemId)
   if(token) {
     if(driveItemId) {
       const driveItem = await fetchDriveItem(driveItemId, token)
@@ -251,7 +251,7 @@ const openDriveItem = async(uniqueId:string, progressState?:(state: string) => v
   console.log("should open local"+shouldOpenLocal);
 
   if(shouldOpenLocal) {
-    openModule(driveItem.uniqueId, progressState)
+    await openModule(driveItem.uniqueId, progressState)
   } else {
     if(driveItem.webUrl) {
       console.log("open url: "+driveItem.webUrl);
