@@ -12,7 +12,8 @@ export default {
   ROOT_ID: "01GX2IG4N6Y2GOVW7725BZO354PWSELRRZ",
   FIRST_LEVEL_PATH: "/teams/FMETS0269990/Shared%20Documents/",
   ROOT_WEB_URL: "https://fresenius.sharepoint.com/teams/FMETS0269990/Shared%20Documents/",
-  ROOT_LOGOUT_URL: "https://fresenius.sharepoint.com/teams/FMETS0269990/_layouts/15/SignOut.aspx",
+  ROOT_LOGIN_URL : "https://fresenius.sharepoint.com/",
+  ROOT_LOGOUT_URL: "https://fresenius.sharepoint.com/_layouts/15/SignOut.aspx",
   //Configuration
   REDIRECT_URI:"preisfindungstool://auth",
 
