@@ -498,7 +498,7 @@ export function createModalWindow(mainWindow: BrowserWindow, closeCallback?:() =
   const modalWindow = new BrowserWindow({
     parent: mainWindow,
     width: 1024,
-    height: 768,
+    height: 900,
     webPreferences: {
       enableRemoteModule: true,
       nodeIntegration: true,
