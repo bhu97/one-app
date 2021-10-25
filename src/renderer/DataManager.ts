@@ -96,8 +96,8 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         //FETCH WHITELISTS
         try {
           const whitelistDriveItems = await db.getAllWhitelists();
-        let whitelists = await fetchWhitelists(whitelistDriveItems, token);
-        await db.saveWhitelists(whitelists)
+          let whitelists = await fetchWhitelists(whitelistDriveItems, token);
+          await db.saveWhitelists(whitelists)
         } catch (error) {
           throw(error)
           console.error(error);
@@ -106,6 +106,7 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
          //CREATE USER
         //SET COUNTRY/VERSION
         await db.createUserIfEmpty()
+        await db.setupInitialFavoriteGroup()
 
         localStorgeHelper.setLastMetdataUpdate()
 
