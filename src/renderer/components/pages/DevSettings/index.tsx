@@ -19,6 +19,7 @@ import React, { FC, Fragment, useEffect, useState } from 'react';
 import { Sidebar } from '../../organisms';
 
 import { LoadingDialog } from '../../atoms';
+import { Link } from 'react-router-dom';
 
 import { AuthenticationResult } from '@azure/msal-node';
 import {
@@ -749,10 +750,17 @@ export const DevSettings: FC<DevSettingsProps> = () => {
               <ListItem button>
                 <ListItemText
                   primary="Create user"
+                />
+              </ListItem>
+            </Grid>
+            
+          </Grid>
 
-                  onClick={() => {
-                    db.createUserIfEmpty()                   
-                  }}
+          <Grid container>
+            <Grid item>
+              <ListItem button component={Link} to="/fileViewer">
+                <ListItemText
+                  primary="Open File in Viewer"
                 />
               </ListItem>
             </Grid>

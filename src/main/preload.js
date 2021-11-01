@@ -53,6 +53,9 @@ contextBridge.exposeInMainWorld('electron', {
     getLoginState: async() => {
       return await ipcRenderer.invoke('GET_LOGIN_STATE');
     },
+    closeFileViewer: (path) => {
+      ipcRenderer.invoke('CLOSE_FILE_VIEWER');
+    },
     on(channel, func) {
       const validChannels = ['ipc-example', 'login-close-test'];
       if (validChannels.includes(channel)) {

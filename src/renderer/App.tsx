@@ -5,7 +5,7 @@ import React from 'react';
 import { MemoryRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
 import { LoadingDialog, UpdateMetadataDialog } from './components/atoms';
-import { CartPage, DevSettings, FavoritesPage, HomePage, SettingsPage } from './components/pages';
+import { CartPage, DevSettings, FavoritesPage, HomePage, SettingsPage, FileViewer } from './components/pages';
 import { Layout } from './components/templates';
 import { useAppCore } from './useAppCore';
 
@@ -56,6 +56,7 @@ export default function App() {
             <Route path="/cart" component={CartPage} />
             <Route path="/settings" component={SettingsPage} />
             <Route path="/devsettings" component={DevSettings} />
+            <Route path="/fileViewer" component={FileViewer} />
           </Switch>
         </Layout>
       </Router>

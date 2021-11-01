@@ -11,7 +11,7 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, session, Session, protocol } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, session, Session, protocol, BrowserView } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log, { create } from 'electron-log';
 import MenuBuilder from './menu';
@@ -340,7 +340,7 @@ ipcMain.handle('IS_SUB_DIRECTORY', (_, parent, dir) => {
   return contains
 })
 
-ipcMain.handle('OPEN_HTML', (_, path: string, local?: boolean) => {
+ipcMain.handle('OPEN_HTML', async(_, path: string, local?: boolean) => {
 
   ses!.cookies.get({ url: 'https://fresenius.sharepoint.com' })
   .then((cookies) => {
@@ -354,19 +354,45 @@ ipcMain.handle('OPEN_HTML', (_, path: string, local?: boolean) => {
   try {
     console.log(local);
 
-    let window = createModalWindow(mainWindow!)
+    let window = await createInlineWindow(mainWindow!)
     if(local === true || local === undefined) {
-      window.loadFile(path)
+      await window.webContents.loadFile(path)
       console.log("loading local file:"+path);
     } else {
       console.log("loading url:"+path);
 
-      window.loadURL(path)
+      await window.webContents.loadURL(path)
+      
     }
+    
+    const innerHtml = `
+      "<button onclick='function s(){ window.electron.ipcRenderer.closeFileViewer() }; s();'>Close this file</button>"
+    `
+
+    window?.webContents
+    .executeJavaScript(`
+      const innerHtml = ${innerHtml}
+      var wrapper = document.createElement("div");
+      wrapper.innerHTML = innerHtml;
+      wrapper.style.position = "absolute"
+      wrapper.style.top = "0px"
+      wrapper.style.left = "0px"
+      wrapper.style.zIndex = 999;
+      document.body.prepend(wrapper);
+    `, true)
+
+    window.webContents.addListener("ipc-message", (event, arg) => {
+      console.log("ipc message "+arg);     
+    })
+    
   }
   catch(error) {
     console.log(error);
   }
+})
+
+ipcMain.handle('CLOSE_FILE_VIEWER', async () => {
+  mainWindow?.setBrowserView(null)
 })
 
 ipcMain.handle('OPEN_CART_FOLDER', async(_, path: string) => {
@@ -416,6 +442,8 @@ const getAuthFromStorage = async (): Promise<AuthenticationResult | null> => {
     }
     return null
 }
+
+
 
 // ipcMain.handle(ipcEvent.whitelists, async(event, urls:string[]) => {
 // console.log("get whitelists main");
@@ -506,7 +534,6 @@ export function createModalWindow(mainWindow: BrowserWindow, closeCallback?:() =
       session: ses
     },
   });
-
   modalWindow.setMenuBarVisibility(false);
 
   modalWindow.on('close', event => {
@@ -514,4 +541,28 @@ export function createModalWindow(mainWindow: BrowserWindow, closeCallback?:() =
   });
 
   return modalWindow;
+}
+
+async function createInlineWindow(mainWindow: BrowserWindow, closeCallback?:() => void): Promise<BrowserView> {
+  const browserView = new BrowserView({
+    webPreferences: {
+      enableRemoteModule: true,
+      nodeIntegration: false,
+      webSecurity: false,
+      preload: path.join(__dirname, 'preload.js'),
+      session: ses,
+    }
+  })
+
+  browserView.setAutoResize({horizontal: true, vertical: true})
+  mainWindow.setBrowserView(browserView)
+  let {width, height} = mainWindow.getContentBounds()
+  browserView.setBounds({ x: 0, y: 0, width: width, height: height})
+
+
+    
+ 
+
+
+  return browserView
 }

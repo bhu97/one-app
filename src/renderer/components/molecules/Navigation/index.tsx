@@ -37,12 +37,12 @@ export const Navigation: FunctionComponent<INavigationProps> = ({
       text: 'Settings',
       url: '/settings',
     },
-    // {
-    //   disabled,
-    //   Icon: SettingsIcon,
-    //   text: 'Dev Settings',
-    //   url: '/devsettings',
-    // },
+    {
+      disabled,
+      Icon: SettingsIcon,
+      text: 'Dev Settings',
+      url: '/devsettings',
+    },
   ];
   return <List>{menuItems.map(MenuItem)}</List>;
 };
