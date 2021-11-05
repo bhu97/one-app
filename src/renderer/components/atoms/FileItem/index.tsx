@@ -103,7 +103,11 @@ export const FileItem: FC<IFileItemProps> = ({
   const openFile = async () => {
     setIsLoading(true);
     setLoadingMessage('Opening file');
-    await dataManager.openDriveItem(uniqueId);
+    try {
+      await dataManager.openDriveItem(uniqueId);
+    } catch (error) {
+      console.error(error);
+    }
     setIsLoading(false);
   };
   const text = title || name;

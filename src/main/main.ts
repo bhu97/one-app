@@ -248,8 +248,8 @@ ipcMain.handle(ipcEvent.refreshToken, async() => {
 ipcMain.handle('download-file', async(event, params) => {
 
   if(mainWindow) {
-    console.log(params);
-    console.log(mainWindow);
+    //console.log(params);
+    //console.log(mainWindow);
     try {
       const accessToken = params.accessToken
       if (accessToken) {
@@ -340,7 +340,7 @@ ipcMain.handle('IS_SUB_DIRECTORY', (_, parent, dir) => {
   return contains
 })
 
-ipcMain.handle('OPEN_HTML', async(_, path: string, local?: boolean) => {
+ipcMain.handle('OPEN_HTML', async(_, path: string, local?: boolean, newWindow?: boolean) => {
 
   ses!.cookies.get({ url: 'https://fresenius.sharepoint.com' })
   .then((cookies) => {
@@ -349,12 +349,14 @@ ipcMain.handle('OPEN_HTML', async(_, path: string, local?: boolean) => {
     console.log(error)
   })
 
+  console.log("open in new window: " + newWindow)
   console.log("open html:"+path);
 
   try {
     console.log(local);
 
-    let window = await createInlineWindow(mainWindow!)
+    let window = (newWindow && newWindow === true) ? await createModalWindow(mainWindow!) : await createInlineWindow(mainWindow!)
+    
     if(local === true || local === undefined) {
       await window.webContents.loadFile(path)
       console.log("loading local file:"+path);
@@ -365,10 +367,10 @@ ipcMain.handle('OPEN_HTML', async(_, path: string, local?: boolean) => {
       
     }
     
-    const innerHtml = `
+    if(newWindow === false) {
+      const innerHtml = `
       "<button onclick='function s(){ window.electron.ipcRenderer.closeFileViewer() }; s();'>Close this file</button>"
     `
-
     window?.webContents
     .executeJavaScript(`
       const innerHtml = ${innerHtml}
@@ -379,12 +381,8 @@ ipcMain.handle('OPEN_HTML', async(_, path: string, local?: boolean) => {
       wrapper.style.left = "0px"
       wrapper.style.zIndex = 999;
       document.body.prepend(wrapper);
-    `, true)
-
-    window.webContents.addListener("ipc-message", (event, arg) => {
-      console.log("ipc message "+arg);     
-    })
-    
+    `, true)  
+    } 
   }
   catch(error) {
     console.log(error);
@@ -558,11 +556,6 @@ async function createInlineWindow(mainWindow: BrowserWindow, closeCallback?:() =
   mainWindow.setBrowserView(browserView)
   let {width, height} = mainWindow.getContentBounds()
   browserView.setBounds({ x: 0, y: 0, width: width, height: height})
-
-
-    
- 
-
 
   return browserView
 }

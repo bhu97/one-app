@@ -222,11 +222,11 @@ const openModule = async(uniqueId:string, progressState?:(state: string) => void
           let newUnzippedItem = await downloadModule(driveItem.uniqueId, token, progressState)
           if(newUnzippedItem) {
             //open zip
-            window.electron.ipcRenderer.openHTML(newUnzippedItem.indexHtmlPath, true)
+            window.electron.ipcRenderer.openHTML(newUnzippedItem.indexHtmlPath, true, false)
           }
         } else {
           console.log("found an up to date local module");
-          window.electron.ipcRenderer.openHTML(unzippedItem.indexHtmlPath, true)
+          window.electron.ipcRenderer.openHTML(unzippedItem.indexHtmlPath, true, false)
         }
 
       } else {
@@ -235,7 +235,7 @@ const openModule = async(uniqueId:string, progressState?:(state: string) => void
        let newUnzippedItem = await downloadModule(localDriveItem.uniqueId, token)
           if(newUnzippedItem) {
             //open zip
-            window.electron.ipcRenderer.openHTML(newUnzippedItem.indexHtmlPath, true)
+            window.electron.ipcRenderer.openHTML(newUnzippedItem.indexHtmlPath, true, false)
           }
       }
     }
@@ -251,16 +251,21 @@ const openDriveItem = async(uniqueId:string, progressState?:(state: string) => v
   const shouldOpenLocal = (!(driveItem.fileExtension  === null || driveItem.fileExtension === undefined) && driveItem.fileExtension === "zip")
   console.log("should open local"+shouldOpenLocal);
 
-  if(shouldOpenLocal) {
+  if(driveItem.fileExtension && isAllowedFileExtension(driveItem.fileExtension)) {
+   if(shouldOpenLocal) {
     await openModule(driveItem.uniqueId, progressState)
   } else {
     if(driveItem.webUrl) {
       console.log("open url: "+driveItem.webUrl);
-      
-      window.electron.ipcRenderer.openHTML(driveItem.webUrl, shouldOpenLocal)
+      const openInNewWindow = shouldOpenFileInNewWindow(driveItem.fileExtension)
+      console.log("open in new window: " + openInNewWindow)
+      window.electron.ipcRenderer.openHTML(driveItem.webUrl, shouldOpenLocal, openInNewWindow)
     }
+  } 
+  } else {
+    console.error("wrong extension")
+    throw("Can't open file extension")
   }
-
 }
 //const openOrDownloadModule = async() => {}
 const shouldShowUpdateAlert = ():boolean => {
@@ -326,7 +331,30 @@ const getAppState = async(): Promise<IAppState> => {
   //check error
 }
 
+const isAllowedFileExtension = (extension: string):boolean => {
+  const allowedExtensions = [
+    "pdf",
+    "docx",
+    "pptx",
+    "xlsx",
+    "mp4",
+    "zip",
+    "txt",
+    "rtf",
+    "doc"
+  ]
 
+  const index = allowedExtensions.findIndex(ext => ext.toLowerCase() == extension.toLowerCase())
+  return index != -1
+}
+
+const shouldOpenFileInNewWindow = (extension: string): boolean => {
+  const extensionsThatNeedNewWindow = [
+    "mp4"
+  ]
+  const index = extensionsThatNeedNewWindow.findIndex(ext => ext.toLowerCase() == extension.toLowerCase())
+  return index != -1
+}
 
 export enum AppError {
   NO_LOGIN,

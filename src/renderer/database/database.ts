@@ -143,6 +143,7 @@ export class AppDatabase extends Dexie {
         } 
     }
 
+    //TODO: refactor this, so it doesn't create a new user
     async updateCountryVersion(country?:string, version?:string): Promise<any> {
         let user = await this.getUser() 
         if (!user) {
@@ -154,6 +155,7 @@ export class AppDatabase extends Dexie {
         return await db.users.put(user);
     }
 
+    //TODO: refactor so that only a user gets created here
     async createUserIfEmpty():Promise<void> {
         const user = await this.getUser()
         console.log(user);
@@ -164,6 +166,15 @@ export class AppDatabase extends Dexie {
             
             if (countries && countries.length > 0) {
                 return await this.selectCurrentCountry(countries[1])
+            }
+        } else {
+            // in case there is no country selected although we have a user
+            //we select some country
+            if(user.country == "") {
+                const countries = await this.getAllAvailableCountries()
+                if (countries && countries.length > 0) {
+                    return await this.selectCurrentCountry(countries[1])
+                }
             }
         }
     }
