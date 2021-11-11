@@ -251,8 +251,11 @@ export class AppDatabase extends Dexie {
 
     async whitelistArrayForCountry(country: string):Promise<Array<string>> {
         let whitelist = await this.whitelistForCountry(country)
-        let urlArray = whitelist.content.split(",")
-        return urlArray
+        if(whitelist) {
+            let urlArray = whitelist.content.split(",")
+            return urlArray
+        }
+        return []
     }
 
     async hasMatchingMasterFolder(country:string, webUrl: string):Promise<boolean> {

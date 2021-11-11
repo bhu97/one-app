@@ -27,6 +27,7 @@ const MSAL_CONFIG:Configuration = {
     auth: {
         clientId: config.CLIENT_ID,
         authority: `${config.AAD_ENDPOINT_HOST}${config.TENANT_ID}`,
+        knownAuthorities: config.KNOWN_AUTHORITIES
         //redirectUri: config.REDIRECT_URI,
     },
     system: {

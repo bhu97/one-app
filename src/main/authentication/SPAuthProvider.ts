@@ -76,6 +76,9 @@ class SPAuthProvider {
         authWindow.webContents.on('did-redirect-navigation', (event:any, responseUrl:any) => {
           try {
             if (responseUrl.startsWith(navigateUrl)) {
+              console.log(navigateUrl);
+              console.log(responseUrl);
+              
               authWindow.hide()
               event.preventDefault()
               // authWindow.removeAllListeners()

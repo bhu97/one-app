@@ -36,5 +36,10 @@ export default {
   GRAPH_THUMBNAILS_ENDPOINT: (uniqueId:string) => `https://graph.microsoft.com/v1.0/drives/b!EKRo7XQXvUyRuOIkA9DjxunkygQdu11AmW6wdTRwuw91Ixe2mdV7RoMnMBsg3DoG/items/${uniqueId}/children?$expand=thumbnails`,
   GRAPH_ITEM_THUMBNAIL_ENDPOINT: (uniqueId:string) => `https://graph.microsoft.com/v1.0/drives/b!EKRo7XQXvUyRuOIkA9DjxunkygQdu11AmW6wdTRwuw91Ixe2mdV7RoMnMBsg3DoG/items/${uniqueId}?$expand=thumbnails`,
   // SCOPES
-  GRAPH_SCOPES:"User.Read Sites.Read.All"
+  GRAPH_SCOPES:"User.Read Sites.Read.All",
+  KNOWN_AUTHORITIES:[
+    "https://login.microsoftonline.com/", 
+    "https://login.microsoftonline.com/c98df534-5e36-459a-ac3f-8c2e449863bd",
+    "https://login.microsoftonline.com/organizations",
+  ]
 }

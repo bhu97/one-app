@@ -2,7 +2,11 @@ import { makeStyles, MenuItem, Select, Typography } from '@material-ui/core';
 import React, { FC } from 'react';
 
 import { CloudIcon, PencilIcon, UserIcon } from '../../../svg';
-import { LoginState, MetaDataState, SessionState } from '../../../utils/constants';
+import {
+  LoginState,
+  MetaDataState,
+  SessionState,
+} from '../../../utils/constants';
 import { LoadingDialog, RightMenuItem } from '../../atoms';
 import { useAppSettings } from './useAppSettings';
 
