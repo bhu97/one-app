@@ -178,7 +178,8 @@ app.on('activate', () => {
 let loginInProgress = false;
 
 ipcMain.handle(ipcEvent.login, async() => {
-  console.log("login event");
+  try {
+    console.log("login event");
   if (loginInProgress) {
     console.error("Another login is already in progress! Aborting this login");
     return;
@@ -195,19 +196,22 @@ ipcMain.handle(ipcEvent.login, async() => {
   const token = await authProvider.getTokenSilent(account);
 
   console.log(mainWindow);
-  //TODO: make a storage provider
+
   if (token) {
     await saveTokenToStorage(token.accessToken);
     await saveAuthToStorage(token)
   }
   loginWindow.close();
   loginInProgress = false;
-
   return token;
+  } catch (error) {
+    console.error(error)
+  }
 })
 
 ipcMain.handle(ipcEvent.loginSP, async() => {
-  console.log("loginSP event");
+  try {
+    console.log("loginSP event");
   if (loginInProgress) {
     console.error("Another login is already in progress! Aborting this loginSP");
     return;
@@ -235,6 +239,11 @@ ipcMain.handle(ipcEvent.loginSP, async() => {
   loginWindow.close();
   loginInProgress = false;
   return token;
+  } catch (error) {
+    console.log(error);
+        
+  }
+  return
 })
 
 ipcMain.handle(ipcEvent.refreshToken, async() => {
@@ -363,7 +372,7 @@ ipcMain.handle('OPEN_HTML', async(_, path: string, local?: boolean, newWindow?: 
     } else {
       console.log("loading url:"+path);
 
-      await window.webContents.loadURL(path)
+      await window.webContents.loadURL(path+"#toolbar=1&navpanes=0&scrollbar=0&view=FitV&zoom=100")
       
     }
     

@@ -66,8 +66,8 @@ export const FolderList: FC<IFolderListProps> = ({
             <br /> You might not have sufficient permissions.
             <br />
             Please contact{' '}
-            <a className={styles.email} href="mailto:oneapp@gmc-ag.com">
-              oneapp@gmc-ag.com
+            <a className={styles.email} href="mailto:oneapp@fmc-ag.com">
+              oneapp@fmc-ag.com
             </a>
           </div>
         </div>

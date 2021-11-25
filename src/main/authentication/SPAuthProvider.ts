@@ -97,12 +97,17 @@ class SPAuthProvider {
           if (event.sender.getURL().startsWith(navigateUrl)) {
             event.preventDefault()
             // authWindow.removeAllListeners()
-            // resolve(true)
+            //resolve(true)
+
+            //dirty hack in case we have no internet
+            setTimeout(function() {resolve(true) }, 5000);
+             
           }
         })
       }).finally(() => {
         authWindow.removeAllListeners();
         authWindow.webContents.session.cookies.removeAllListeners();
+      
       });
     }
     async getTokenSilent(currentAccount: AccountInfo | null | undefined): Promise<AuthenticationResult | null> {

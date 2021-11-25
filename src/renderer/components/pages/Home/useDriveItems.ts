@@ -15,7 +15,8 @@ export const useDriveItems = (
   const [items, setItems] = useState<IDriveItem[][]>([]);
 
   const getRootData = async () => {
-    const store = await FlexLightStoreFactory.getStoreForCurrentUser({});
+    try {
+      const store = await FlexLightStoreFactory.getStoreForCurrentUser({});
     if (!store) {
       setIsLoading(false);
       return;
@@ -31,6 +32,11 @@ export const useDriveItems = (
     }
     setItems(currentItems);
     setIsLoading(false);
+    } catch (error) {
+      console.error(error)
+      setIsLoading(false)
+    }
+    
   };
 
   const getFileListData = async (uniqueId: string) => {
@@ -68,7 +74,9 @@ export const useDriveItems = (
       setCurrentRoute([...ancestorsRoute, item]);
       onRouteChanged([...ancestorsRoute, item]);
     }
-    mainRef.current?.parentElement?.parentElement?.scrollTo({
+    console.log(mainRef.current?.parentElement?.parentElement);
+    
+    mainRef.current?.parentElement?.scrollTo({
       left: 10000,
       behavior: 'smooth',
     });
