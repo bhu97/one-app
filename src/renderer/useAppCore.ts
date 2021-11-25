@@ -24,6 +24,8 @@ export const useAppCore = () => {
     setIsOutdated(false);
   };
   const onMetadataUpdate = async () => {
+    console.log("metadata update");
+    
     setIsLoading(true);
     try {
       await dataManager.getMetaData();
@@ -34,6 +36,7 @@ export const useAppCore = () => {
     setIsLoading(false);
   };
   const loadUserSettings = async () => {
+    console.log("load user settings update");
     setIsLoading(true);
     try {
       const state = await dataManager.getAppState();
@@ -41,6 +44,8 @@ export const useAppCore = () => {
         state.login !== LoginState.LOGGED_IN ||
         state.session !== SessionState.SESSION_VALID
       ) {
+        console.log("try to login");
+        
         await dataManager.login();
       }
       if (
@@ -56,6 +61,7 @@ export const useAppCore = () => {
       console.error(e);
       toast.error(`Can't load app state!`);
     }
+    console.log("load user settings update finish");
     setIsLoading(false);
   };
   useEffect(() => {
