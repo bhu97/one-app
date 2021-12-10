@@ -405,7 +405,7 @@ ipcMain.handle('CLOSE_FILE_VIEWER', async () => {
 ipcMain.handle('OPEN_CART_FOLDER', async(_, path: string) => {
   let response = await openFolder(fileManager.cartFolder)
   console.log(`open folder response : ${response} for folder path: ${fileManager.cartFolder}`);
-  shell.openExternal("mailto:?subject=&body=");
+  shell.openExternal("mailto:?subject=%20&body=%20");
 })
 
 ipcMain.handle('GET_LOGIN_STATE', async() => {
