@@ -236,7 +236,7 @@ export class AppDatabase extends Dexie {
         const driveItems = await this.rootItems()
         const driveItemsNoMaster = driveItems?.filter(driveItem => driveItem.name! !== kMasterFolderName)
         if (driveItemsNoMaster) {
-            return driveItemsNoMaster?.flatMap(driveItem => driveItem.name!)
+            return driveItemsNoMaster?.flatMap(driveItem => driveItem.name!).sort((name1,name2) => name1.localeCompare(name2))
         }
         return null
     } 
