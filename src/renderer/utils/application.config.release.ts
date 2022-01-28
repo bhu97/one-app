@@ -1,6 +1,6 @@
 export default {
 
-  APP_VERSION: "3.0.2",
+  APP_VERSION: "1.0.1",
   //Azure IDs
   // Find all details here https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/054ed5dd-8447-4c78-856b-5a0462bf0e68/isMSAApp/
   CLIENT_ID:"054ed5dd-8447-4c78-856b-5a0462bf0e68",
