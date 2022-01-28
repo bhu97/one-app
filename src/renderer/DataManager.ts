@@ -99,8 +99,8 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
           let whitelists = await fetchWhitelists(whitelistDriveItems, token);
           await db.saveWhitelists(whitelists)
         } catch (error) {
-          throw(error)
           console.error(error);
+          throw(error)
         }
 
          //CREATE USER
