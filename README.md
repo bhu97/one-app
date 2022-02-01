@@ -1,40 +1,22 @@
-<img src=".erb/img/erb-banner.png" width="100%" />
+<h1 align="center">
+  One App Desktop
+  <br>
+</h1>
 
-<br>
+[Project Page on Confluence](https://confluence.intra.fresenius.de/pages/viewpage.action?pageId=122279999)
 
-<p>
-  Electron React Boilerplate uses <a href="https://electron.atom.io/">Electron</a>, <a href="https://facebook.github.io/react/">React</a>, <a href="https://github.com/reactjs/react-router">React Router</a>, <a href="https://webpack.js.org/">Webpack</a> and <a href="https://www.npmjs.com/package/react-refresh">React Fast Refresh</a>.
-</p>
+## Description
+The currently used ONE e-Detailing of FMC Marketing has been developed by an external 3rd Party supplier. 
+The app has been used for many years and needs a lot of maintenance effort to keep the contents up to date. 
+Therefore the App shall be replaced by a Sharepoint-based, native iPad App, which allows the Product Owners to 
+update the content by themselve or by local editors.
 
-<br>
+After success of the iPad App, there was now a need for a desktop version that can run on windows with similar features.
 
-<div align="center">
-
-[![Build Status][github-actions-status]][github-actions-url]
-[![Dependency Status][david-image]][david-url]
-[![DevDependency Status][david-dev-image]][david-dev-url]
-[![Github Tag][github-tag-image]][github-tag-url]
-
-[![OpenCollective](https://opencollective.com/electron-react-boilerplate/backers/badge.svg)](#backers)
-[![OpenCollective](https://opencollective.com/electron-react-boilerplate/sponsors/badge.svg)](#sponsors)
-[![Good first issues open][good-first-issue-image]][good-first-issue-url]
-[![StackOverflow][stackoverflow-img]][stackoverflow-url]
-
-</div>
-
-## Install
-
-- **If you have installation or compilation issues with this project, please see [our debugging guide](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/400)**
-
-First, clone the repo via git and install dependencies:
-
-```bash
-git clone --depth 1 --branch main https://github.com/electron-react-boilerplate/electron-react-boilerplate.git your-project-name
-cd your-project-name
-yarn
-```
-
-## Starting Development
+## How to use
+- Node 12+ LTS
+- Typescript
+- Platform target Windows 10+ (Works also on MacOS)
 
 Start the app in the `dev` environment:
 
@@ -50,6 +32,27 @@ To package apps for the local platform:
 yarn package
 ```
 
-## Docs
+Or package for prod use with debug mode enabled (developer tools)
+```bash
+yarn cross-env DEBUG_PROD=true yarn build 
+yarn cross-env DEBUG_PROD=true yarn package  
+```  
 
-See our [docs and guides here](https://electron-react-boilerplate.js.org/docs/installation)
+
+## Docs
+This project is built on to of electron boilerplate project on git.
+Some documentation for debugging or extending is here:
+[docs and guides here](https://electron-react-boilerplate.js.org/docs/installation)
+
+---
+
+## Release Notes
+
+### 1.0.1
+- added better handling for login and network
+- fixed wrong subject in emails
+- country selection in settings is sorted by name now
+- Folder list in Home should scroll now correctly
+
+### 1.0.0
+- First release for testing with customer and UK users
