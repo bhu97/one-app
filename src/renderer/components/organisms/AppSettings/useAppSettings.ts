@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import SettingsStore from '../../../database/stores/SettingsStore';
 import { dataManager } from '../../../DataManager';
+import { useTracking } from '../../../TrackingManager';
 import { IAppState } from '../../../utils/constants';
 
 export const useAppSettings = () => {
@@ -16,6 +17,8 @@ export const useAppSettings = () => {
   const [modifiedDate, setModifiedDate] = useState<string>('Unknown');
   const [appState, setAppState] = useState<IAppState | undefined>(undefined);
   const settingsStoreRef = useRef(new SettingsStore({}));
+  const {trackCountryChange} = useTracking()
+
   const login = async () => {
     setIsLoading(true);
     setLoadingMessage('Logging in');
@@ -28,7 +31,10 @@ export const useAppSettings = () => {
   };
   const getCurrentSettings = async () => {
     try {
+
       setSelectedCountry(settingsStoreRef.current.currentCountry);
+      trackCountryChange(settingsStoreRef.current.currentCountry);
+      
       setCountryVersion(
         settingsStoreRef.current.currentVersion === '0' ? 'flex' : 'light'
       );

@@ -54,6 +54,7 @@ export const HomePage: FC<IHomePageProps> = ({
   const isDocumentSet =
     lastItem.contentType === 'Document Set' || // TODO type and isDocumentSet are not working
     lastItem?.type === DriveItemType.DOCUMENTSET;
+
   return (
     <>
       <BackButton

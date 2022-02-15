@@ -1,13 +1,16 @@
 import './App.global.css';
 import './utils/global';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MemoryRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
 import { LoadingDialog, UpdateMetadataDialog } from './components/atoms';
 import { CartPage, DevSettings, FavoritesPage, HomePage, SettingsPage, FileViewer } from './components/pages';
 import { Layout } from './components/templates';
 import { useAppCore } from './useAppCore';
+import { useMatomo } from '@datapunt/matomo-tracker-react';
+import { useTracking } from './TrackingManager'
+import { db } from './database/database';
 
 async function checkAuth() {
   const token = window.localStorage.getItem('token');
@@ -28,6 +31,25 @@ export default function App() {
     onMetadataUpdate,
     onOutdatedDismiss,
   } = useAppCore();
+
+  const { enableLinkTracking } = useMatomo();
+  const { trackStart } = useTracking()
+  enableLinkTracking();
+
+  useEffect(() => {
+    // do stuff here...
+    const trackStartupCountry = async () => {
+      const user = await db.getUser();
+      if (user && user.country) {
+        trackStart(user.country);
+        console.log('track start ' + user.country);
+      }
+    };
+    trackStartupCountry()
+  }, []); 
+
+  
+  
   return (
     <>
       <Router>

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 
 import { IDriveItem } from '../../../database/database';
 import { FlexLightStoreFactory } from '../../../database/stores/FlexLightStoreFactory';
+import { useTracking } from '../../../TrackingManager';
+import { normalizeUrl } from '../../../utils/helper';
 
 export const useDriveItems = (
   mainRef: React.MutableRefObject<HTMLDivElement | null>,
@@ -15,6 +17,7 @@ export const useDriveItems = (
   const [items, setItems] = useState<IDriveItem[][]>([]);
 
   const getRootData = async () => {
+    console.log("get root data")
     try {
       const store = await FlexLightStoreFactory.getStoreForCurrentUser({});
     if (!store) {
@@ -56,12 +59,23 @@ export const useDriveItems = (
       getRootData();
     }
   }, [isMetadataLoading]);
+  //tracking
+  const { trackContentPage } = useTracking()
 
   const onDriveItemSelected = async (
     item: IDriveItem,
     index: number,
     fromBreadcrumbs = false
   ) => {
+    
+    if (item.contentType === 'Document Set') {
+      trackContentPage(
+        item.name ?? "", 
+        item.country ?? "", 
+        normalizeUrl(item.webUrl ?? "")
+      )
+    }
+
     const ancestors = [...items.slice(0, index + 1)];
     const ancestorsRoute = [...currentRoute.slice(0, index + 1)];
     const levelItems = await getFileListData(item.uniqueId);

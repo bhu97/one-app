@@ -7,6 +7,7 @@ import { dataManager } from '../../../DataManager';
 import { FileCommands } from '../../../enums';
 import { getFileSizeLiteral, useGetFilesData } from '../../../helpers';
 import { DatabaseIcon, DocsIcon, EmailIcon, TrashIcon } from '../../../svg';
+import { useTracking } from '../../../TrackingManager';
 import { LoadingDialog, RightMenuBox, RightMenuItem } from '../../atoms';
 import { FileList } from '../../molecules';
 import { PageStructure } from '../../templates';
@@ -26,6 +27,11 @@ export const CartPage: FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const { items, thumbnails, updateItems } = useGetFilesData(cartStore);
+  const {trackSendFiles} = useTracking()
+  var country: string | undefined 
+  if(items.length > 0) {
+    country = items[0].country
+  }
 
   return (
     <>
@@ -56,6 +62,7 @@ export const CartPage: FC = () => {
                   setIsLoading(true);
                   setLoadingMessage('Downloading files');
                   await dataManager.downloadCartFiles();
+                  trackSendFiles(items.map(item=>item.name ?? ""), country)
                   setIsLoading(false);
                 }}
               />

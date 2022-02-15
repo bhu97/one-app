@@ -1,6 +1,8 @@
+import { useMatomo } from '@datapunt/matomo-tracker-react';
 import { Button, ListItem, ListItemText, makeStyles } from '@material-ui/core';
 import { toast } from 'material-react-toastify';
 import React, { FC, useState } from 'react';
+import { useTracking } from '../../../TrackingManager';
 
 import { IDriveItem } from '../../../database/database';
 import { cartStore } from '../../../database/stores/CartStore';
@@ -11,6 +13,7 @@ import { NewArrowIcon } from '../../../svg';
 import { DropdownMenu } from '../DropdownMenu';
 import { FavsModal } from '../FavsModal';
 import { LoadingDialog } from '../Loading';
+import { normalizeUrl } from '../../../utils/helper';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -96,11 +99,20 @@ export const FileItem: FC<IFileItemProps> = ({
   onFavouriteChange,
 }) => {
   const styles = useStyles();
-  const { uniqueId, name, title, fileExtension, fileSize } = item;
+  const { uniqueId, name, title, fileExtension, fileSize, country, webUrl } = item;
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [isFavVisible, setIsFavVisible] = useState(false);
+  const { trackFavorite } = useTracking()
+ 
+  const {trackViewFile, trackViewFileByCountry} = useTracking();
   const openFile = async () => {
+
+    if (name && country) {
+      trackViewFile(name, country, normalizeUrl(webUrl ?? ''));
+      trackViewFileByCountry(country, normalizeUrl(webUrl ?? ''));
+    }
+    
     setIsLoading(true);
     setLoadingMessage('Opening file');
     try {
@@ -173,7 +185,15 @@ export const FileItem: FC<IFileItemProps> = ({
               },
               {
                 title: FileCommands.AddRemoveFavourite,
-                onClick: () => setIsFavVisible(true),
+                onClick: () => {
+                  //trackFavorite
+                  trackFavorite(
+                    item.name ?? '',
+                    item.country ?? '',
+                    normalizeUrl(item.webUrl ?? '')
+                  );
+                  setIsFavVisible(true)
+                },
               },
             ].filter((command) =>
               availableCommands.some(
