@@ -8,7 +8,7 @@ const instance = createInstance({
   siteId: 95,
 });
 
-
+console.log(instance)
 
 render(
   <MatomoProvider value={instance}>

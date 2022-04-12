@@ -8,7 +8,9 @@ export const useTracking = () => {
       trackPageView({
         href: `view-file-desktop/${fileName} (${country})`
       })
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const trackContentPage = (name: string, country: string, path: string)  => {
@@ -16,7 +18,9 @@ export const useTracking = () => {
       trackPageView({
         href: `content-page-desktop/${country}/${name}/${path}`
       })
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const trackFavorite = (name: string, country: string, path: string)  => {
@@ -24,7 +28,9 @@ export const useTracking = () => {
       trackPageView({
         href: `favorite-file-desktop/${country}/${name}/${path}`
       })
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const trackStart = (country: string) => {
@@ -32,7 +38,9 @@ export const useTracking = () => {
       trackPageView({
         href: `app-start-desktop/${country}/`
       })
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const trackViewFileByCountry = (country: string, path: string) => {
@@ -40,7 +48,9 @@ export const useTracking = () => {
       trackPageView({
         href: `view-file-by-country-desktop/${country ?? "none"}/${path}`
       })
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const trackSendFiles = (fileNames: string[], country?: string) => {
@@ -48,7 +58,9 @@ export const useTracking = () => {
       trackPageView({
         href: `send-files-desktop/${country ?? "none"}/${fileNames.join()}`
       })
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const trackCountryChange = (country: string) => {
@@ -56,7 +68,9 @@ export const useTracking = () => {
       trackPageView({
         href: `country-change-desktop/${country}/`
       })
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   //currently there is no download

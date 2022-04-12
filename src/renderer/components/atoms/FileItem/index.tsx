@@ -1,8 +1,7 @@
-import { useMatomo } from '@datapunt/matomo-tracker-react';
 import { Button, ListItem, ListItemText, makeStyles } from '@material-ui/core';
 import { toast } from 'material-react-toastify';
 import React, { FC, useState } from 'react';
-import { useTracking } from '../../../TrackingManager';
+import { useTracking } from '../../../useTracking';
 
 import { IDriveItem } from '../../../database/database';
 import { cartStore } from '../../../database/stores/CartStore';
