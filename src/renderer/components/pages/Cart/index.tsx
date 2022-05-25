@@ -25,9 +25,12 @@ const useStyles = makeStyles((theme) => ({
 export const CartPage: FC = () => {
   const styles = useStyles();
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("matthias.brodalka@fresenius.com")
+  //TODO: this is only temporary for testing mail
+  //set your email for testing the mail part
+  const [email, setEmail] = useState("")
   const emailSubjectRef = useRef("Test")
   const emailTextRef = useRef("Test")
+  // ---
   const [loadingMessage, setLoadingMessage] = useState('');
   const { items, thumbnails, updateItems } = useGetFilesData(cartStore);
   const {trackSendFiles} = useTracking()
