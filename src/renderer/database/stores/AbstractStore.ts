@@ -15,6 +15,7 @@ export abstract class AbstractStore implements IStore{
 
   items: IDriveItem[] = []
   isRoot: boolean = false
+  currentCountry?: string
 
   constructor(public params: IStoreParams) {}
   async update() {}

@@ -42,7 +42,6 @@ export default function App() {
       const user = await db.getUser();
       if (user && user.country) {
         trackStart(user.country);
-        console.log('track start ' + user.country);
       }
     };
     trackStartupCountry()

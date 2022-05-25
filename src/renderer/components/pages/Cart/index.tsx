@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core';
-import React, { FC, useState } from 'react';
+import React, { FC, useRef, useState } from 'react';
 
 import headerImage from '../../../../../assets/cart/200921_FMC_OneApp_Illustrationen_Final_Documents.png';
 import { cartStore } from '../../../database/stores/CartStore';
@@ -25,6 +25,9 @@ const useStyles = makeStyles((theme) => ({
 export const CartPage: FC = () => {
   const styles = useStyles();
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("matthias.brodalka@fresenius.com")
+  const emailSubjectRef = useRef("Test")
+  const emailTextRef = useRef("Test")
   const [loadingMessage, setLoadingMessage] = useState('');
   const { items, thumbnails, updateItems } = useGetFilesData(cartStore);
   const {trackSendFiles} = useTracking()
@@ -32,7 +35,6 @@ export const CartPage: FC = () => {
   if(items.length > 0) {
     country = items[0].country
   }
-
   return (
     <>
       <PageStructure
@@ -60,8 +62,8 @@ export const CartPage: FC = () => {
                 icon={EmailIcon}
                 onClick={async () => {
                   setIsLoading(true);
-                  setLoadingMessage('Downloading files');
-                  await dataManager.downloadCartFiles();
+                  setLoadingMessage('Downloading & sending files');
+                  await dataManager.sendCartMail(email, emailSubjectRef.current, emailTextRef.current);
                   trackSendFiles(items.map(item=>item.name ?? ""), country)
                   setIsLoading(false);
                 }}

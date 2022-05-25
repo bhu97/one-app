@@ -1,6 +1,9 @@
 import { AuthenticationResult } from "@azure/msal-node"
 import dayjs from "dayjs"
 
+// cuts everything in a sharepoint url before and including "Shared Documents"
+// so you get the relative path out of a SharePoint weburl
+//
 export const normalizeUrl = (url: string): string => {
   const components = url.split("Shared%20Documents")
   if(components.length>0) {

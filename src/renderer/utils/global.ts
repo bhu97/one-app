@@ -24,6 +24,8 @@ declare global {
         deleteCartFolder: () => Promise<void>;
         isSubDirectory: (parent:string, dir:string) => Promise<boolean>;
         getLoginState: () => Promise<ILoginState>;
+        sendMail: (to: string, subject?:string, text?: string, attachments?: Array<any>) => Promise<void>
+        filesToAttachments: (files: Array<{fileName: string, savePath: string}>) => Promise<Array<any>>
         on: (channel:string, func: (...args: any[]) => void) => void
       }
     }

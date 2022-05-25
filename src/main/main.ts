@@ -28,6 +28,7 @@ import { IDriveItem } from '../renderer/database/database';
 import { zipManager } from './zipmanager/ZipManager';
 import SPAuthProvider from './authentication/SPAuthProvider';
 import { isTokenValid } from './../renderer/utils/helper';
+import { useMail } from './../renderer/helpers/email';
 
 export default class AppUpdater {
   constructor() {
@@ -410,6 +411,16 @@ ipcMain.handle('OPEN_CART_FOLDER', async(_, path: string) => {
 
 ipcMain.handle('GET_LOGIN_STATE', async() => {
   return await getLoginState()
+})
+
+ipcMain.handle('SEND_EMAIL', async(_, to, subject, text, attachments) => {
+  const {sendMail} = useMail()
+  await sendMail(to, subject, text, attachments)
+})
+
+ipcMain.handle('FILES_TO_ATTACHMENT', async(_, files:Array<{fileName:string, savePath:string, itemId: string}>) => {
+  const attachmentObjects = fileManager.filesToAttachments(files)
+  return attachmentObjects
 })
 
 const openFolder = async (path:string):Promise<string>  => {

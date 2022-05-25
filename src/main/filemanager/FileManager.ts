@@ -117,6 +117,19 @@ class FileManager {
     
     return isSubdir
   }
+
+  filesToAttachments(files: Array<{fileName:string, savePath:string}>) {
+    return files.map((file) => {
+      console.log(file.fileName)
+      console.log(file.savePath)
+      const attachment = fs.readFileSync(`${file.savePath}/${file.fileName}`).toString("base64")
+      return {
+        "content": attachment,
+        "filename": file.fileName,
+        "disposition": "attachment"
+      }
+    })
+  }
 }
 
 export const fileManager = new FileManager()

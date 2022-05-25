@@ -8,6 +8,9 @@ export const useTracking = () => {
       trackPageView({
         href: `view-file-desktop/${fileName} (${country})`
       })
+      trackPageView({
+        href: `view-file/${fileName} (${country})`
+      })
     } catch (error) {}
   }
 
@@ -15,6 +18,9 @@ export const useTracking = () => {
     try {
       trackPageView({
         href: `content-page-desktop/${country}/${name}/${path}`
+      })
+      trackPageView({
+        href: `content-page/${country}/${name}/${path}`
       })
     } catch (error) {}
   }
@@ -24,6 +30,9 @@ export const useTracking = () => {
       trackPageView({
         href: `favorite-file-desktop/${country}/${name}/${path}`
       })
+      trackPageView({
+        href: `favorite-file/${country}/${name}/${path}`
+      })
     } catch (error) {}
   }
 
@@ -31,6 +40,9 @@ export const useTracking = () => {
     try {
       trackPageView({
         href: `app-start-desktop/${country}/`
+      })
+      trackPageView({
+        href: `app-start/${country}/`
       })
     } catch (error) {}
   }
@@ -40,6 +52,9 @@ export const useTracking = () => {
       trackPageView({
         href: `view-file-by-country-desktop/${country ?? "none"}/${path}`
       })
+      trackPageView({
+        href: `view-file-by-country/${country ?? "none"}/${path}`
+      })
     } catch (error) {}
   }
 
@@ -48,6 +63,9 @@ export const useTracking = () => {
       trackPageView({
         href: `send-files-desktop/${country ?? "none"}/${fileNames.join()}`
       })
+      trackPageView({
+        href: `send-files/${country ?? "none"}/${fileNames.join()}`
+      })
     } catch (error) {}
   }
 
@@ -55,6 +73,9 @@ export const useTracking = () => {
     try {
       trackPageView({
         href: `country-change-desktop/${country}/`
+      })
+      trackPageView({
+        href: `country-change/country-change-desktop/${country}/`
       })
     } catch (error) {}
   }

@@ -47,11 +47,40 @@ const downloadCartFiles = async() => {
   const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
   const token = authResult.accessToken
   if (token) {
+    //delete the old temporary folder
     window.electron.ipcRenderer.deleteCartFolder()
     const driveItemIds = cartStore.items.map(driveItem => driveItem.listItemId).filter(notEmpty)
     console.log("cart items:" +driveItemIds)
-    await downloadFiles(driveItemIds, token)
-    window.electron.ipcRenderer.openCartFolder()
+    //download the files to send
+    const downloadedFiles = await downloadFiles(driveItemIds, token)
+    console.log(downloadedFiles)
+    //convert downloaded files to a format that can be sent as an attachment
+    const attachments = await window.electron.ipcRenderer.filesToAttachments(downloadedFiles)
+    console.log(attachments)
+    //window.electron.ipcRenderer.openCartFolder()
+    window.electron.ipcRenderer.sendMail("matthias.brodalka@fresenius.com", "test", "test", attachments)
+  }
+}
+
+const sendCartMail = async(to: string, subject?: string, text?: string) => {
+  if (to.length <= 0) {
+    return 
+  }
+  const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
+  const token = authResult.accessToken
+  if (token) {
+    //delete the old temporary folder
+    window.electron.ipcRenderer.deleteCartFolder()
+    const driveItemIds = cartStore.items.map(driveItem => driveItem.listItemId).filter(notEmpty)
+    console.log("cart items:" +driveItemIds)
+    //download the files to send
+    const downloadedFiles = await downloadFiles(driveItemIds, token)
+    console.log(downloadedFiles)
+    //convert downloaded files to a format that can be sent as an attachment
+    const attachments = await window.electron.ipcRenderer.filesToAttachments(downloadedFiles)
+    console.log(attachments)
+    //window.electron.ipcRenderer.openCartFolder()
+    window.electron.ipcRenderer.sendMail(to, subject, text, attachments)
   }
 }
 
@@ -225,7 +254,7 @@ const openModule = async(uniqueId:string, progressState?:(state: string) => void
             window.electron.ipcRenderer.openHTML(newUnzippedItem.indexHtmlPath, true, false)
           }
         } else {
-          console.log("found an up to date local module");
+          console.log("found an up to date local module at" + unzippedItem.indexHtmlPath);
           window.electron.ipcRenderer.openHTML(unzippedItem.indexHtmlPath, true, false)
         }
 
@@ -379,5 +408,6 @@ export const dataManager = {
   shouldShowUpdateAlert: shouldShowUpdateAlert,
   getThumbnails: getThumbnails,
   getItemThumbnail: getItemThumbnail,
-  getAppState: getAppState
+  getAppState: getAppState,
+  sendCartMail: sendCartMail
 }
