@@ -7,7 +7,7 @@ import { dataManager } from '../../../DataManager';
 import { FileCommands } from '../../../enums';
 import { getFileSizeLiteral, useGetFilesData } from '../../../helpers';
 import { DatabaseIcon, DocsIcon, EmailIcon, TrashIcon } from '../../../svg';
-import { useTracking } from '../../../TrackingManager';
+import { useTracking } from '../../../useTracking';
 import { LoadingDialog, RightMenuBox, RightMenuItem } from '../../atoms';
 import { FileList } from '../../molecules';
 import { PageStructure } from '../../templates';

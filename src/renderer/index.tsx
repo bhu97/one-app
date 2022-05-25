@@ -25,7 +25,7 @@ const instance = createInstance({
   },
 });
 
-
+console.log(instance)
 
 render(
   <MatomoProvider value={instance}>

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import SettingsStore from '../../../database/stores/SettingsStore';
 import { dataManager } from '../../../DataManager';
-import { useTracking } from '../../../TrackingManager';
+import { useTracking } from '../../../useTracking';
 import { IAppState } from '../../../utils/constants';
 
 export const useAppSettings = () => {
@@ -33,7 +33,7 @@ export const useAppSettings = () => {
     try {
 
       setSelectedCountry(settingsStoreRef.current.currentCountry);
-      trackCountryChange(settingsStoreRef.current.currentCountry);
+      trackCountryChange(settingsStoreRef.current.currentCountry ?? "");
       
       setCountryVersion(
         settingsStoreRef.current.currentVersion === '0' ? 'flex' : 'light'

@@ -9,7 +9,7 @@ import { CartPage, DevSettings, FavoritesPage, HomePage, SettingsPage, FileViewe
 import { Layout } from './components/templates';
 import { useAppCore } from './useAppCore';
 import { useMatomo } from '@datapunt/matomo-tracker-react';
-import { useTracking } from './TrackingManager'
+import { useTracking } from './useTracking'
 import { db } from './database/database';
 
 async function checkAuth() {

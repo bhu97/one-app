@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { IDriveItem } from '../../../database/database';
 import { FlexLightStoreFactory } from '../../../database/stores/FlexLightStoreFactory';
-import { useTracking } from '../../../TrackingManager';
+import { useTracking } from '../../../useTracking';
 import { normalizeUrl } from '../../../utils/helper';
 
 export const useDriveItems = (
