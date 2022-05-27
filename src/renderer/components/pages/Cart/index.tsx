@@ -27,9 +27,12 @@ export const CartPage: FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   //TODO: this is only temporary for testing mail
   //set your email for testing the mail part
-  const [email, setEmail] = useState("")
-  const emailSubjectRef = useRef("Test")
-  const emailTextRef = useRef("Test")
+  const [email, setEmail] = useState([
+    'matthias.brodalka@fresenius.com',
+    'Emoke.Horvath@fmc-ag.com',
+  ]);
+  const emailSubjectRef = useRef("One Desktop App Test Mail")
+  const emailTextRef = useRef("Test Mail with attachments")
   // ---
   const [loadingMessage, setLoadingMessage] = useState('');
   const { items, thumbnails, updateItems } = useGetFilesData(cartStore);

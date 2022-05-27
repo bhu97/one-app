@@ -54,15 +54,11 @@ const downloadCartFiles = async() => {
     //download the files to send
     const downloadedFiles = await downloadFiles(driveItemIds, token)
     console.log(downloadedFiles)
-    //convert downloaded files to a format that can be sent as an attachment
-    const attachments = await window.electron.ipcRenderer.filesToAttachments(downloadedFiles)
-    console.log(attachments)
-    //window.electron.ipcRenderer.openCartFolder()
-    window.electron.ipcRenderer.sendMail("matthias.brodalka@fresenius.com", "test", "test", attachments)
+    window.electron.ipcRenderer.openCartFolder()
   }
 }
 
-const sendCartMail = async(to: string, subject?: string, text?: string) => {
+const sendCartMail = async(to: string[], subject?: string, text?: string) => {
   if (to.length <= 0) {
     return 
   }
