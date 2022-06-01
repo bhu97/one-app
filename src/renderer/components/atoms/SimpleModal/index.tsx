@@ -49,6 +49,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function SimpleModal(props) {
   const classes = useStyles();
+  const [isValid, setIsValid] = useState(false);
+  const [message, setMessage] = useState('');
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState('Body');
   const [email, setEmail] = useState('');
@@ -70,6 +72,20 @@ export default function SimpleModal(props) {
     setValue(event.target.value);
   };
 
+  const emailRegex = /\S+@\S+\.\S+/;
+
+  const validateEmail = (e) => {
+    const email = e.target.value;
+
+    if (emailRegex.test(email)) {
+      setIsValid(true);
+      setMessage('Your email looks good!');
+    } else {
+      setIsValid(false);
+      setMessage('Please enter a valid email!');
+    }
+  };
+
   const sendEmail = async () => {
     let res = await dataManager.sendCartMail(
       email.split(','),
@@ -79,6 +95,7 @@ export default function SimpleModal(props) {
     props.setClose();
     console.log('result', res);
   };
+
 
   const body = (
     <div style={modalStyle} className={classes.paper}>
@@ -94,13 +111,17 @@ export default function SimpleModal(props) {
             label="To"
             style={{ margin: 8 }}
             fullWidth
+            required
             margin="normal"
             InputLabelProps={{
               shrink: true,
             }}
+            // value={email}
             variant="outlined"
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={ (e) => {setEmail(e.target.value), validateEmail(e) }}
+            // (e) => setEmail(e.target.value)
             placeholder="mail@mail.com"
+            helperText={message}
           />
           <TextField
             id="filled-full-width"
@@ -113,6 +134,7 @@ export default function SimpleModal(props) {
               shrink: true,
             }}
             variant="outlined"
+            disabled
           />
           <p>Attachments</p>
           <span>{addImages}</span>
@@ -127,20 +149,20 @@ export default function SimpleModal(props) {
             variant="outlined"
             rows={4}
           />
+<div>
+      <Button
+        variant="contained"
+        size="medium"
+        color="primary"
+        className={classes.button}
+        endIcon={<SendTwoToneIcon />}
+        style={{ marginLeft: '80%' }}
+        onClick={sendEmail}
+      >
+        Send
+      </Button>
+    </div>
 
-          <div>
-            <Button
-              variant="contained"
-              size="medium"
-              color="primary"
-              className={classes.button}
-              endIcon={<SendTwoToneIcon />}
-              style={{ marginLeft: '80%' }}
-              onClick={sendEmail}
-            >
-              Send
-            </Button>
-          </div>
         </div>
       </form>
     </div>
