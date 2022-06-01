@@ -60,7 +60,7 @@ const downloadCartFiles = async() => {
 
 const sendCartMail = async(to: string[], subject?: string, text?: string) => {
   if (to.length <= 0) {
-    return 
+    return
   }
   const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
   const token = authResult.accessToken
@@ -74,11 +74,12 @@ const sendCartMail = async(to: string[], subject?: string, text?: string) => {
     console.log(downloadedFiles)
     //convert downloaded files to a format that can be sent as an attachment
     const attachments = await window.electron.ipcRenderer.filesToAttachments(downloadedFiles)
-    console.log(attachments)
+    console.log('Email sent successfully',attachments)
     //window.electron.ipcRenderer.openCartFolder()
     window.electron.ipcRenderer.sendMail(to, subject, text, attachments)
+    console.log('Email sent successfully to', to )
   }
-}
+};
 
 window.electron.ipcRenderer.on("login-close-test", () => {
   loginCallback?.()
@@ -116,7 +117,7 @@ const authResult = await window.electron.ipcRenderer.refreshTokenSilently()
         throw(error)
       }
 
-       
+
         progressState?.("Whitelists")
         //FETCH WHITELISTS
         try {
@@ -286,7 +287,7 @@ const openDriveItem = async(uniqueId:string, progressState?:(state: string) => v
       console.log("open in new window: " + openInNewWindow)
       window.electron.ipcRenderer.openHTML(driveItem.webUrl, shouldOpenLocal, openInNewWindow)
     }
-  } 
+  }
   } else {
     console.error("wrong extension")
     throw("Can't open file extension")
@@ -340,7 +341,7 @@ const getAppState = async(): Promise<IAppState> => {
     if(localStorgeHelper.shouldShowUpdateAlert()) {
       metadataState = MetaDataState.HAS_UPDATES
     }
-  }  
+  }
 
   console.log("login state: "+JSON.stringify(loginState));
   let appState:IAppState = {

@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core';
 import React, { FC, useRef, useState } from 'react';
-
+import SimpleModal from 'renderer/components/atoms/SimpleModal';
 import headerImage from '../../../../../assets/cart/200921_FMC_OneApp_Illustrationen_Final_Documents.png';
 import { cartStore } from '../../../database/stores/CartStore';
 import { dataManager } from '../../../DataManager';
@@ -23,24 +23,29 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const CartPage: FC = () => {
+  const [open, setOpen] = React.useState(false);
   const styles = useStyles();
   const [isLoading, setIsLoading] = useState(false);
-  //TODO: this is only temporary for testing mail
-  //set your email for testing the mail part
-  const [email, setEmail] = useState([
-    'matthias.brodalka@fresenius.com',
-    'Emoke.Horvath@fmc-ag.com',
-  ]);
-  const emailSubjectRef = useRef("One Desktop App Test Mail")
-  const emailTextRef = useRef("Test Mail with attachments")
+  // TODO: this is only temporary for testing mail
+  // set your email for testing the mail part
+  // const [email, setEmail] = useState(['bhumika.r@capgemini.com']);
+  // const emailSubjectRef = useRef('One Desktop App Test Mail');
+  // const emailTextRef = useRef('Test Mail with attachments');
   // ---
   const [loadingMessage, setLoadingMessage] = useState('');
   const { items, thumbnails, updateItems } = useGetFilesData(cartStore);
-  const {trackSendFiles} = useTracking()
-  var country: string | undefined 
-  if(items.length > 0) {
-    country = items[0].country
+  const { trackSendFiles } = useTracking();
+  var country: string | undefined;
+  if (items.length > 0) {
+    country = items[0].country;
   }
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
   return (
     <>
       <PageStructure
@@ -69,9 +74,17 @@ export const CartPage: FC = () => {
                 onClick={async () => {
                   setIsLoading(true);
                   setLoadingMessage('Downloading & sending files');
-                  await dataManager.sendCartMail(email, emailSubjectRef.current, emailTextRef.current);
-                  trackSendFiles(items.map(item=>item.name ?? ""), country)
+                  // await dataManager.sendCartMail(
+                  //   email,
+                  //   emailSubjectRef.current,
+                  //   emailTextRef.current
+                  // );
+                  trackSendFiles(
+                    items.map((item) => item.name ?? ''),
+                    country
+                  );
                   setIsLoading(false);
+                  handleOpen();
                 }}
               />
               <RightMenuItem
@@ -107,6 +120,12 @@ export const CartPage: FC = () => {
         }
       />
       <LoadingDialog open={isLoading} message={loadingMessage} />
+      <SimpleModal
+        items={cartStore.items.length}
+        open={open}
+        setOpen={handleOpen}
+        setClose={handleClose}
+      />
     </>
   );
 };

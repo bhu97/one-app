@@ -4,6 +4,7 @@ export const useTracking = () => {
   const { trackPageView } = useMatomo()
 
   const trackViewFile = (fileName: string, country: string, path: string) => {
+    console.log("trackViewFile", country);
     try {
       trackPageView({
         href: `view-file-desktop/${fileName} (${country})`
@@ -15,6 +16,7 @@ export const useTracking = () => {
   }
 
   const trackContentPage = (name: string, country: string, path: string)  => {
+    console.log("trackContentPage", country);
     try {
       trackPageView({
         href: `content-page-desktop/${country}/${name}/${path}`
@@ -26,6 +28,7 @@ export const useTracking = () => {
   }
 
   const trackFavorite = (name: string, country: string, path: string)  => {
+    console.log("trackFavorite", country);
     try {
       trackPageView({
         href: `favorite-file-desktop/${country}/${name}/${path}`
@@ -37,6 +40,7 @@ export const useTracking = () => {
   }
 
   const trackStart = (country: string) => {
+    console.log("trackStart", country);
     try {
       trackPageView({
         href: `app-start-desktop/${country}/`
@@ -48,6 +52,7 @@ export const useTracking = () => {
   }
 
   const trackViewFileByCountry = (country: string, path: string) => {
+    console.log("trackViewFileByCountry", country);
     try {
       trackPageView({
         href: `view-file-by-country-desktop/${country ?? "none"}/${path}`
@@ -59,6 +64,7 @@ export const useTracking = () => {
   }
 
   const trackSendFiles = (fileNames: string[], country?: string) => {
+    console.log("trackSendFiles", country);
     try {
       trackPageView({
         href: `send-files-desktop/${country ?? "none"}/${fileNames.join()}`
@@ -70,6 +76,7 @@ export const useTracking = () => {
   }
 
   const trackCountryChange = (country: string) => {
+    console.log("trackCountryChange", country);
     try {
       trackPageView({
         href: `country-change-desktop/${country}/`

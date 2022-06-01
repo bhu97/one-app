@@ -14,9 +14,15 @@ export const useMail = () => {
     };
 
     try {
-      await sgMail.send(msg)
-    } catch (error) {
-    console.log(error); 
+
+      let res =  await sgMail.send(msg)
+      console.log('resulttrrttttt', res)
+    }
+
+    catch (error) {
+
+    console.log('Email was not sent. Please try again!',error);
+
     }
   }
   return {sendMail}
