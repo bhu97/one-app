@@ -78,11 +78,15 @@ export default function SimpleModal(props) {
     const email = e.target.value;
 
     if (emailRegex.test(email)) {
+
       setIsValid(true);
       setMessage('Your email looks good!');
+
     } else {
+
       setIsValid(false);
       setMessage('Please enter a valid email!');
+
     }
   };
 
@@ -96,12 +100,17 @@ export default function SimpleModal(props) {
     console.log('result', res);
   };
 
+  const closeModal = () => {
+    props.setClose()
+    setEmail('')
+  }
 
+console.log('emaill',email.length)
   const body = (
     <div style={modalStyle} className={classes.paper}>
       <CloseTwoToneIcon
         style={{ marginLeft: '96%' }}
-        onClick={props.setClose}
+        onClick={closeModal}
       />
 
       <form className={classes.root} noValidate autoComplete="off">
@@ -111,7 +120,7 @@ export default function SimpleModal(props) {
             label="To"
             style={{ margin: 8 }}
             fullWidth
-            required
+            required={true}
             margin="normal"
             InputLabelProps={{
               shrink: true,
@@ -120,9 +129,13 @@ export default function SimpleModal(props) {
             variant="outlined"
             onChange={ (e) => {setEmail(e.target.value), validateEmail(e) }}
             // (e) => setEmail(e.target.value)
+
             placeholder="mail@mail.com"
-            helperText={message}
+            // helperText={message}
           />
+          {email.length > 0 && (
+            <p style={{color: isValid ? 'green' : 'red'}}>{message}</p>
+          )}
           <TextField
             id="filled-full-width"
             label="Subject"
@@ -158,6 +171,7 @@ export default function SimpleModal(props) {
         endIcon={<SendTwoToneIcon />}
         style={{ marginLeft: '80%' }}
         onClick={sendEmail}
+        disabled={!isValid}
       >
         Send
       </Button>
