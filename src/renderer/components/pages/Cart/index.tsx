@@ -23,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const CartPage: FC = () => {
+
   const [open, setOpen] = React.useState(false);
   const styles = useStyles();
   const [isLoading, setIsLoading] = useState(false);
@@ -46,6 +47,9 @@ export const CartPage: FC = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  console.log('cartSTore',cartStore.items)
+
   return (
     <>
       <PageStructure
@@ -69,7 +73,7 @@ export const CartPage: FC = () => {
             <RightMenuBox title="Options">
               <RightMenuItem
                 key="send"
-                text="Download and send via e-mail"
+                text="Send via e-mail"
                 icon={EmailIcon}
                 onClick={async () => {
                   setIsLoading(true);
@@ -121,7 +125,7 @@ export const CartPage: FC = () => {
       />
       <LoadingDialog open={isLoading} message={loadingMessage} />
       <SimpleModal
-        items={cartStore.items.length}
+        items={cartStore.items}
         open={open}
         setOpen={handleOpen}
         setClose={handleClose}
