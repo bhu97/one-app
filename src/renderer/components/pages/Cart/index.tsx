@@ -11,6 +11,7 @@ import { useTracking } from '../../../useTracking';
 import { LoadingDialog, RightMenuBox, RightMenuItem } from '../../atoms';
 import { FileList } from '../../molecules';
 import { PageStructure } from '../../templates';
+import { toast } from 'material-react-toastify';
 
 const useStyles = makeStyles((theme) => ({
   rightColumn: {
@@ -41,7 +42,11 @@ export const CartPage: FC = () => {
     country = items[0].country;
   }
   const handleOpen = () => {
-    setOpen(true);
+    if(items.length > 0) {
+      setOpen(true);
+    } else {
+      toast.error("There are no attachments to send!")
+    }
   };
 
   const handleClose = () => {

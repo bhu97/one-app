@@ -1,16 +1,16 @@
 import React, { FC, useRef, useState } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import Modal from '@material-ui/core/Modal';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
+import {Modal, TextField, Button, Popover}from '@material-ui/core';
+// import  from '@material-ui/core/TextField';
+// import  from '@material-ui/core/Button';
 import SendTwoToneIcon from '@material-ui/icons/SendTwoTone';
 import CloseTwoToneIcon from '@material-ui/icons/CloseTwoTone';
 import PictureAsPdfOutlinedIcon from '@material-ui/icons/PictureAsPdfOutlined';
 import { dataManager } from '../../../DataManager';
-import Popover from '@material-ui/core/Popover';
+// import  from '@material-ui/core/Popover';
 
 function rand() {
-  return Math.round(Math.random() * 20) - 10;
+  return Math.round(Math.random() * 30) - 10;
 }
 
 function getModalStyle() {
@@ -125,6 +125,7 @@ export default function SimpleModal(props) {
     }
   };
 
+
   const sendEmail = async () => {
     let res = await dataManager.sendCartMail(
       email.split(','),
@@ -133,6 +134,7 @@ export default function SimpleModal(props) {
     );
     props.setClose();
     console.log('result', res);
+    setEmail("")
   };
 
   const closeModal = () => {
@@ -172,6 +174,7 @@ export default function SimpleModal(props) {
           <TextField
             id="filled-full-width"
             label="Subject"
+            required={true}
             placeholder="One Desktop App Attachments"
             style={{ margin: 8 }}
             // fullWidth
@@ -193,6 +196,7 @@ export default function SimpleModal(props) {
             onChange={(e) => setEmailTextRef(e.target.value)}
             placeholder="Attaching the selected files"
             variant="outlined"
+            required={true}
             minRows={4}
           />
           <div>
@@ -204,7 +208,7 @@ export default function SimpleModal(props) {
               endIcon={<SendTwoToneIcon />}
               style={{ marginLeft: '80%' }}
               onClick={sendEmail}
-              disabled={!isValid}
+              disabled={!isValid  || !emailSubjectRef || !emailTextRef}
             >
               Send
             </Button>
