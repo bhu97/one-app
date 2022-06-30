@@ -234,7 +234,7 @@ export default function SimpleModal(props: {
           <a
                 href="#"
                 onClick={handleAttachment}
-                style={{ marginLeft: 'auto' }}
+                style={{ marginLeft: 'auto', color:'#071B45' }}
               >
                 {openAttachment ? 'Show less' : 'Show more'}
               </a>)}
@@ -242,15 +242,15 @@ export default function SimpleModal(props: {
           </span>
 
           {props.items.length >= 2 ? (
-            // <span>
+            <span>
               <p
                 style={{
                   fontSize: 11,
                   color: '#071B45',
                   fontWeight: 'bold',
                   margin: 2,
-                  marginBottom: -10,
-                  paddingLeft:4,
+                  marginBottom: -15,
+                  marginTop:-20,
                 }}
               >
                 <List>
@@ -267,7 +267,7 @@ export default function SimpleModal(props: {
               </p>
 
 
-            // </span>
+              </span>
           ) : (
             <List>
               {props?.items[0]?.name} {'   '}
