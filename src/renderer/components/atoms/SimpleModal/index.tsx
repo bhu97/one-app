@@ -9,15 +9,11 @@ import {
   List,
   ListItemButton,
 } from '@material-ui/core';
-// import  from '@material-ui/core/TextField';
-// import  from '@material-ui/core/Button';
 import SendTwoToneIcon from '@material-ui/icons/SendTwoTone';
 import CloseTwoToneIcon from '@material-ui/icons/CloseTwoTone';
 import PictureAsPdfOutlinedIcon from '@material-ui/icons/PictureAsPdfOutlined';
 import { dataManager } from '../../../DataManager';
-// import  from '@material-ui/core/Popover';
 import { cartStore } from '../../../database/stores/CartStore';
-// import Collapse from '@material-ui/core/Collapse';
 
 function rand() {
   return Math.round(Math.random() * 30) - 10;
@@ -108,21 +104,9 @@ export default function SimpleModal(props: {
         onMouseEnter={(e) => handlePopoverOpen(e, im.name)}
         onMouseLeave={(e) => handlePopoverClose(e, im.name)}
       /> */}
-
-        {/* <p style={{fontSize: 8, color: '#071B45', fontWeight:'bold'}}>{im.name} , </p> */}
         <table>
           <tr>
-            <td>
-              {/* {props.items.length <= 2 ? (
-                <p
-                  style={{ fontSize: 7, color: '#071B45', fontWeight: 'bold' }}
-                >
-                  {im.name}
-                  {','}
-                </p>
-              ) : (<p>djfjk</p>)} */}
-              {im.name}
-            </td>
+            <td>{im.name}</td>
           </tr>
         </table>
         <Popover
@@ -229,16 +213,16 @@ export default function SimpleModal(props: {
             onChange={(e) => setEmailSubjectRef(e.target.value)}
           />
           <span>
-          <p>Attachments</p>
-{props.items.length == 1 ? null : (
-          <a
+            <p>Attachments</p>
+            {props.items.length == 1 ? null : (
+              <a
                 href="#"
                 onClick={handleAttachment}
-                style={{ marginLeft: 'auto', color:'#071B45' }}
+                style={{ marginLeft: 'auto', color: '#071B45' }}
               >
                 {openAttachment ? 'Show less' : 'Show more'}
-              </a>)}
-
+              </a>
+            )}
           </span>
 
           {props.items.length >= 2 ? (
@@ -250,7 +234,7 @@ export default function SimpleModal(props: {
                   fontWeight: 'bold',
                   margin: 2,
                   marginBottom: -15,
-                  marginTop:-20,
+                  marginTop: -20,
                 }}
               >
                 <List>
@@ -265,13 +249,22 @@ export default function SimpleModal(props: {
                   })}
                 </Collapse>
               </p>
-
-
-              </span>
+            </span>
           ) : (
+            <p
+                style={{
+                  fontSize: 11,
+                  color: '#071B45',
+                  fontWeight: 'bold',
+                  margin: 8,
+                  marginBottom: 5,
+                  marginTop: -5,
+                }}
+              >
             <List>
               {props?.items[0]?.name} {'   '}
             </List>
+            </p>
           )}
 
           <TextField
