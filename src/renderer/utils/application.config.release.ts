@@ -1,6 +1,6 @@
 export default {
 
-  APP_VERSION: "1.0.3",
+  APP_VERSION: "1.0.4",
   //Azure IDs
   // Find all details here https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/054ed5dd-8447-4c78-856b-5a0462bf0e68/isMSAApp/
   CLIENT_ID:"054ed5dd-8447-4c78-856b-5a0462bf0e68",
@@ -38,7 +38,7 @@ export default {
   // SCOPES
   GRAPH_SCOPES:"User.Read Sites.Read.All",
   KNOWN_AUTHORITIES:[
-    "https://login.microsoftonline.com/", 
+    "https://login.microsoftonline.com/",
     "https://login.microsoftonline.com/c98df534-5e36-459a-ac3f-8c2e449863bd",
     "https://login.microsoftonline.com/organizations",
   ],

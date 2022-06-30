@@ -45,7 +45,7 @@ export const CartPage: FC = () => {
     if(items.length > 0) {
       setOpen(true);
     } else {
-      toast.error("There are no attachments to send!")
+      toast.error("There are no attachments to send! Add an attachment to the shopping cart and try again!")
     }
   };
 
