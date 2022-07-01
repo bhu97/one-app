@@ -12,6 +12,7 @@ import { LoadingDialog, RightMenuBox, RightMenuItem } from '../../atoms';
 import { FileList } from '../../molecules';
 import { PageStructure } from '../../templates';
 import { toast } from 'material-react-toastify';
+// import Alert from '@material-ui/lab/Alert';
 
 const useStyles = makeStyles((theme) => ({
   rightColumn: {
@@ -21,10 +22,15 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(3),
     maxHeight: 0,
   },
+  root: {
+    width: 'auto',
+    '& > * + *': {
+      marginTop: theme.spacing(2),
+    },
+  },
 }));
 
 export const CartPage: FC = () => {
-
   const [open, setOpen] = React.useState(false);
   const styles = useStyles();
   const [isLoading, setIsLoading] = useState(false);
@@ -42,18 +48,31 @@ export const CartPage: FC = () => {
     country = items[0].country;
   }
   const handleOpen = () => {
-    if(items.length > 0) {
+    if (items.length > 0) {
       setOpen(true);
     } else {
-      toast.error("There are no attachments to send! Add an attachment to the shopping cart and try again!")
+      toast.error(
+        'There are no attachments to send! Add an attachment to the shopping cart and try again!'
+      );
     }
+  };
+  const attachmentSize = () => {
+    if (cartStore.fileSizes >= cartStore.fileSizeLimit) {
+      toast.error('Attachment size is more than 20MB');
+      setOpen(false);
+    }
+    //  else {
+    //   setOpen(true);
+    // }
   };
 
   const handleClose = () => {
     setOpen(false);
   };
 
-  console.log('cartSTore',cartStore.items)
+  console.log('cartSTore', cartStore.items);
+  console.log('filesizesssslimi', cartStore.fileSizeLimit);
+  console.log('filesizessss', cartStore.fileSizes);
 
   return (
     <>
@@ -94,6 +113,7 @@ export const CartPage: FC = () => {
                   );
                   setIsLoading(false);
                   handleOpen();
+                  attachmentSize();
                 }}
               />
               <RightMenuItem

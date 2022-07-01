@@ -252,18 +252,18 @@ export default function SimpleModal(props: {
             </span>
           ) : (
             <p
-                style={{
-                  fontSize: 11,
-                  color: '#071B45',
-                  fontWeight: 'bold',
-                  margin: 8,
-                  marginBottom: 5,
-                  marginTop: -5,
-                }}
-              >
-            <List>
-              {props?.items[0]?.name} {'   '}
-            </List>
+              style={{
+                fontSize: 11,
+                color: '#071B45',
+                fontWeight: 'bold',
+                margin: 8,
+                marginBottom: 5,
+                marginTop: -5,
+              }}
+            >
+              <List>
+                {props?.items[0]?.name} {'   '}
+              </List>
             </p>
           )}
 

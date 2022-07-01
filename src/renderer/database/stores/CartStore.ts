@@ -15,15 +15,18 @@ class CartStore extends AbstractStore {
   }
 
   async update() {
+    console.log("Here")
     if(this.uniqueIds.size <= 0) {
       this.items = []
-      return
     }
 
     let allItems = await db.getItemsForIds(Array.from(this.uniqueIds))
-    
+    console.log('allItems', allItems)
+
     this.fileSizes = allItems.map(this.driveItemToFileSize).filter(notEmpty).reduce(this.addFileSizes, 0)
-    this.items = allItems   
+    console.log('fileSizes', this.fileSizes)
+    this.items = allItems
+    return
   }
 
   addDriveItem(uniqueId: string) {

@@ -103,7 +103,7 @@ export const FileItem: FC<IFileItemProps> = ({
   const [loadingMessage, setLoadingMessage] = useState('');
   const [isFavVisible, setIsFavVisible] = useState(false);
   const { trackFavorite } = useTracking()
- 
+
   const {trackViewFile, trackViewFileByCountry} = useTracking();
   const openFile = async () => {
 
@@ -111,7 +111,7 @@ export const FileItem: FC<IFileItemProps> = ({
       trackViewFile(name, country, normalizeUrl(webUrl ?? ''));
       trackViewFileByCountry(country, normalizeUrl(webUrl ?? ''));
     }
-    
+
     setIsLoading(true);
     setLoadingMessage('Opening file');
     try {
@@ -180,6 +180,7 @@ export const FileItem: FC<IFileItemProps> = ({
                     toast.error(`${text} couldn't be removed from cart`);
                   }
                   setIsLoading(false);
+
                 },
               },
               {
