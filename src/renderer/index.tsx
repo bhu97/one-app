@@ -7,8 +7,8 @@ const instance = createInstance({
   urlBase: 'https://piwik.freseniusmedicalcare.com/',
   siteId: 95,
   userId: undefined, // optional, default value: `undefined`.
-  trackerUrl: 'https://piwik.freseniusmedicalcare.com/tracking.php', // optional, default value: `${urlBase}matomo.php`
-  srcUrl: 'https://piwik.freseniusmedicalcare.com/tracking.js', // optional, default value: `${urlBase}matomo.js`
+  trackerUrl: 'https://piwik.freseniusmedicalcare.com/matomo.php', // optional, default value: `${urlBase}matomo.php`
+  srcUrl: 'https://piwik.freseniusmedicalcare.com/matomo.js', // optional, default value: `${urlBase}matomo.js`
   disabled: false, // optional, false by default. Makes all tracking calls no-ops if set to true.
   heartBeat: {
     // optional, enabled by default

@@ -14,6 +14,8 @@ import CloseTwoToneIcon from '@material-ui/icons/CloseTwoTone';
 import PictureAsPdfOutlinedIcon from '@material-ui/icons/PictureAsPdfOutlined';
 import { dataManager } from '../../../DataManager';
 import { cartStore } from '../../../database/stores/CartStore';
+import LoadingDialog from "../Loading"
+
 
 function rand() {
   return Math.round(Math.random() * 30) - 10;
@@ -58,6 +60,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+
 export default function SimpleModal(props: {
   items: any[];
   setClose:
@@ -72,6 +75,7 @@ export default function SimpleModal(props: {
   //  const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState('');
   const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false)
   const [emailSubjectRef, setEmailSubjectRef] = useState('');
   const [emailTextRef, setEmailTextRef] = useState('');
   const [modalStyle] = React.useState(getModalStyle);
@@ -152,7 +156,8 @@ export default function SimpleModal(props: {
   };
 
   const sendEmail = async () => {
-    let res = await dataManager.sendCartMail(
+    setIsLoading(true)
+      let res = await dataManager.sendCartMail(
       email.split(','),
       emailSubjectRef,
       emailTextRef
@@ -160,6 +165,7 @@ export default function SimpleModal(props: {
     props.setClose();
     console.log('result', res);
     setEmail('');
+    setIsLoading(false)
   };
 
   const handleAttachment = () => {
@@ -302,6 +308,7 @@ export default function SimpleModal(props: {
       <Modal open={props.open} onClose={props.setClose}>
         {body}
       </Modal>
+      <LoadingDialog open={isLoading} message="Sending email..."/>
     </div>
   );
 }

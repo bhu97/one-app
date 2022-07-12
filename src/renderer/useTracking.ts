@@ -4,13 +4,14 @@ export const useTracking = () => {
   const { trackPageView } = useMatomo()
 
   const trackViewFile = (fileName: string, country: string, path: string) => {
-    console.log("trackViewFile", country);
+    console.log("trackViewFile", country,fileName);
     try {
       trackPageView({
-        href: `view-file-desktop/${fileName} (${country})`
+        href: `view-file/${fileName} (${country})`
+
       })
       trackPageView({
-        href: `view-file/${fileName} (${country})`
+        href: `view-file-desktop/${fileName} (${country})`
       })
     } catch (error) {}
   }
@@ -19,10 +20,11 @@ export const useTracking = () => {
     console.log("trackContentPage", country);
     try {
       trackPageView({
-        href: `content-page-desktop/${country}/${name}/${path}`
+        href: `content-page/${country}/${name}/${path}`
+
       })
       trackPageView({
-        href: `content-page/${country}/${name}/${path}`
+        href: `content-page-desktop/${country}/${name}/${path}`
       })
     } catch (error) {}
   }
@@ -31,10 +33,11 @@ export const useTracking = () => {
     console.log("trackFavorite", country);
     try {
       trackPageView({
-        href: `favorite-file-desktop/${country}/${name}/${path}`
+        href: `favorite-file/${country}/${name}/${path}`
+
       })
       trackPageView({
-        href: `favorite-file/${country}/${name}/${path}`
+        href: `favorite-file-desktop/${country}/${name}/${path}`
       })
     } catch (error) {}
   }
@@ -43,10 +46,11 @@ export const useTracking = () => {
     console.log("trackStart", country);
     try {
       trackPageView({
-        href: `app-start-desktop/${country}/`
+        href: `app-start/${country}/`
+
       })
       trackPageView({
-        href: `app-start/${country}/`
+        href: `app-start-desktop/${country}/`
       })
     } catch (error) {}
   }
@@ -55,22 +59,24 @@ export const useTracking = () => {
     console.log("trackViewFileByCountry", country);
     try {
       trackPageView({
-        href: `view-file-by-country-desktop/${country ?? "none"}/${path}`
+        href: `view-file-by-country/${country ?? "none"}/${path}`
+
       })
       trackPageView({
-        href: `view-file-by-country/${country ?? "none"}/${path}`
+        href: `view-file-by-country-desktop/${country ?? "none"}/${path}`
       })
     } catch (error) {}
   }
 
   const trackSendFiles = (fileNames: string[], country?: string) => {
-    console.log("trackSendFiles", country);
+    console.log("trackSendFiles", country, fileNames);
     try {
       trackPageView({
-        href: `send-files-desktop/${country ?? "none"}/${fileNames.join()}`
+        href: `send-files/${country ?? "none"}/${fileNames.join()}`
+
       })
       trackPageView({
-        href: `send-files/${country ?? "none"}/${fileNames.join()}`
+        href: `send-files-desktop/${country ?? "none"}/${fileNames.join()}`
       })
     } catch (error) {}
   }
@@ -79,10 +85,11 @@ export const useTracking = () => {
     console.log("trackCountryChange", country);
     try {
       trackPageView({
-        href: `country-change-desktop/${country}/`
+        href: `country-change/country-change-desktop/${country}/`
+
       })
       trackPageView({
-        href: `country-change/country-change-desktop/${country}/`
+        href: `country-change-desktop/${country}/`
       })
     } catch (error) {}
   }
