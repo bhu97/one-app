@@ -39,7 +39,7 @@ export const useDriveItems = (
       console.error(error)
       setIsLoading(false)
     }
-    
+
   };
 
   const getFileListData = async (uniqueId: string) => {
@@ -67,13 +67,14 @@ export const useDriveItems = (
     index: number,
     fromBreadcrumbs = false
   ) => {
-    
+
     if (item.contentType === 'Document Set') {
       trackContentPage(
-        item.name ?? "", 
-        item.country ?? "", 
+        item.name ?? "",
+        item.country ?? "",
         normalizeUrl(item.webUrl ?? "")
-      )
+        )
+        console.log("weburl",item.webUrl )
     }
 
     const ancestors = [...items.slice(0, index + 1)];
@@ -89,7 +90,7 @@ export const useDriveItems = (
       onRouteChanged([...ancestorsRoute, item]);
     }
     console.log(mainRef.current?.parentElement?.parentElement);
-    
+
     mainRef.current?.parentElement?.scrollTo({
       left: 10000,
       behavior: 'smooth',

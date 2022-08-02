@@ -34,6 +34,7 @@ export default function App() {
 
   const { enableLinkTracking } = useMatomo();
   const { trackStart } = useTracking()
+  // const {trackExample} = useTracking()
   enableLinkTracking();
 
   useEffect(() => {
@@ -45,10 +46,12 @@ export default function App() {
       }
     };
     trackStartupCountry()
-  }, []); 
+    // trackExample()
+  }, []);
 
-  
-  
+
+
+
   return (
     <>
       <Router>

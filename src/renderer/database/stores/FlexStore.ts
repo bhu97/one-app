@@ -9,11 +9,12 @@ export class FlexStore extends AbstractStore {
     const currentCountry = await db.getCurrentCountry()
     if(currentCountry) {
       let allItems:IDriveItem[] = []
-    
+      console.log("ALLLLLL",allItems )
+
       //query drive items for country and path
       console.log(currentCountry);
       if(this.isRoot) {
-        allItems = await db.rootItemsForCountry(currentCountry) ?? []   
+        allItems = await db.rootItemsForCountry(currentCountry) ?? []
       } else {
         if(this.params.query) {
           allItems = await db.allItems(this.params.query) ?? []
@@ -39,6 +40,7 @@ export class FlexStore extends AbstractStore {
           const hasMatchingMasterFolder = await db.hasMatchingMasterFolder(currentCountry, driveItem.webUrl)
           if(hasMatchingMasterFolder) {
             visibleItems.push(driveItem)
+            console.log("driveItem", driveItem)
           }
         }
       }
@@ -47,6 +49,7 @@ export class FlexStore extends AbstractStore {
       allItems.sort(this.sortByName)
 
       this.items = allItems
+
   }
 }
 

@@ -90,6 +90,7 @@ export const AppSettings: FC = () => {
             }}
             onChange={(e) => {
               onCountrySelected((e.target.value as string) ?? '');
+              localStorage.setItem("selectedCountry", e.target.value)
             }}
             renderValue={(value) => (
               <RightMenuItem text={value as string} icon={PencilIcon} slim />

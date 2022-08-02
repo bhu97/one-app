@@ -20,6 +20,7 @@ const getStoreForCurrentUser = async(params?: IStoreParams): Promise<IStore | un
 
     if(params?.query) {
       let item = await db.getItemForId(params.query)
+      console.log("ITEMS", item)
       if(item.contentType && item.contentType == "Document Set") {
         return new ContentStore(params ?? {})
       }
@@ -31,16 +32,16 @@ const getStoreForCurrentUser = async(params?: IStoreParams): Promise<IStore | un
       console.log("Loading flex store")
       return new FlexStore(params ?? {})
     }
-    
+
     if(CountryVersion.light) {
       console.log("Loading light store")
       return new LightStore(params ?? {})
     }
-  
+
   }
   //no existing user is also an error
   return undefined
-} 
+}
 
 export const FlexLightStoreFactory = {
   getStoreForCurrentUser: getStoreForCurrentUser

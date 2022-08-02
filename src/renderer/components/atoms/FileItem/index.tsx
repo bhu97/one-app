@@ -193,6 +193,7 @@ export const FileItem: FC<IFileItemProps> = ({
                     normalizeUrl(item.webUrl ?? '')
                   );
                   setIsFavVisible(true)
+                  console.log("weburl",item.webUrl )
                 },
               },
             ].filter((command) =>

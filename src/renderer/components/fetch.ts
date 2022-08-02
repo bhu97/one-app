@@ -89,8 +89,8 @@ export async function fetchWhitelists(driveItems: IDriveItem[], accessToken: str
                 const whitelistResponse = await axios.get(downloadUrl)
                 const whitelistContent = whitelistResponse.data as string
 
-                
-                
+
+
                 if(whitelistContent && driveItem.country) {
                     whitelists.push({country: driveItem.country, content: whitelistContent})
                 }
@@ -111,6 +111,7 @@ export async function fetchDriveItem(driveItemId: string, accessToken: string): 
         }
     };
      let driveItemUrl = config.GRAPH_DRIVEITEM_ENDPOINT(driveItemId)
+     console.log("driveItemUrl", driveItemUrl)
     // let driveItemResponse = await axios.get(driveItemUrl, options);
     //console.log("driveitemresponse: "+JSON.stringify(driveItemResponse.data));
     //console.log("download url "+JSON.stringify(driveItemResponse.data.driveItem["@microsoft.graph.downloadUrl"]));
