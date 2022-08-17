@@ -50,7 +50,7 @@ export const LinkedItems: FC<ILinkedItemsProps> = ({
             driveItem={item}
             onLinkedDocumentSetSelected={onLinkedDocumentSetSelected}
           />
-        ))}
+          ))}
       </List>
     </RightMenuBox>
   );

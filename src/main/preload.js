@@ -56,13 +56,13 @@ contextBridge.exposeInMainWorld('electron', {
     closeFileViewer: (path) => {
       ipcRenderer.invoke('CLOSE_FILE_VIEWER');
     },
-    sendMail: (to, subject, text, attachments) => {
-      ipcRenderer.invoke('SEND_EMAIL', to, subject, text, attachments);
+    sendMail: async (to, subject, text, attachments) => {
+     return await ipcRenderer.invoke('SEND_EMAIL', to, subject, text, attachments);
     },
     filesToAttachments: async(files) => {
       return await ipcRenderer.invoke('FILES_TO_ATTACHMENT', files);
     },
-    
+
     on(channel, func) {
       const validChannels = ['ipc-example', 'login-close-test'];
       if (validChannels.includes(channel)) {

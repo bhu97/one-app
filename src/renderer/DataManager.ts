@@ -76,9 +76,13 @@ const sendCartMail = async(to: string[], subject?: string, text?: string) => {
     const attachments = await window.electron.ipcRenderer.filesToAttachments(downloadedFiles)
     // console.log('Email sent successfully',attachments)
     //window.electron.ipcRenderer.openCartFolder()
-    window.electron.ipcRenderer.sendMail(to, subject, text, attachments)
-    console.log('Email sent successfully to', to, attachments )
+    let res = await window.electron.ipcRenderer.sendMail(to, subject, text, attachments)
+
+    console.log('Email sent successfully to', to, attachments, res )
+    return res
+
   }
+
 };
 
 window.electron.ipcRenderer.on("login-close-test", () => {

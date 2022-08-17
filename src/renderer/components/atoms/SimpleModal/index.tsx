@@ -14,8 +14,8 @@ import CloseTwoToneIcon from '@material-ui/icons/CloseTwoTone';
 import PictureAsPdfOutlinedIcon from '@material-ui/icons/PictureAsPdfOutlined';
 import { dataManager } from '../../../DataManager';
 import { cartStore } from '../../../database/stores/CartStore';
-import LoadingDialog from "../Loading"
-
+import LoadingDialog from '../Loading';
+import { toast } from 'material-react-toastify';
 
 function rand() {
   return Math.round(Math.random() * 30) - 10;
@@ -60,7 +60,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-
 export default function SimpleModal(props: {
   items: any[];
   setClose:
@@ -75,7 +74,7 @@ export default function SimpleModal(props: {
   //  const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState('');
   const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const [emailSubjectRef, setEmailSubjectRef] = useState('');
   const [emailTextRef, setEmailTextRef] = useState('');
   const [modalStyle] = React.useState(getModalStyle);
@@ -156,16 +155,22 @@ export default function SimpleModal(props: {
   };
 
   const sendEmail = async () => {
-    setIsLoading(true)
-      let res = await dataManager.sendCartMail(
+    setIsLoading(true);
+    let res = await dataManager.sendCartMail(
       email.split(','),
       emailSubjectRef,
       emailTextRef
     );
-    props.setClose();
     console.log('result', res);
+    if (res.statusCode === 202) {
+      toast.success('email is sent successfully');
+    }
+    // else{
+    //    return toast.error('email is NOt sent');
+    // }
+    props.setClose();
     setEmail('');
-    setIsLoading(false)
+    setIsLoading(false);
   };
 
   const handleAttachment = () => {
@@ -308,7 +313,8 @@ export default function SimpleModal(props: {
       <Modal open={props.open} onClose={props.setClose}>
         {body}
       </Modal>
-      <LoadingDialog open={isLoading} message="Sending email..."/>
+      <LoadingDialog open={isLoading} message="Sending email..." />
     </div>
   );
+
 }

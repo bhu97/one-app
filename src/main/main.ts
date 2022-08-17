@@ -242,7 +242,7 @@ ipcMain.handle(ipcEvent.loginSP, async() => {
   return token;
   } catch (error) {
     console.log(error);
-        
+
   }
   return
 })
@@ -304,7 +304,7 @@ ipcMain.handle('FETCH_DRIVE_ITEM', async(event, params) => {
   const driveItemId = params.driveItemId
   const accessToken = params.accessToken
   if(driveItemId && accessToken) {
-    const response = await fetchDriveItem(driveItemId, accessToken)    
+    const response = await fetchDriveItem(driveItemId, accessToken)
     return response
   }
 })
@@ -366,7 +366,7 @@ ipcMain.handle('OPEN_HTML', async(_, path: string, local?: boolean, newWindow?: 
     console.log(local);
 
     let window = (newWindow && newWindow === true) ? await createModalWindow(mainWindow!) : await createInlineWindow(mainWindow!)
-    
+
     if(local === true || local === undefined) {
       await window.webContents.loadFile(path)
       console.log("loading local file:"+path);
@@ -374,9 +374,9 @@ ipcMain.handle('OPEN_HTML', async(_, path: string, local?: boolean, newWindow?: 
       console.log("loading url:"+path);
 
       await window.webContents.loadURL(path+"#toolbar=1&navpanes=0&scrollbar=0&view=FitV&zoom=100")
-      
+
     }
-    
+
     if(newWindow === false) {
       const innerHtml = `
       "<button onclick='function s(){ window.electron.ipcRenderer.closeFileViewer() }; s();'>Close this file</button>"
@@ -391,8 +391,8 @@ ipcMain.handle('OPEN_HTML', async(_, path: string, local?: boolean, newWindow?: 
       wrapper.style.left = "0px"
       wrapper.style.zIndex = 999;
       document.body.prepend(wrapper);
-    `, true)  
-    } 
+    `, true)
+    }
   }
   catch(error) {
     console.log(error);
@@ -415,7 +415,8 @@ ipcMain.handle('GET_LOGIN_STATE', async() => {
 
 ipcMain.handle('SEND_EMAIL', async(_, to, subject, text, attachments) => {
   const {sendMail} = useMail()
-  await sendMail(to, subject, text, attachments)
+  const res = sendMail(to, subject, text, attachments)
+  return res
 })
 
 ipcMain.handle('FILES_TO_ATTACHMENT', async(_, files:Array<{fileName:string, savePath:string, itemId: string}>) => {
