@@ -39,7 +39,7 @@ export const Contacts: FC = () => {
         slim
         onClick={() => {
           window.location.href =
-            'mailto:mobile.development@fresenius-netcare.com?subject=One App Support';
+            'mailto:globalservicedesk@fresenius.com?subject=One App Support';
         }}
       />
     </RightMenuBox>
