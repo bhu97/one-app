@@ -2,7 +2,7 @@
   "name": "one",
   "productName": "one",
   "description": "One Desktop Application based on React, React Router, Webpack, React Fast Refresh for rapid application development",
-  "version": "1.0.7",
+  "version": "1.0.12",
   "scripts": {
     "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
     "build:main": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.config.main.prod.babel.js",
@@ -114,7 +114,8 @@
     ],
     "moduleDirectories": [
       "node_modules",
-      "build/app/node_modules"
+      "build/app/node_modules",
+      "src"
     ],
     "setupFiles": [
       "./.erb/scripts/check-build-exists.js"

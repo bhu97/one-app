@@ -31,6 +31,7 @@ export const DropdownMenu: FC<IDropdownMenuProps> = ({ commands }) => {
         onClick={(e) => {
           setIsOpen(true);
         }}
+        data-testid="dropdown-button"
       >
         {TripleDot}
       </Button>

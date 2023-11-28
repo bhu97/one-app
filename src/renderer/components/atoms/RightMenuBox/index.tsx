@@ -58,6 +58,7 @@ export const RightMenuBox: FC<IRightMenuBoxProps> = ({
               root: styles.button,
             }}
             onClick={onPlusClick}
+            data-testid="plus-button"
           >
             {PlusIcon}
           </IconButton>
